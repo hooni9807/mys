@@ -161,7 +161,7 @@ jersey:{name:'휴고범',nick:'휴고범',kit:{name:'BEOM',color:'#c9ec4a'},trai
 leesin:{name:'리신범',nick:'리신범',kit:{name:'BEOM',color:'#ffd166'},trait:{strong:1,weak:-1},face:'leesin',split:true,shout:'용의 분노!',strokes:'lee',fist:true,stanceK:1.1,crouchK:.08,shirt:'#6f6449',camo:['#4b5536','#8c7b58','#2f2a21','#b3a37f'],sleeve:'#6f6449',pants:'#151515',shorts:true,hair:'#24180f',watch:true,bigWatch:true},
 // 퍼시벌, from the user's reference art: thick black curly hair, open-mouthed grin, grey crew-neck tee with PERCIVAL on
 // front and back, knee-length black shorts, white wristband on the racket wrist, white socks and sneakers. Left-handed.
-// Scores with a deep squat, racket and other fist thrown up high, and his ceremony line.
+// Celebrates PERFECT hits with a deep squat, raised racket and fist, and his ceremony line.
 percival:{name:'퍼시벌',nick:'퍼시벌',kit:{name:'PERCIVAL',color:'#d9d9d9'},face:'percival',vsHand:.1,faceFit:{h:49,b:27,cx:.42},skin:'#c99474',skinShade:'#a26d52',lefty:true,serveEdge:.25,ceremony:'아엠 퍼시벌~',squatCheer:true,split:true,stanceK:1.1,crouchK:.1,shirt:'#a4a6aa',sleeve:'#a4a6aa',tee:true,frontName:true,collar:'#8a8c91',pants:'#17171a',shorts:true,shortsLen:.8,wristband:true,socks:true,hair:'#141414'},
 plain:{name:'파란 선수',shirt:'#2f6fd6',sleeve:'#2f6fd6',pants:'#33404f',hair:'#3a2b22'},
 ai:{name:'빨간 선수',shirt:'#d6453d',sleeve:'#d6453d',pants:'#33404f',hair:'#3a2b22'}};
@@ -230,7 +230,7 @@ $('exit-fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await d
 document.addEventListener('fullscreenchange',()=>{const full=document.fullscreenElement===arena;$('fullscreen').hidden=full;$('exit-fullscreen').hidden=!full;requestAnimationFrame(()=>{if(!full){lockedW=0;courtWrap.style.height='';}resize();});});
 function beep(freq=420){if(!sound)return;try{audio||=new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume().catch(()=>{});const osc=audio.createOscillator(),gain=audio.createGain();osc.type='sine';osc.frequency.value=freq;gain.gain.setValueAtTime(.055,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.09);osc.connect(gain);gain.connect(audio.destination);osc.start();osc.stop(audio.currentTime+.1);}catch{sound=false;}}
 function toast(message,duration=1.5){$('toast').textContent=message;toastUntil=time+duration;}
-function reset(){you=cpu=rally=0;matchBest=0;$('rank-submit').hidden=true;ball=null;wait=.65;trail=[];fx=[];lastHit=lastAIHit=-10;charge=0;lastTap=null;smashUntil=-1;swingMemory=null;release();updateSpecial();$('shot').firstChild.textContent='READY';$('shot-sub').textContent='첫 스윙을 기다리는 중';$('timing').textContent='—';$('spin').textContent='—';updateScore();}
+function reset(){for(const st of [me,foe]){delete st.ceremT;delete st.taunt;delete st.cheerT;}you=cpu=rally=0;matchBest=0;$('rank-submit').hidden=true;ball=null;wait=.65;trail=[];fx=[];lastHit=lastAIHit=-10;charge=0;lastTap=null;smashUntil=-1;swingMemory=null;release();updateSpecial();$('shot').firstChild.textContent='READY';$('shot-sub').textContent='첫 스윙을 기다리는 중';$('timing').textContent='—';$('spin').textContent='—';updateScore();}
 function updateScore(){matchBest=Math.max(matchBest,rally);$('you').textContent=String(you).padStart(2,'0');$('cpu').textContent=String(cpu).padStart(2,'0');$('rally').textContent=rally;$('best').textContent=best;store.set('best',best);}
 function begin(){if(!net&&!loginGate())return;if(playing&&!net&&matchBest>0)offerRank(true);reset();me.sadT=foe.sadT=null;if(!net){aiChar=pickAi();$('cpu-name').textContent='AI '+LOOKS[aiChar].nick;}clearSave();$('resume').hidden=true;$('home').hidden=false;playing=true;paused=false;down=false;updateSpecial();$('overlay').classList.add('hidden');$('pause').disabled=false;$('pause').textContent='일시정지 Ⅱ';toast('링이 라켓 크기 원에 딱 맞는 순간 스윙하세요!',3);lockPage(true);}
 function myServe(){const n=you+cpu;return (n>=20?n%2:Math.floor(n/2)%2)===1;}
@@ -252,7 +252,7 @@ ball={x:x0,y:2.89,z:.3,vx:-plan.vx,vy:-plan.vy,vz:plan.vz,spin:sp,side:0,bounces
 // counter-drive: a drive answered with a drive moves both players a step further back; anything else brings them in
 function deepen(counter){const was=deep;deep=counter?Math.min(1,deep+P.DEEP_STEP):Math.max(0,deep-2*P.DEEP_STEP);if(ball)ball.deep=deep;if(!was&&deep)toast('맞드라이브! 🔥 둘 다 한 걸음 물러나요',1.4);else if(deep>was&&deep>=1&&was<1)toast('🔥 끝까지 물러난 맞드라이브 랠리!',1.2);}
 const TAUNTS=['흠.. 그정돈가?','냐옹냐옹~','풉키 풉키!'];
-function point(player,reason){if(!ball)return;deep=0;(player?me:foe).cheerT=time;ball=null;wait=1.65;swingMemory=null;smashUntil=-1;lastTap=null;rally=0;player?you++:cpu++;updateScore();{const w=player?me:foe,wl=player?LOOKS[charType]:net?LOOKS[net.opp.ch]:LOOKS[aiChar];if(wl&&wl.ceremony&&Math.random()<.5){w.taunt=wl.ceremony;w.tauntT=w.ceremT=time;}else if(!player&&Math.random()<.5){foe.taunt=TAUNTS[Math.floor(Math.random()*TAUNTS.length)];foe.tauntT=time;}}lastReason=reason;if(!net)store.set('save',JSON.stringify({you,cpu,mode,charge}));beep(player?740:180);const lead=you-cpu,call=mode==='match'&&Math.max(you,cpu)>=10?(lead===0?' · 듀스!':lead>0?' · 내 매치 포인트!':' · 상대 매치 포인트'):'';toast((player?'내 득점! · ':'상대 득점 · ')+reason+call+(myServe()?' · 다음은 내 서브':''),1.6);if(mode==='match'&&Math.max(you,cpu)>=11&&Math.abs(you-cpu)>=2){playing=false;lockPage(false);$('home').hidden=true;updateSpecial();(you>cpu?foe:me).sadT=performance.now()/1000;setTimeout(()=>{if(!playing)$('overlay').classList.remove('hidden');},2400);document.querySelector('.start-card h2').innerHTML=you>cpu?'멋진 승리!<br>다시 도전해볼까요?':'좋은 경기였어요.<br>다시 도전해볼까요?';document.querySelector('.start-card p').textContent=`최종 스코어 ${you} : ${cpu} · 이번 경기 최고 랠리 ${matchBest}`;$('start').firstChild.textContent='다시 플레이 ';$('pause').disabled=true;clearSave();if(!net)offerRank();else applyRated(you>cpu);}}
+function point(player,reason){if(!ball)return;deep=0;(player?me:foe).cheerT=time;ball=null;wait=1.65;swingMemory=null;smashUntil=-1;lastTap=null;rally=0;player?you++:cpu++;updateScore();if(!player&&Math.random()<.5){foe.taunt=TAUNTS[Math.floor(Math.random()*TAUNTS.length)];foe.tauntT=time;}lastReason=reason;if(!net)store.set('save',JSON.stringify({you,cpu,mode,charge}));beep(player?740:180);const lead=you-cpu,call=mode==='match'&&Math.max(you,cpu)>=10?(lead===0?' · 듀스!':lead>0?' · 내 매치 포인트!':' · 상대 매치 포인트'):'';toast((player?'내 득점! · ':'상대 득점 · ')+reason+call+(myServe()?' · 다음은 내 서브':''),1.6);if(mode==='match'&&Math.max(you,cpu)>=11&&Math.abs(you-cpu)>=2){playing=false;lockPage(false);$('home').hidden=true;updateSpecial();(you>cpu?foe:me).sadT=performance.now()/1000;setTimeout(()=>{if(!playing)$('overlay').classList.remove('hidden');},2400);document.querySelector('.start-card h2').innerHTML=you>cpu?'멋진 승리!<br>다시 도전해볼까요?':'좋은 경기였어요.<br>다시 도전해볼까요?';document.querySelector('.start-card p').textContent=`최종 스코어 ${you} : ${cpu} · 이번 경기 최고 랠리 ${matchBest}`;$('start').firstChild.textContent='다시 플레이 ';$('pause').disabled=true;clearSave();if(!net)offerRank();else applyRated(you>cpu);}}
 function updateSpecial(){
 const ready=charge===100;
 $('special-value').textContent=charge+'%';$('special-fill').style.width=charge+'%';
@@ -440,7 +440,8 @@ const arm=look.lefty?(hipY>H*.5?-1:1):side,T=st.tall||1,R=RACKETS[type],skin=loo
 const pose=strokePose(stroke,since,side,s,{x:x+arm*15*s,y:hipY-50*s*T+st.crouch*18*s},target,angle,st.crouch,look,st.amp??1,st.dirX||0,prep,T);
 const cheer=st.cheerT!=null&&time-st.cheerT<1.2?Math.abs(Math.sin((time-st.cheerT)*8)):-1;   // won the point: jump with both arms up
 if(cheer>=0){pose.target={x:x+side*16*s,y:hipY-128*s*T};pose.angle=side*.15;pose.crouch=.15;pose.twist=0;}
-const squat=cheer>=0&&look.squatCheer&&st.ceremT===st.cheerT;   // the squat ceremony (half the points), else the normal jumpif(squat){pose.target={x:x+arm*32*s,y:hipY+(st.legLen||30*s*T)*.5-122*s*T};pose.angle=arm*.15;pose.crouch=1;}
+const squat=look.squatCheer&&st.ceremT!=null&&time-st.ceremT<1.2;   // PERFECT ceremony, independent of scoring
+if(squat){pose.target={x:x+arm*32*s,y:hipY+(st.legLen||30*s*T)*.5-122*s*T};pose.angle=arm*.15;pose.crouch=1;pose.twist=0;}
 // lost the match: sink to the floor, racket down, a hand over the face, sobbing (wall clock, so it plays after the game stops)
 const sadT=st.sadT!=null?performance.now()/1000-st.sadT:-1,sad=sadT>=0;
 if(sad){pose.target={x:x+side*34*s,y:hipY+(st.legLen||30*s*T)*.8};pose.angle=side*1.35;pose.crouch=1;pose.twist=0;}
@@ -463,7 +464,7 @@ const f=st.feet?st.feet[k]:{x:x+k*(17+cr*12)*s,t:1},lift=f.t<1?Math.sin(Math.PI*
 const foot={x:f.x+k*split*4*s,y:ground-lift-split*5*s},hip={x:cx+k*8*s,y:hy},knee={x:(hip.x+foot.x)/2+k*(2+cr*8)*s,y:(hip.y+foot.y)/2+cr*2*s-lift*.3};
 if(look.shorts){line(hip,knee,skin,7*s);line(knee,foot,skin,6.5*s);const sl=look.shortsLen||.6;line(hip,{x:lerp(hip.x,knee.x,sl),y:lerp(hip.y,knee.y,sl)},pants,(11+(sl-.6)*8)*s);}
 else{line(hip,knee,pants,8*s);line(knee,foot,pants,7*s);}if(look.socks)line({x:lerp(knee.x,foot.x,.78),y:lerp(knee.y,foot.y,.78)},foot,'#f7f7f4',7*s);ctx.beginPath();ctx.ellipse(foot.x+k*3*s,foot.y+1*s,9*s,4*s,0,0,Math.PI*2);ctx.fillStyle='#f4f1e6';ctx.fill();if(look.socks){ctx.strokeStyle='#c9c9c4';ctx.lineWidth=.9*s;ctx.stroke();}}
-const shout=!sad&&look.shout&&st.shoutT!=null&&time-st.shoutT<.6;const free=sad?{x:ux-arm*4*s,y:hy-72*s*T}:cheer>=0?(look.squatCheer?{x:ux-arm*34*s,y:hy-112*s*T}:{x:ux-arm*20*s,y:hy-98*s*T}):shout?{x:ux-arm*20*s,y:hy-82*s*T}:st.holding?{x:ux-arm*22*s,y:hy-34*s*T}:look.fist&&!st.tossing?{x:ux-arm*24*s,y:hy-(46+pose.twist*6)*s*T}:st.tossing?{x:ux-arm*20*s,y:hy-78*s*T}:{x:ux-arm*(26-pose.twist*6)*s,y:hy-(24+pose.twist*10)*s*T};st.free=free;const fs={x:ux-arm*15*s,y:hy-50*s*T};line(fs,free,skin,7*s);line(fs,{x:lerp(fs.x,free.x,.3),y:lerp(fs.y,free.y,.3)},look.sleeve,8.5*s);
+const shout=!sad&&look.shout&&st.shoutT!=null&&time-st.shoutT<.6;const free=sad?{x:ux-arm*4*s,y:hy-72*s*T}:cheer>=0||squat?(squat?{x:ux-arm*34*s,y:hy-112*s*T}:{x:ux-arm*20*s,y:hy-98*s*T}):shout?{x:ux-arm*20*s,y:hy-82*s*T}:st.holding?{x:ux-arm*22*s,y:hy-34*s*T}:look.fist&&!st.tossing?{x:ux-arm*24*s,y:hy-(46+pose.twist*6)*s*T}:st.tossing?{x:ux-arm*20*s,y:hy-78*s*T}:{x:ux-arm*(26-pose.twist*6)*s,y:hy-(24+pose.twist*10)*s*T};st.free=free;const fs={x:ux-arm*15*s,y:hy-50*s*T};line(fs,free,skin,7*s);line(fs,{x:lerp(fs.x,free.x,.3),y:lerp(fs.y,free.y,.3)},look.sleeve,8.5*s);
 if(look.watch){const w={x:lerp(fs.x,free.x,.86),y:lerp(fs.y,free.y,.86)};ctx.beginPath();ctx.arc(w.x,w.y,(look.bigWatch?4.4:3.4)*s,0,Math.PI*2);ctx.fillStyle='#111';ctx.fill();}
 if(look.fist||squat){ctx.beginPath();ctx.arc(free.x,free.y,(squat?5.4:4.6)*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();}
 const isBack=hipY>H*.5,armBehind=isBack&&side*(look.lefty?-1:1)<0&&!sad;   // my player is seen from behind
@@ -604,6 +605,7 @@ if(me.holding){ctx.beginPath();ctx.arc(me.free.x,me.free.y-4*playerScale,6.5*pla
 // my forehand side on screen: +1 (right) for a right-hander, -1 for a left-hander
 const fhDir=()=>LOOKS[charType].lefty?-1:1;
 function updateSide(){if(ball&&!ball.held&&ball.owner==='ai'&&ball.bounces===1&&ball.y<0&&Math.abs(ball.x)>.06){playerSide=ball.x>0?1:-1;return;}const ref=ball?project(ball.x,ball.y,ball.z).x:W/2;if(paddle.x>ref+10)playerSide=1;else if(paddle.x<ref-10)playerSide=-1;}
+function perfectCeremony(st,look){if(!look.ceremony)return;st.taunt=look.ceremony;st.tauntT=st.ceremT=time;}
 function serveHit(){
 // forgiving: any swing while the tossed ball is in the air serves it, wherever the finger is
 const motion=swingMemory&&time<=swingMemory.until?swingMemory:null,state=serveTiming(ball);if(!motion||state==='hold')return;
@@ -614,6 +616,7 @@ const plan=P.planServe(spin,P.clamp(2.3+speed/1500*.9,2.3,3.2),ball.x,ball.z,P.c
 Object.assign(ball,{held:false,tossed:false,serving:true,vx:plan.vx,vy:plan.vy,vz:plan.vz,spin,side,type:'serve',aiAttempt:false});
 lastHit=time;lastShot=spin<0?'cut':'loop';mySwing.type=lastShot;mySwing.t=time;swingMemory=null;
 const label='서브 · '+(spin>0?'상회전':'하회전(커트)'),quality=state==='perfect'?'PERFECT':'GOOD';
+if(quality==='PERFECT')perfectCeremony(me,LOOKS[charType]);
 $('shot').firstChild.textContent='SERVE';$('shot-sub').textContent=label;$('timing').textContent=quality;
 $('spin').textContent=spin>0?'TOP SPIN':'BACK SPIN';
 fx.push({x:p.x,y:p.y,t:time});if(touchInput)navigator.vibrate?.(15);beep(520);toast(label+' · '+quality,1.4);
@@ -658,7 +661,7 @@ else if(playerSide*fhDir()===trait.strong&&roll<TRAIT_POWER){shot=P.power(shot,b
 {const e=handEdge(LOOKS[charType],net?LOOKS[net.opp.ch]:LOOKS[aiChar]);if(e&&verdict==='ok'&&!special&&!shot.chance&&!flair)shot=e>0?{...P.power(shot,ball.y,ball.z,1+e),power:shot.power}:P.retime(shot,ball.y,ball.z,1+e);}
 const inType=ball.type;Object.assign(ball,shot,{owner:'you',bounces:0,aiAttempt:false,chance:!!shot.chance,kill,power:!!shot.power,edge:shot.edge||0});if(!net)deepen(P.family(inType)==='drive'&&P.family(shot.type)==='drive');lastHit=time;lastShot=shot.type;mySwing.type=shot.type;mySwing.t=time;smashUntil=-1;blockUntil=-1;lastTap=null;
 const sp=motion?Math.hypot(motion.vx,motion.vy):0;me.amp=motion?P.clamp(.55+sp/2000,.55,1.25):tap?.45:1;me.dirX=motion?P.clamp(motion.vx/(sp||1),-1,1):0;swingMemory=null;
-if(quality==='PERFECT'&&verdict==='ok')me.shoutT=time;
+if(quality==='PERFECT'&&verdict==='ok'){me.shoutT=time;if(!['gear','err','timing','spin'].includes(flair))perfectCeremony(me,LOOKS[charType]);}
 const before=charge;if(special)charge=0;else if(verdict==='ok')charge=Math.min(100,charge+(quality==='PERFECT'?30:20));updateSpecial();
 rally++;best=Math.max(best,rally);updateScore();$('shot').firstChild.textContent=names[shot.type][0];$('shot-sub').textContent=names[shot.type][1]+(playerSide*fhDir()>0?' · 포핸드':' · 백핸드');$('timing').textContent=quality;
 $('spin').textContent=shot.spin<0?'BACK SPIN':shot.side?'SIDE SPIN':shot.spin>0?'TOP SPIN':'FLAT';
@@ -823,10 +826,10 @@ $('home').onclick=goHome;$('restart').onclick=()=>{if(net&&net.role==='guest')re
 // ponytail: no latency compensation beyond a wider miss line; add snapshot interpolation if LTE play feels late.
 const mir=b=>b&&{...b,x:-b.x,y:2.74-b.y,vx:-b.vx,vy:-b.vy,side:-(b.side||0),owner:b.owner==='you'?'ai':'you'};
 const wire=b=>b&&{x:b.x,y:b.y,z:b.z,vx:b.vx,vy:b.vy,vz:b.vz,spin:b.spin,side:b.side,bounces:b.bounces,owner:b.owner,type:b.type,held:b.held,tossed:b.tossed,serving:b.serving};
-function me4net(){const base=project(0,-.15);return {nick:store.get('nick')||'',x:(paddle.x-base.x)/(W*.43*base.scale),side:playerSide,rk:racketType,ch:charType,shot:lastShot,h:lastHit};}
+function me4net(){const base=project(0,-.15);return {nick:store.get('nick')||'',x:(paddle.x-base.x)/(W*.43*base.scale),side:playerSide,rk:racketType,ch:charType,shot:lastShot,h:lastHit,c:me.ceremT};}
 function snapshot(){return {t:'S',b:wire(ball),you,cpu,rally,playing,reason:lastReason,seq:net.seq,...me4net()};}
 function oppServe(){ball={x:0,y:2.89,z:-.3,vx:0,vy:0,vz:0,spin:0,side:0,bounces:0,owner:'ai',held:true,tossed:false};trail=[];toast('상대 서브',1.5);}
-function takeOpp(m){const o=net.opp;o.ch=LOOKS[m.ch]?m.ch:'ai';o.nick=cleanName(m.nick||'');$('cpu-name').textContent=o.nick||LOOKS[o.ch].nick||'상대';o.x=m.x;o.side=m.side;o.rk=RACKETS[m.rk]?m.rk:'shake';if(m.h!==o.h){if(o.h!==undefined){o.hitT=time;o.shot=m.shot;}o.h=m.h;}}
+function takeOpp(m){const o=net.opp;o.ch=LOOKS[m.ch]?m.ch:'ai';o.nick=cleanName(m.nick||'');$('cpu-name').textContent=o.nick||LOOKS[o.ch].nick||'상대';o.x=m.x;o.side=m.side;o.rk=RACKETS[m.rk]?m.rk:'shake';if(m.h!==o.h){if(o.h!==undefined){o.hitT=time;o.shot=m.shot;}o.h=m.h;}if(Number.isFinite(m.c)&&m.c!==o.c){o.c=m.c;perfectCeremony(foe,LOOKS[o.ch]);}}
 function onNet(m){if(!net||!m)return;
 if(m.t==='P')takeOpp(m);
 if(m.t==='H'&&net.role==='host'&&ball&&playing){const serve=ball.held&&ball.owner==='ai';if(!serve&&!(ball.owner==='you'&&ball.bounces===1))return;
