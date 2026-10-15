@@ -767,7 +767,7 @@ $('coach').textContent=verdict!=='ok'?`${FAM[inc]} 공은 ${ANSWER[inc]}(으)로
 }
 function statusToast(){if(time>toastUntil)$('toast').textContent=ball&&ball.held?(ball.owner!=='you'?'상대 서브를 기다리세요':ball.tossed?'떨어질 때 스윙! ↓하회전(커트) ↑상회전 · 좌우로 그으면 코스':'내 서브 · 화면을 눌러 공을 토스하세요'):ball&&ball.owner==='ai'?(P.timing(ball)==='perfect'?'HIT! 지금 스윙':ball.bounces?(ball.y>.08?'WAIT · 내 쪽 끝선을 넘어올 때까지 기다리세요':'READY · 테이블 밖에서 스윙!'):'WAIT · 바운드를 기다리세요'):'상대 리턴을 기다리세요';}
 // ball pace: a bit slower to start, +2.5% per rally hit up to +40%; cuts fly 20% slower than topspin balls
-const PACE={base:.88,perHit:.025,max:1.4,cut:.8};
+const PACE={base:.96,perHit:.025,max:1.4,cut:.8};
 function pace(){return PACE.base*Math.min(PACE.max,1+PACE.perHit*rally)*(P.incoming(ball)==='cut'?PACE.cut:1);}
 function update(dt){if(ball&&!ball.held)dt*=P.EQUIP.speed*pace();time+=dt;statusToast();if(!ball){wait-=dt;if(wait<=0)startServe();return;}if(ball.held&&ball.owner!=='you')return;
 if(ball.held){if(!ball.tossed)ballToHand();else{ball.vz-=6*dt;ball.z+=ball.vz*dt;if(ball.vz<0&&ball.z<ball.tossZ){ball.tossed=false;toast('놓쳤어요 · 다시 토스하세요',1.5);}}hit();return;}mateCheck();hit();if(!ball)return;const prevY=ball.y,prevZ=ball.z;P.step(ball,dt);if((prevY-1.37)*(ball.y-1.37)<0){const z=prevZ+(ball.z-prevZ)*(1.37-prevY)/(ball.y-prevY);if(z<.1525){point(ball.owner==='ai','네트에 걸렸어요');return;}}
