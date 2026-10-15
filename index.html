@@ -258,8 +258,8 @@ document.addEventListener('fullscreenchange',()=>{const full=document.fullscreen
 function beep(freq=420){if(!sound)return;try{audio||=new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume().catch(()=>{});const osc=audio.createOscillator(),gain=audio.createGain();osc.type='sine';osc.frequency.value=freq;gain.gain.setValueAtTime(.055,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.09);osc.connect(gain);gain.connect(audio.destination);osc.start();osc.stop(audio.currentTime+.1);}catch{sound=false;}}
 function toast(message,duration=1.5){$('toast').textContent=message;toastUntil=time+duration;}
 function reset(){for(const st of [me,foe]){delete st.ceremT;delete st.taunt;delete st.cheerT;}you=cpu=rally=0;matchBest=0;$('rank-submit').hidden=true;ball=null;wait=.65;trail=[];fx=[];lastHit=lastAIHit=-10;charge=0;lastTap=null;smashUntil=-1;swingMemory=null;release();updateSpecial();$('shot').firstChild.textContent='READY';$('shot-sub').textContent='첫 스윙을 기다리는 중';$('timing').textContent='—';$('spin').textContent='—';updateScore();}
-function updateScore(){matchBest=Math.max(matchBest,rally);$('you').textContent=String(you).padStart(2,'0');$('cpu').textContent=String(cpu).padStart(2,'0');$('rally').textContent=rally;$('best').textContent=best;store.set('best',best);}
-function begin(){if(!net&&!loginGate())return;if(playing&&!net&&matchBest>0)offerRank(true);reset();rollGear();me.mood=foe.mood=0;me.sadT=foe.sadT=null;if(!net){aiChar=mode==='boss'?'boss':pickAi();$('cpu-name').textContent='AI '+LOOKS[aiChar].nick;if(mode==='doubles'){const other=c=>AI_CHARS.filter(k=>k!==c);mateChar=other(charType)[Math.random()*2|0]||'plain';const f2=other(aiChar);foe2Char=f2.find(k=>k!==mateChar&&k!==charType)||f2[Math.random()*2|0];$('cpu-name').textContent='AI '+LOOKS[aiChar].nick+' · '+LOOKS[foe2Char].nick;}}mate.x=foe2.x=null;clearSave();$('resume').hidden=true;$('home').hidden=false;playing=true;paused=false;down=false;updateSpecial();$('overlay').classList.add('hidden');$('pause').disabled=false;$('pause').textContent='일시정지 Ⅱ';if(!net)setTimeout(()=>{if(playing)napTick();},1800);toast(mode==='boss'&&!net?`😈 탁구 마왕 등장! 내가 ${BOSS.rage}점을 따면 분노해요`:'링이 라켓 크기 원에 딱 맞는 순간 스윙하세요!',3);lockPage(true);}
+function updateScore(){matchBest=Math.max(matchBest,rally);keepPending();$('you').textContent=String(you).padStart(2,'0');$('cpu').textContent=String(cpu).padStart(2,'0');$('rally').textContent=rally;$('best').textContent=best;store.set('best',best);}
+function begin(){if(!net&&!loginGate())return;if(playing&&!net&&matchBest>0)offerRank(true);reset();matchId=Date.now().toString(36)+Math.random().toString(36).slice(2,8);rollGear();me.mood=foe.mood=0;me.sadT=foe.sadT=null;if(!net){aiChar=mode==='boss'?'boss':pickAi();$('cpu-name').textContent='AI '+LOOKS[aiChar].nick;if(mode==='doubles'){const other=c=>AI_CHARS.filter(k=>k!==c);mateChar=other(charType)[Math.random()*2|0]||'plain';const f2=other(aiChar);foe2Char=f2.find(k=>k!==mateChar&&k!==charType)||f2[Math.random()*2|0];$('cpu-name').textContent='AI '+LOOKS[aiChar].nick+' · '+LOOKS[foe2Char].nick;}}mate.x=foe2.x=null;clearSave();$('resume').hidden=true;$('home').hidden=false;playing=true;paused=false;down=false;updateSpecial();$('overlay').classList.add('hidden');$('pause').disabled=false;$('pause').textContent='일시정지 Ⅱ';if(!net)setTimeout(()=>{if(playing)napTick();},1800);toast(mode==='boss'&&!net?`😈 탁구 마왕 등장! 내가 ${BOSS.rage}점을 따면 분노해요`:'링이 라켓 크기 원에 딱 맞는 순간 스윙하세요!',3);lockPage(true);}
 // Doubles (복식) vs AI: me + AI partner against two AIs. Each side's players must hit in turn; every serve goes
 // diagonally from the server's right half to the receiver's right half; within each team the server (and my team's
 // receiver) changes every time the serve comes round.
@@ -1015,7 +1015,7 @@ const FIREBASE_CONFIG={apiKey:"AIzaSyAWdG1ybx321oEc6PeYy7elnGsBOafpEbQ",authDoma
   projectId:"spin-lab-ea7df",storageBucket:"spin-lab-ea7df.firebasestorage.app",messagingSenderId:"632748801549",
   appId:"1:632748801549:web:3556b7ea3acdaba1c31f44"};   // public web config; access is guarded by firestore.rules
 const LEVEL_NO={b7:1,b6:2,b5:3,b4:4,b3:5,b2:6,b1:7,pro:8,boss:9},LEVEL_NAME={b7:'7부',b6:'6부',b5:'5부',b4:'4부',b3:'3부',b2:'2부',b1:'1부',pro:'선수부',boss:'마왕전'};
-let rankDb=null,rankFs=null,rankApp=null,rankUid=null,board='pvp',pendingRank=null;
+let matchId=null,rankDb=null,rankFs=null,rankApp=null,rankUid=null,board='pvp',pendingRank=null;
 // A copy served from this computer (localhost) is a test build: it never touches the shared ranking database.
 // names left in the shared ranking by early automated test runs - hidden from the boards
 const TEST_NAMES=new Set(['guest']);
@@ -1025,17 +1025,28 @@ const app=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.
 rankApp=app.initializeApp(FIREBASE_CONFIG);rankDb=rankFs.getFirestore(rankApp);return rankDb;}
 function localBoard(k){try{return JSON.parse(store.get('rank-'+k))||[];}catch{return [];}}
 function cleanName(v){return String(v).replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,12);}
-function offerRank(quit){const lv=LEVEL_NO[aiDif()]||4;const won=!quit&&you>cpu,boss=mode==='boss'&&!net;pendingRank={rally:matchBest,wins:won&&!boss?lv*10+(you-cpu):0,detail:`${LEVEL_NAME[aiDif()]} ${you}:${cpu}${quit?' 중단':''}`};
+// One record per match (id = matchId, so a resend can never add it twice). Everything is captured now, so it can also be
+// sent on the next visit when the page was closed mid-game.
+function rankRecord(quit){const lv=LEVEL_NO[aiDif()]||4,won=!quit&&you>cpu,boss=mode==='boss'&&!net,
+rec={id:matchId,rally:matchBest,wins:won&&!boss?lv*10+(you-cpu):0,detail:`${LEVEL_NAME[aiDif()]} ${you}:${cpu}${quit?' 중단':''}`,level:LEVEL_NAME[aiDif()]||'4부',character:LOOKS[charType].nick||'선수',racket:RACKETS[racketType].name.slice(0,10)};
 // 보스 클리어 board: only a win over the boss; bigger point gap first, then the longer rally of that match
-if(boss&&won){pendingRank.boss=(you-cpu)*100+Math.min(99,matchBest);pendingRank.bossDetail=`${you}:${cpu} · 랠리 ${matchBest}`;}
+if(boss&&won){rec.boss=(you-cpu)*100+Math.min(99,matchBest);rec.bossDetail=`${you}:${cpu} · 랠리 ${matchBest}`;}return rec;}
+// Leaving mid-game (tab closed, app killed): the running match is kept as a 중단 record and sent on the next visit.
+function keepPending(){if(playing&&!net&&matchId&&matchBest>0)store.set('rank-pending',JSON.stringify(rankRecord(true)));}
+function rankEntries(p){const base={name:cleanName(store.get('nick')||'')||'선수',level:p.level,character:p.character,racket:p.racket,detail:p.detail};
+return [['rally',p.rally],['wins',p.wins],['boss',p.boss]].filter(([,v])=>v>0).map(([k,v])=>[k,{...base,...(k==='boss'?{detail:p.bossDetail}:{}),value:v}]);}
+async function remoteRank(p){const db=await remote();if(!db)return false;for(const [k,d] of rankEntries(p))await rankFs.setDoc(rankFs.doc(db,k,p.id),{...d,at:rankFs.serverTimestamp()});return true;}
+function flushPending(){const raw=store.get('rank-pending');if(!raw||playing)return;store.set('rank-pending','');let p;try{p=JSON.parse(raw);}catch{return;}if(!p||!p.id)return;
+for(const [k,d] of rankEntries(p)){const list=localBoard(k);list.push({...d,at:Date.now()});list.sort((a,b)=>b.value-a.value);store.set('rank-'+k,JSON.stringify(list.slice(0,10)));}
+remoteRank(p).catch(()=>{}).then(()=>showBoard(board));toast(`지난번 중단한 경기 기록을 랭킹에 남겼어요 (최고 랠리 ${p.rally})`,2.5);}
+addEventListener('pagehide',()=>{if(!playing||net||matchBest<=0)return;keepPending();remoteRank(rankRecord(true)).catch(()=>{});});   // best effort now; the next visit sends it again (same id, no double)
+function offerRank(quit){store.set('rank-pending','');pendingRank=rankRecord(quit);
 if(!pendingRank.rally&&!pendingRank.wins&&!pendingRank.boss)return;$('rank-name').value=store.get('nick')||'';$('rank-msg').textContent=`최고 랠리 ${pendingRank.rally}`+(pendingRank.boss?` · 😈 마왕 클리어 ${pendingRank.bossDetail}`:pendingRank.wins?` · 승리 점수 ${pendingRank.wins}`:' · 패배한 경기는 랠리만 등록돼요');$('rank-submit').hidden=false;$('rank-send').disabled=false;
 if(!cleanName($('rank-name').value))$('rank-name').value=cleanName(googleUser&&googleUser.displayName||'')||'선수';sendRank();}
 async function sendRank(){const name=cleanName($('rank-name').value);if(!name){$('rank-msg').textContent='닉네임을 입력하세요';return;}if(!pendingRank)return;
 store.set('nick',name);$('rank-send').disabled=true;$('rank-msg').textContent='등록 중…';
-const base={name,level:LEVEL_NAME[aiDif()]||'4부',character:LOOKS[charType].nick||'선수',racket:RACKETS[racketType].name.slice(0,10),detail:pendingRank.detail};
-const entries=[['rally',pendingRank.rally],['wins',pendingRank.wins],['boss',pendingRank.boss]].filter(([,v])=>v>0),rec=k=>k==='boss'?{...base,detail:pendingRank.bossDetail}:base;
-for(const [k,v] of entries){const list=localBoard(k);list.push({...rec(k),value:v,at:Date.now()});list.sort((a,b)=>b.value-a.value);store.set('rank-'+k,JSON.stringify(list.slice(0,10)));}
-try{const db=await remote();if(db)for(const [k,v] of entries)await rankFs.addDoc(rankFs.collection(db,k),{...rec(k),value:v,at:rankFs.serverTimestamp()});
+for(const [k,d] of rankEntries(pendingRank)){const list=localBoard(k);list.push({...d,at:Date.now()});list.sort((a,b)=>b.value-a.value);store.set('rank-'+k,JSON.stringify(list.slice(0,10)));}
+try{const db=await remoteRank(pendingRank);
 $('rank-msg').textContent=db?'전체 랭킹에 등록했어요!':'내 기기 랭킹에 저장했어요';}catch(e){$('rank-msg').textContent='전체 랭킹 등록 실패 · 내 기기에는 저장했어요';}
 pendingRank=null;showBoard(board);}
 async function showBoard(k){board=k;document.querySelectorAll('.rank-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.board===k));
@@ -1092,7 +1103,7 @@ async function naverReturn(){const q=new URLSearchParams(location.search),code=q
 history.replaceState(null,'',location.pathname);if(st!==sessionStorage.getItem('naverState')){loginStatus('네이버 로그인 확인 실패 · 다시 시도해 주세요');return false;}sessionStorage.removeItem('naverState');
 loginStatus('네이버 로그인 중…');try{const r=await fetch(NAVER.worker,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,state:st})}),d=await r.json();if(!d.token)throw new Error(d.error||'token');
 const au=await authReady();await authLib.signInWithCustomToken(au,d.token);if(d.nickname&&!store.get('nick'))store.set('nick',cleanName(d.nickname));await showLogin();if(!playing&&!net)openSetup();return true;}catch(e){loginStatus('네이버 로그인 실패 ('+(e.message||e)+')');return false;}}
-async function showLogin(){let u=null;try{const au=await authReady();u=au&&au.currentUser;}catch{}const g=u&&!u.isAnonymous;googleUser=g?u:null;if(g&&!store.get('nick'))store.set('nick',cleanName(u.displayName||'')||'선수');$('start').classList.toggle('locked',!g);if(g)await loadCloudSetup(u.uid);
+async function showLogin(){let u=null;try{const au=await authReady();u=au&&au.currentUser;}catch{}const g=u&&!u.isAnonymous;googleUser=g?u:null;if(g&&!store.get('nick'))store.set('nick',cleanName(u.displayName||'')||'선수');$('start').classList.toggle('locked',!g);if(g){await loadCloudSetup(u.uid);flushPending();}
 $('google-login').hidden=!!g;$('naver-login').hidden=!!g||!NAVER.worker;$('google-logout').hidden=!g;loginStatus(g?`${cleanName(u.displayName||store.get('nick')||'내 계정')} 님으로 로그인됨 · 랭킹전 기록이 어느 기기에서든 이어져요`:'🔒 구글 로그인 후 플레이할 수 있어요 · 경기 기록이 자동으로 랭킹에 남아요');}
 async function applyRated(won){const name=cleanName(store.get('nick')||'')||'익명';let before=pvpLocal(),next=P.nextRating(before,won),where='내 기기';
 try{const db=await pvpRemote();if(db){const ref=rankFs.doc(db,'players',rankUid),snap=await rankFs.getDoc(ref);if(snap.exists())before={...before,...snap.data()};next=P.nextRating(before,won);
