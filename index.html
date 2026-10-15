@@ -1036,8 +1036,10 @@ function keepPending(){if(playing&&!net&&matchId&&matchBest>0)store.set('rank-pe
 function rankEntries(p){const base={name:cleanName(store.get('nick')||'')||'선수',level:p.level,character:p.character,racket:p.racket,detail:p.detail};
 return [['rally',p.rally],['wins',p.wins],['boss',p.boss]].filter(([,v])=>v>0).map(([k,v])=>[k,{...base,...(k==='boss'?{detail:p.bossDetail}:{}),value:v}]);}
 async function remoteRank(p){const db=await remote();if(!db)return false;for(const [k,d] of rankEntries(p))await rankFs.setDoc(rankFs.doc(db,k,p.id),{...d,at:rankFs.serverTimestamp()});return true;}
+// device top 10; a match already on the list (same id) is replaced, never listed twice
+function localRank(p){for(const [k,d] of rankEntries(p)){const list=localBoard(k).filter(e=>!p.id||e.id!==p.id);list.push({...d,id:p.id,at:Date.now()});list.sort((a,b)=>b.value-a.value);store.set('rank-'+k,JSON.stringify(list.slice(0,10)));}}
 function flushPending(){const raw=store.get('rank-pending');if(!raw||playing)return;store.set('rank-pending','');let p;try{p=JSON.parse(raw);}catch{return;}if(!p||!p.id)return;
-for(const [k,d] of rankEntries(p)){const list=localBoard(k);list.push({...d,at:Date.now()});list.sort((a,b)=>b.value-a.value);store.set('rank-'+k,JSON.stringify(list.slice(0,10)));}
+localRank(p);
 remoteRank(p).catch(()=>{}).then(()=>showBoard(board));toast(`지난번 중단한 경기 기록을 랭킹에 남겼어요 (최고 랠리 ${p.rally})`,2.5);}
 addEventListener('pagehide',()=>{if(!playing||net||matchBest<=0)return;keepPending();remoteRank(rankRecord(true)).catch(()=>{});});   // best effort now; the next visit sends it again (same id, no double)
 function offerRank(quit){store.set('rank-pending','');pendingRank=rankRecord(quit);
@@ -1045,7 +1047,7 @@ if(!pendingRank.rally&&!pendingRank.wins&&!pendingRank.boss)return;$('rank-name'
 if(!cleanName($('rank-name').value))$('rank-name').value=cleanName(googleUser&&googleUser.displayName||'')||'선수';sendRank();}
 async function sendRank(){const name=cleanName($('rank-name').value);if(!name){$('rank-msg').textContent='닉네임을 입력하세요';return;}if(!pendingRank)return;
 store.set('nick',name);$('rank-send').disabled=true;$('rank-msg').textContent='등록 중…';
-for(const [k,d] of rankEntries(pendingRank)){const list=localBoard(k);list.push({...d,at:Date.now()});list.sort((a,b)=>b.value-a.value);store.set('rank-'+k,JSON.stringify(list.slice(0,10)));}
+localRank(pendingRank);
 try{const db=await remoteRank(pendingRank);
 $('rank-msg').textContent=db?'전체 랭킹에 등록했어요!':'내 기기 랭킹에 저장했어요';}catch(e){$('rank-msg').textContent='전체 랭킹 등록 실패 · 내 기기에는 저장했어요';}
 pendingRank=null;showBoard(board);}
