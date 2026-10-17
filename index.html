@@ -275,6 +275,8 @@ function begin(){if(!net&&!loginGate())return;if(playing&&!net&&matchBest>0)offe
 // receiver) changes every time the serve comes round.
 let mateChar='leesin',foe2Char='percival',myTurn='me',foeTurn=0,aiHitter=0;
 function serveRot(){const n=you+cpu;return Math.floor((n>=20?n:Math.floor(n/2))/2)%2;}
+// cut serve: a short downward drag (under 14% of the screen height) = 투바운드 (hops twice on their table), a long one = 원바운드
+const SHORT_CUT_PX=()=>H*.14;
 function startServe(){if(mode!=='doubles'||net){myServe()?holdServe():net?oppServe():serve();return;}const rot=serveRot();
 if(myServe()){if(rot){mateServe();myTurn='me';}else{holdServe();myTurn='mate';}}else{aiHitter=rot;foeTurn=rot^1;myTurn=rot?'mate':'me';serve();if(myTurn==='mate')toast('상대 서브 · 파트너가 받아요',1.4);}}
 function mateServe(){const L=P.LEVELS[difficulty]||P.LEVELS.b4,plan=P.planServe(Math.random()<.5?.8:-.8,L.serve,.45,.3,-(.15+Math.random()*.3))||P.planServe(0,2.4,.45,.3,-.25);
@@ -304,7 +306,7 @@ const BOUNCE_MAX=.3,BOUNCE_CHANCE=.45;
 const AI_BLOCK=.3;   // share of my drives the AI just blocks back (a high, slow ball I can smash)
 function serve(){lastAIHit=time;aiShot='short';const dbl=mode==='doubles'&&!net,L=P.LEVELS[aiDif()]||P.LEVELS.b4,x0=dbl?-(.38+Math.random()*.15):(Math.random()-.5)*.6,tx=()=>dbl?-(.15+Math.random()*.3):(Math.random()-.5)*.8,srv=dbl&&aiHitter?foe2Char:aiChar;let sp=mode==='cutman'?-1.4:LOOKS[srv].serveEdge?(Math.random()<.5?1.4:-1.4):0,plan=sp&&P.planServe(sp,L.serve,-x0,.3,tx());   // 퍼시벌 serves with heavy spin
 if(!plan){sp=0;plan=P.planServe(0,L.serve,-x0,.3,tx())||P.planServe(0,2.4,-x0,.3,dbl?-.3:0);}
-ball={x:x0,y:2.89,z:.3,vx:-plan.vx,vy:-plan.vy,vz:plan.vz,spin:sp,side:0,bounces:0,owner:'ai',serving:true,type:'serve',shortServe:sp<0};trail=[];toast(sp<0?'상대 커트 서브 · 첫 바운드 뒤, 두 번째 바운드 전에 테이블 위에서 쳐요 (아래·위로 긋기 OK, 탭은 네트)':'상대 서브 · 바운드 후 끝선 밖에서 타격!',2.2);}
+ball={x:x0,y:2.89,z:.3,vx:-plan.vx,vy:-plan.vy,vz:plan.vz,spin:sp,side:0,bounces:0,owner:'ai',serving:true,type:'serve',shortServe:sp<0&&(mode==='cutman'||Math.random()<.5)};trail=[];toast(sp<0?'상대 커트 서브 · 첫 바운드 뒤, 두 번째 바운드 전에 테이블 위에서 쳐요 (아래·위로 긋기 OK, 탭은 네트)':'상대 서브 · 바운드 후 끝선 밖에서 타격!',2.2);}
 // when the opponent wins a point it teases me, half the time
 // counter-drive: a drive answered with a drive moves both players a step further back; anything else brings them in
 // each counter-drive pushes further than the last: steps grow with how deep the rally already is
@@ -719,8 +721,8 @@ const speed=Math.hypot(motion.vx,motion.vy)||1,up=-motion.vy/speed,right=motion.
 const spin=up>=0?Math.max(up,.3):Math.min(up*.6,-.25),side=0; // always spun: up = topspin, down = backspin (cut); sideways only picks the course
 const dbl=mode==='doubles';if(dbl)ball.x=P.clamp(ball.x,.35,.65);   // doubles: serve from my right half to their right half (my left)
 const aimX=dbl?P.clamp(-.28+right*.2,-.55,-.1):P.clamp(right*.55,-.55,.55),plan=P.planServe(spin,P.clamp(2.3+speed/1500*.9,2.3,3.2),ball.x,ball.z,aimX,side)||P.planServe(spin,2.4,ball.x,ball.z,dbl?-.3:0,side)||P.planServe(0,2.4,ball.x,.3,dbl?-.3:0,0);
-Object.assign(ball,{held:false,tossed:false,serving:true,vx:plan.vx,vy:plan.vy,vz:plan.vz,spin,side,type:'serve',aiAttempt:false,shortServe:spin<0});
-lastHit=time;lastShot=spin<0?'cut':'loop';mySwing.type=lastShot;mySwing.t=time;swingMemory=null;
+Object.assign(ball,{held:false,tossed:false,serving:true,vx:plan.vx,vy:plan.vy,vz:plan.vz,spin,side,type:'serve',aiAttempt:false,shortServe:spin<0&&Math.abs(motion.drop||0)<SHORT_CUT_PX()});
+if(spin<0)toast(ball.shortServe?'짧은 커트 · 투바운드 서브 ✂️':'긴 커트 · 원바운드 서브 (끝선 밖으로 나가요)',1.6);lastHit=time;lastShot=spin<0?'cut':'loop';mySwing.type=lastShot;mySwing.t=time;swingMemory=null;
 const label='서브 · '+(spin>0?'상회전':'하회전(커트)'),quality=state==='perfect'?'PERFECT':'GOOD';
 if(quality==='PERFECT')perfectCeremony(me,LOOKS[charType]);
 $('shot').firstChild.textContent='SERVE';$('shot-sub').textContent=label;$('timing').textContent=quality;
