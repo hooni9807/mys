@@ -900,7 +900,38 @@ $('blade').value=bladeType;$('rubber').value=rubberType;
 // 휴고범, from the user's photo: longish oval face with a narrow jaw, full dark-brown hair swept to one side with the
 // sides over the top of the ears, straight brows, thin black rectangular glasses, calm narrow eyes, faint stubble,
 // navy V-neck with a lime inner trim over blue/green/lime vertical stripes.
-function drawFace(c,look){const fimg=faceImg(look);if(fimg){const g=c.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,c.width,c.height);const w=c.width*.82,h=w*fimg.naturalHeight/fimg.naturalWidth;g.drawImage(fimg,c.width/2-w*(look.faceFit&&look.faceFit.cx||.5),c.height*.04,w,h);return;}
+// 김민희's portrait, drawn by hand from the reference photos (not a copy of them): copper layered bob with a side-swept fringe that
+// covers the ears, round soft face, small narrow eyes, thin arched brows, a closed concentrating smile, light-blue polo with white collar.
+function drawBobFace(c,look){const g=c.getContext('2d'),u=c.width/112,P2=Math.PI*2,skin=look.skin||'#f6d8c0',shade=look.skinShade||'#e2b497',hair=look.hair;
+g.setTransform(u,0,0,u,0,0);g.clearRect(0,0,112,112);
+const el=(x,y,rx,ry,f,r=0)=>{g.beginPath();g.ellipse(x,y,rx,ry,r,0,P2);g.fillStyle=f;g.fill();};
+// back of the bob, behind the face and neck
+g.fillStyle='#8f3f1c';g.beginPath();g.moveTo(22,70);g.bezierCurveTo(14,40,26,10,56,9);g.bezierCurveTo(86,10,98,40,90,70);g.bezierCurveTo(89,82,84,90,78,93);g.quadraticCurveTo(56,102,34,93);g.bezierCurveTo(28,90,23,82,22,70);g.fill();
+// polo
+g.save();g.beginPath();g.ellipse(56,130,56,36,0,0,P2);g.fillStyle=look.shirt;g.fill();g.clip();g.fillStyle='#ffffff';
+g.beginPath();g.moveTo(40,92);g.lineTo(54,96);g.lineTo(46,112);g.lineTo(30,104);g.closePath();g.fill();g.beginPath();g.moveTo(72,92);g.lineTo(58,96);g.lineTo(66,112);g.lineTo(82,104);g.closePath();g.fill();
+g.strokeStyle='#c9d9ea';g.lineWidth=1;g.beginPath();g.moveTo(56,97);g.lineTo(56,112);g.stroke();g.restore();
+// neck
+g.fillStyle=skin;g.beginPath();g.moveTo(47,80);g.lineTo(47,96);g.quadraticCurveTo(56,102,65,96);g.lineTo(65,80);g.fill();g.fillStyle='#0000001c';g.beginPath();g.ellipse(56,86,10,6,0,0,P2);g.fill();
+// face: soft round oval with a small chin
+const face=new Path2D();face.moveTo(56,22);face.bezierCurveTo(78,22,82,46,80,58);face.bezierCurveTo(78,76,68,90,56,92);face.bezierCurveTo(44,90,34,76,32,58);face.bezierCurveTo(30,46,34,22,56,22);
+g.fillStyle=skin;g.fill(face);g.save();g.clip(face);el(38,66,7,9,'#f0a09a40');el(74,66,7,9,'#f0a09a40');g.fillStyle='#0000000f';g.beginPath();g.ellipse(56,96,30,10,0,0,P2);g.fill();g.restore();
+// brows: thin, softly arched, a little darker than the hair
+g.strokeStyle='#7a3a1c';g.lineCap='round';g.lineWidth=2;for(const [a,b,d] of [[38,50,1],[74,50,-1]]){g.beginPath();g.moveTo(a,b+1);g.quadraticCurveTo(a+d*6,b-2.6,a+d*13,b+.6);g.stroke();}
+// eyes: small, narrow almonds with a dark upper lid and a tiny outer flick
+for(const [x,d] of [[46,-1],[66,1]]){el(x,58,4.6,2.7,'#fbf6ee');el(x+d*.4,58.1,2.35,2.35,'#3a2218');el(x+d*.4,58.1,1,1,'#120a07');el(x+d*.4+.8,57.2,.7,.7,'#ffffff');
+g.strokeStyle='#2b1810';g.lineWidth=1.7;g.beginPath();g.moveTo(x-4.8,58.6);g.quadraticCurveTo(x,54.4,x+4.8,58.4);g.stroke();g.lineWidth=1.1;g.beginPath();g.moveTo(x+d*4.4,58.1);g.lineTo(x+d*6.4,57);g.stroke();
+g.strokeStyle='#c9917a80';g.lineWidth=.8;g.beginPath();g.moveTo(x-4,61);g.quadraticCurveTo(x,62.8,x+4,61);g.stroke();}
+// nose and a closed, concentrating smile
+el(57,68,1.5,3.6,'#d9a58a70');g.strokeStyle='#c78f78';g.lineWidth=1.1;g.beginPath();g.moveTo(52.4,71.6);g.quadraticCurveTo(54.4,73.6,56.6,73);g.quadraticCurveTo(59,73.6,60.8,71.6);g.stroke();
+g.strokeStyle='#a5554f';g.lineWidth=1.9;g.beginPath();g.moveTo(50,80);g.quadraticCurveTo(56,84.4,62,80);g.stroke();el(56,83,3.6,1,'#d98d86');
+// fringe: side-swept from a low part on the left across the forehead, choppy tips, hair falling over the ears down to the jaw
+g.fillStyle=hair;g.beginPath();g.moveTo(26,72);g.bezierCurveTo(18,42,28,12,56,11);g.bezierCurveTo(84,12,94,42,86,72);g.bezierCurveTo(85,78,82,82,79,84);g.bezierCurveTo(80,70,80,58,77,46);
+g.bezierCurveTo(74,43,66,45,58,42);g.quadraticCurveTo(52,40,48,46);g.quadraticCurveTo(44,40,40,48);g.lineTo(35,46);g.bezierCurveTo(34,56,34,70,33,84);g.bezierCurveTo(30,82,27,78,26,72);g.fill();
+g.strokeStyle='#d98245';g.lineWidth=1.3;g.lineCap='round';for(const [a,b,c1,d1,e,f2] of [[40,18,52,12,66,16],[34,26,44,16,58,14],[48,30,62,20,78,26],[36,36,38,26,46,20],[70,22,80,28,84,40],[30,50,30,40,34,30]]){g.beginPath();g.moveTo(a,b);g.quadraticCurveTo(c1,d1,e,f2);g.stroke();}
+g.strokeStyle='#7a3516';g.lineWidth=1;for(const [a,b,c1,d1,e,f2] of [[44,24,58,20,72,24],[32,60,30,70,32,82],[80,56,82,68,79,80],[40,34,50,28,60,32]]){g.beginPath();g.moveTo(a,b);g.quadraticCurveTo(c1,d1,e,f2);g.stroke();}
+}
+function drawFace(c,look){if(look.bob){drawBobFace(c,look);return;}const fimg=faceImg(look);if(fimg){const g=c.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,c.width,c.height);const w=c.width*.82,h=w*fimg.naturalHeight/fimg.naturalWidth;g.drawImage(fimg,c.width/2-w*(look.faceFit&&look.faceFit.cx||.5),c.height*.04,w,h);return;}
 const g=c.getContext('2d'),u=c.width/112,skin='#f3d1b0',shade='#dcae88',ink='#21180f',P2=Math.PI*2;g.setTransform(u,0,0,u,0,0);g.clearRect(0,0,112,112);
 const el=(x,y,rx,ry,f)=>{g.beginPath();g.ellipse(x,y,rx,ry,0,0,P2);g.fillStyle=f;g.fill();};
 // jersey
