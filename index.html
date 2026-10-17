@@ -304,7 +304,7 @@ const BOUNCE_MAX=.3,BOUNCE_CHANCE=.45;
 const AI_BLOCK=.3;   // share of my drives the AI just blocks back (a high, slow ball I can smash)
 function serve(){lastAIHit=time;aiShot='short';const dbl=mode==='doubles'&&!net,L=P.LEVELS[aiDif()]||P.LEVELS.b4,x0=dbl?-(.38+Math.random()*.15):(Math.random()-.5)*.6,tx=()=>dbl?-(.15+Math.random()*.3):(Math.random()-.5)*.8,srv=dbl&&aiHitter?foe2Char:aiChar;let sp=mode==='cutman'?-1.4:LOOKS[srv].serveEdge?(Math.random()<.5?1.4:-1.4):0,plan=sp&&P.planServe(sp,L.serve,-x0,.3,tx());   // 퍼시벌 serves with heavy spin
 if(!plan){sp=0;plan=P.planServe(0,L.serve,-x0,.3,tx())||P.planServe(0,2.4,-x0,.3,dbl?-.3:0);}
-ball={x:x0,y:2.89,z:.3,vx:-plan.vx,vy:-plan.vy,vz:plan.vz,spin:sp,side:0,bounces:0,owner:'ai',serving:true,type:'serve',shortServe:mode==='cutman'};trail=[];toast(sp<0?'상대 커트 서브 · 첫 바운드 뒤, 두 번째 바운드 전에 테이블 위에서 쳐요 (아래·위로 긋기 OK, 탭은 네트)':'상대 서브 · 바운드 후 끝선 밖에서 타격!',2.2);}
+ball={x:x0,y:2.89,z:.3,vx:-plan.vx,vy:-plan.vy,vz:plan.vz,spin:sp,side:0,bounces:0,owner:'ai',serving:true,type:'serve',shortServe:sp<0};trail=[];toast(sp<0?'상대 커트 서브 · 첫 바운드 뒤, 두 번째 바운드 전에 테이블 위에서 쳐요 (아래·위로 긋기 OK, 탭은 네트)':'상대 서브 · 바운드 후 끝선 밖에서 타격!',2.2);}
 // when the opponent wins a point it teases me, half the time
 // counter-drive: a drive answered with a drive moves both players a step further back; anything else brings them in
 // each counter-drive pushes further than the last: steps grow with how deep the rally already is
@@ -692,7 +692,8 @@ if(mode==='doubles'&&!net&&mate.x!=null&&myTurn==='mate'&&ball&&!ball.held&&ball
 stepBody(me,bodyTarget,rdt,(ball&&ball.owner==='ai'?.55:.25)+(L.crouchK||0),playerScale);
 const angle=P.clamp((paddle.vx-paddle.vy*.3)/2400,-.9,.9)+playerSide*.3;
 me.holding=!!(ball&&ball.held&&ball.owner==='you'&&!ball.tossed);me.tossing=!!(ball&&ball.held&&ball.owner==='you'&&ball.tossed&&time-ball.tossT<.5);
-me.depth=lerp(me.depth||0,P.clamp((H*.82-paddle.y)/(H*.3),-.3,1),Math.min(1,rdt*8));   // finger up the screen = step in toward the table
+const shortIn=!!ball&&ball.owner==='ai'&&!ball.held&&(ball.shortServe||ball.bounces===1&&P.shortLeft(ball)!==null);   // short ball: step in over the table
+me.depth=lerp(me.depth||0,shortIn?1:P.clamp((H*.82-paddle.y)/(H*.3),-.3,1),Math.min(1,rdt*(shortIn?10:8)));   // finger up the screen = step in toward the table
 me.aura=charge===100&&!net?SPECIALS[RACKETS[racketType].special].rgb:null;   // special ready: the figure glows
 // doubles: my partner steps in to the ball on its turn (and to serve), otherwise waits back on the other side of me
 if(mode==='doubles'&&!net&&view!=='fp'){const act=!!(ball&&!ball.held&&(myTurn==='mate'&&ball.owner==='ai'||ball.mateServe&&ball.serving))||time-(mate.swingT??-10)<.6,away=(me.x??W/2)>W/2?-1:1;let tx,fy,tgt;
@@ -718,7 +719,7 @@ const speed=Math.hypot(motion.vx,motion.vy)||1,up=-motion.vy/speed,right=motion.
 const spin=up>=0?Math.max(up,.3):Math.min(up*.6,-.25),side=0; // always spun: up = topspin, down = backspin (cut); sideways only picks the course
 const dbl=mode==='doubles';if(dbl)ball.x=P.clamp(ball.x,.35,.65);   // doubles: serve from my right half to their right half (my left)
 const aimX=dbl?P.clamp(-.28+right*.2,-.55,-.1):P.clamp(right*.55,-.55,.55),plan=P.planServe(spin,P.clamp(2.3+speed/1500*.9,2.3,3.2),ball.x,ball.z,aimX,side)||P.planServe(spin,2.4,ball.x,ball.z,dbl?-.3:0,side)||P.planServe(0,2.4,ball.x,.3,dbl?-.3:0,0);
-Object.assign(ball,{held:false,tossed:false,serving:true,vx:plan.vx,vy:plan.vy,vz:plan.vz,spin,side,type:'serve',aiAttempt:false});
+Object.assign(ball,{held:false,tossed:false,serving:true,vx:plan.vx,vy:plan.vy,vz:plan.vz,spin,side,type:'serve',aiAttempt:false,shortServe:spin<0});
 lastHit=time;lastShot=spin<0?'cut':'loop';mySwing.type=lastShot;mySwing.t=time;swingMemory=null;
 const label='서브 · '+(spin>0?'상회전':'하회전(커트)'),quality=state==='perfect'?'PERFECT':'GOOD';
 if(quality==='PERFECT')perfectCeremony(me,LOOKS[charType]);
@@ -788,7 +789,7 @@ if(ball.serving&&ball.z<=0&&ball.vz<0){ball.x=P.clamp(ball.x,-.7,.7);ball.y=ball
 ball.serving=false;ball.z=0;ball.vz=-ball.vz*.8;ball.vy*=1.03;beep(270);}
 else if(ball.z<=0&&ball.vz<0&&!(ball.bounces===1&&(ball.y<0||ball.y>2.74))){if(Math.abs(ball.x)>.76||ball.y<0||ball.y>2.74){point(ball.owner==='ai','테이블 밖으로 나갔어요');return;}const valid=ball.owner==='ai'?ball.y<1.37:ball.y>1.37;if(!valid){point(ball.owner==='ai','자기 코트에 떨어졌어요');return;}ball.bounces++;if(ball.bounces>1){point(ball.owner==='you','두 번 바운드');return;}ball.z=0;ball.vz=-ball.vz*(ball.spin<0?.68:.8);ball.vy*=ball.spin<0?.78:1.03;ball.side=(ball.side||0)*.1;{const g=6+(ball.spin||0)*.55,clear=g*((ball.owner==='ai'?ball.y+.3:3.04-ball.y)/Math.max(Math.abs(ball.vy),.5))/2;ball.vz=Math.min(ball.vz,Math.max(Math.sqrt(2*g*(ball.chance?BOUNCE_CHANCE:BOUNCE_MAX)),clear));
 if(deep)ball.vz=Math.max(ball.vz,g*((ball.owner==='ai'?ball.y+P.back(ball):3.04-ball.y+P.DEEP_M*deep)/Math.max(Math.abs(ball.vy),.5))/2);}
-if(ball.shortServe&&ball.owner==='ai'){ball.shortServe=false;const g=6+(ball.spin||0)*.55,T=.6,d=Math.min(.3+Math.random()*.25,Math.max(.1,ball.y-.18));ball.vz=T*g/2;ball.vy=-d/T;}   // 커트맨 serve: a low hop that lands again on my table
+if(ball.shortServe){ball.shortServe=false;const g=6+(ball.spin||0)*.55,T=.6,mineIn=ball.owner==='ai',d=Math.min(.3+Math.random()*.25,Math.max(.1,mineIn?ball.y-.18:2.56-ball.y));ball.vz=T*g/2;ball.vy=(mineIn?-d:d)/T;}   // 커트맨 serve: a low hop that lands again on my table
 beep(270);}   // the table grips and bleeds off side spin
 // The AI takes the ball past its end line - or over the table when a short / backspin ball would otherwise bounce twice.
 if(!net&&ball.owner==='you'&&ball.bounces===1&&(ball.y>2.8+P.DEEP_M*deep||!deep&&ball.y>1.6&&ball.vz<0&&ball.z<.12)&&!ball.aiAttempt){ball.aiAttempt=true;const dif=aiDif();const chance=P.aiChance(ball,dif,mode==='practice')*(ball.type==='serve'&&!ball.mateServe&&LOOKS[charType].serveEdge?1-LOOKS[charType].serveEdge:1);const aiT=LOOKS[aiChar].trait,aiFore=ball.x<0?1:-1;   // AI faces us: balls on our left are its forehand
@@ -951,7 +952,7 @@ $('home').onclick=goHome;$('restart').onclick=()=>{if(net&&net.role==='guest')re
 // bottom: the guest view is the world mirrored through the table centre (x -> -x, y -> 2.74 - y).
 // ponytail: no latency compensation beyond a wider miss line; add snapshot interpolation if LTE play feels late.
 const mir=b=>b&&{...b,x:-b.x,y:2.74-b.y,vx:-b.vx,vy:-b.vy,side:-(b.side||0),owner:b.owner==='you'?'ai':'you'};
-const wire=b=>b&&{x:b.x,y:b.y,z:b.z,vx:b.vx,vy:b.vy,vz:b.vz,spin:b.spin,side:b.side,bounces:b.bounces,owner:b.owner,type:b.type,held:b.held,tossed:b.tossed,serving:b.serving};
+const wire=b=>b&&{x:b.x,y:b.y,z:b.z,vx:b.vx,vy:b.vy,vz:b.vz,spin:b.spin,side:b.side,bounces:b.bounces,owner:b.owner,type:b.type,held:b.held,tossed:b.tossed,serving:b.serving,shortServe:b.shortServe};
 function me4net(){const base=project(0,-.15);return {nick:store.get('nick')||'',x:(paddle.x-base.x)/(W*.43*base.scale),side:playerSide,rk:racketType,ch:charType,shot:lastShot,h:lastHit,c:me.ceremT};}
 function snapshot(){return {t:'S',b:wire(ball),you,cpu,rally,playing,reason:lastReason,seq:net.seq,...me4net()};}
 function oppServe(){ball={x:0,y:2.89,z:-.3,vx:0,vy:0,vz:0,spin:0,side:0,bounces:0,owner:'ai',held:true,tossed:false};trail=[];toast('상대 서브',1.5);}
