@@ -189,7 +189,7 @@ ajae:{name:'아재범',nick:'아재범',kit:{name:'AJAE',color:'#9fb4ff'},face:'
 // sweatshirt; grey sweatpants. Little z's float up from him; every 3 points he naps - a sweet dream lifts him, a nightmare drags him down.
 sleepy:{name:'꿀잠범',nick:'꿀잠범',kit:{name:'KKULJAM',color:'#bfe3ff'},face:'sleepy',faceFit:{h:54,b:25,cx:.56},sleepy:true,ceremony:'Zzz… 음냐… 들어갔어? 😴',split:true,stanceK:1.05,crouchK:.08,shirt:'#17171b',sleeve:'#17171b',longSleeve:true,collar:'#0d0d10',pants:'#5d606a',hair:'#17110d',skin:'#e9bf9e',skinShade:'#cc9a7a'},
 // 김민희, from the user's three reference photos (backhand / serve / forehand): copper bob, light-blue polo, navy skort. Drawn in the game's own style.
-minhee:{name:'김민희',nick:'김민희',kit:{name:'MINHEE',color:'#9cc9f5'},face:'minhee',faceFit:{h:46,b:24,cx:.5},ceremony:'나이스!! 🏓',split:true,stanceK:1.2,crouchK:.16,strokes:'minhee',serveMotion:true,watchBall:true,balance:true,bob:true,shirt:'#9cc3ec',sleeve:'#9cc3ec',collar:'#ffffff',pants:'#18233f',shorts:true,shortsLen:.55,hair:'#b8582b',skin:'#f3d1b0',skinShade:'#d9ab88'},
+minhee:{name:'김민희',nick:'김민희',kit:{name:'MINHEE',color:'#9cc9f5'},face:'minhee',faceFit:{h:46,b:24,cx:.5},faces:{serve:'minheeS',fh:'minheeF'},faceFits:{serve:{h:46,b:24,cx:.42},fh:{h:46,b:24,cx:.45}},ceremony:'나이스!! 🏓',split:true,stanceK:1.2,crouchK:.16,strokes:'minhee',serveMotion:true,watchBall:true,balance:true,bob:true,shirt:'#9cc3ec',sleeve:'#9cc3ec',collar:'#ffffff',pants:'#18233f',shorts:true,shortsLen:.55,hair:'#b8582b',skin:'#f3d1b0',skinShade:'#d9ab88'},
 // 탁구 마왕: opponent-only boss for 보스전. Drawn, no photo: horns, glowing red eyes, a blood-red cape and a dark aura.
 boss:{name:'탁구 마왕',nick:'탁구 마왕',kit:{name:'MAWANG',color:'#ff3b3b'},boss:true,serveEdge:.25,taunts:['크하하! 나약하다!','이것이 마왕의 탁구다!','무릎 꿇어라!'],stanceK:1.2,crouchK:.1,shirt:'#1c0a16',sleeve:'#1c0a16',longSleeve:true,collar:'#ff3b3b',pants:'#12070f',skin:'#a07c8a',skinShade:'#7a5866',hair:'#0b0508'},
 plain:{name:'파란 선수',shirt:'#2f6fd6',sleeve:'#2f6fd6',pants:'#33404f',hair:'#3a2b22'},
@@ -221,7 +221,7 @@ function napTick(){for(const [st,look,who] of [[me,LOOKS[charType],''],[foe,LOOK
 const DRUNK_FLOAT=.1;let drunkM=1.5,drunkR=1;
 function drunkTier(r){return r<DRUNK_FLOAT?'float':r<.15?2:r<.4?1.5:r<.55?1.2:1;}
 const TRAIT_POWER=.3,TRAIT_MULT=1.25,TRAIT_ERR=.12,SIDE_NAME={'1':'포핸드','-1':'백핸드'};
-const FACES={};for(const [k,f] of [['hugo','hugo-face.png'],['leesin','leesin-face.png'],['percival','percival-face.png'],['drunk','drunk-face.png'],['ajae','ajae-face.png'],['sleepy','sleepy-face.png'],['minhee','minhee-face.png']]){const im=new Image();im.src=f;im.onload=()=>{if(typeof setCharacter==='function')setCharacter(charType);};FACES[k]=im;}
+const FACES={};for(const [k,f] of [['hugo','hugo-face.png'],['leesin','leesin-face.png'],['percival','percival-face.png'],['drunk','drunk-face.png'],['ajae','ajae-face.png'],['sleepy','sleepy-face.png'],['minhee','minhee-face.png'],['minheeS','minhee-serve.png'],['minheeF','minhee-fh.png']]){const im=new Image();im.src=f;im.onload=()=>{if(typeof setCharacter==='function')setCharacter(charType);};FACES[k]=im;}
 const faceImg=look=>{const im=look&&look.face&&FACES[look.face];return im&&im.complete&&im.naturalWidth?im:null;};
 // Each racket's special: shot type in PingPhysics.shot, trail colour, coach line.
 const SPECIALS={
@@ -523,6 +523,12 @@ function drawingPrep(){if(!ball||ball.owner!=='ai'||ball.held||ball.y>1.37||time
 if(down&&gesture&&!gesture.held&&gesture.distance>=(touchInput?18:12)&&liveStroke()){mySwing.type=gesture.stroke;return .35+P.clamp(gesture.distance/90,0,1)*.65;}
 if(down&&gesture&&!gesture.held&&!gesture.dir&&gesture.stance!=='mid'){mySwing.type=gesture.stance==='low'?'lower':'chop';return .35;}   // finger down: show the chosen stance
 mySwing.type=expectStroke();return P.clamp((1.37-ball.y)/1.45,0,1)*.35;}let lastShot='drive',aiShot='short',lastRenderT=performance.now();
+// A look with faces:{serve,fh} swaps its photo face with the move (serve toss / forehand / otherwise the base face) and cross-fades over .12 s.
+function headPhoto(look,st,key,s,hx,hd){const draw=(k,al)=>{const im=k&&look.faces?FACES[look.faces[k]]:faceImg(look);if(!(im&&im.complete&&im.naturalWidth))return;const fit=(k&&look.faceFits&&look.faceFits[k])||look.faceFit,hh=(fit?fit.h:58)*s,hw=hh*im.naturalWidth/im.naturalHeight;ctx.save();ctx.globalAlpha=al;ctx.drawImage(im,hx-hw*(fit&&fit.cx||.5),fit?hd+fit.b*s-hh:hd-9*s-hh/2,hw,hh);ctx.restore();};
+if(st.fk!==key){st.fp=st.fk;st.fk=key;st.ft=time;}const a=Math.min(1,(time-(st.ft??-9))/.12);if(a<1&&st.fp!==undefined)draw(st.fp,1);draw(key,a<1?a:1);}
+function faceState(look,st,stroke,since,prep){if(!look.faces)return null;const live=prep!=null||since>=0&&since<.8;
+if(st.holding||st.tossing||live&&/^serve/.test(stroke||''))return 'serve';
+if(live&&['loop','drive','crescent','lightning','smash','chiquita'].includes(stroke))return 'fh';return null;}
 function person(st,hipY,target,angle,look,s,type,face,side,stroke,since,prep=null){
 const arm=look.lefty?(hipY>H*.5?-1:1):side,T=st.tall||1,R=RACKETS[type],skin=look.skin||'#f2cda8',pants=look.pants,x=st.x,moving=P.clamp(Math.abs(st.vx)/160,0,1),dir=Math.sign(st.vx)||1;
 const pose=strokePose(stroke,since,side,s,{x:x+arm*15*s,y:hipY-50*s*T+st.crouch*18*s},target,angle,st.crouch,look,st.amp??1,st.dirX||0,prep,T);
@@ -587,7 +593,7 @@ ctx.globalAlpha=1;
 const hx=ux+st.lean*3*s+pose.twist*side*2*s+st.ho*4*s,hd=hy-75*s*T+(sad?9*s:0)+Math.abs(st.ho)*1.2*s-(look.watchBall&&(st.holding||st.tossing)?2.5*s:0);
 {const nk={x:ux,y:top+4*s},nh={x:hx,y:hd+9*s};line(nk,nh,look.skinShade||'#d9ad88',10.5*s);line({x:nk.x+1*s,y:nk.y},{x:nh.x+1*s,y:nh.y},skin,8*s);}   // neck, shaded at the sides
 ctx.save();ctx.translate(hx,hd);ctx.rotate(st.ho*.2);ctx.scale(1-.12*Math.abs(st.hn),1);ctx.translate(-hx+st.hn*3*s,-hd);ctx.beginPath();ctx.arc(hx,hd,13*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();
-const fimg=faceImg(look);if(fimg){const fit=look.faceFit,hh=(fit?fit.h:58)*s,hw=hh*fimg.naturalWidth/fimg.naturalHeight;ctx.drawImage(fimg,hx-hw*(fit&&fit.cx||.5),fit?hd+fit.b*s-hh:hd-9*s-hh/2,hw,hh);}   // fit: photo cut with its own neck (cx = where the chin sits across the photo), bottom tucked into the collar   // photo head, slightly big for a playful look
+const fimg=faceImg(look);if(fimg)headPhoto(look,st,faceState(look,st,stroke,since,prep),s,hx,hd);   // fit: photo cut with its own neck (cx = where the chin sits across the photo), bottom tucked into the collar   // photo head, slightly big for a playful look
 else if(look.tousled){ // seen from behind: hair covers the back of the head, glasses show only as temples and lens rims at the sides
 for(const k of [-1,1]){ctx.beginPath();ctx.arc(hx+k*13*s,hd+1*s,3*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();}
 ctx.beginPath();ctx.ellipse(hx,hd-3*s,13.6*s,11.5*s,0,0,Math.PI*2);ctx.fillStyle=look.hair;ctx.fill();
