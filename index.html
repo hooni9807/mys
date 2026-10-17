@@ -306,7 +306,7 @@ const BOUNCE_MAX=.3,BOUNCE_CHANCE=.45;
 const AI_BLOCK=.3;   // share of my drives the AI just blocks back (a high, slow ball I can smash)
 function serve(){lastAIHit=time;aiShot='short';const dbl=mode==='doubles'&&!net,L=P.LEVELS[aiDif()]||P.LEVELS.b4,x0=dbl?-(.38+Math.random()*.15):(Math.random()-.5)*.6,tx=()=>dbl?-(.15+Math.random()*.3):(Math.random()-.5)*.8,srv=dbl&&aiHitter?foe2Char:aiChar;let sp=mode==='cutman'?-1.4:LOOKS[srv].serveEdge?(Math.random()<.5?1.4:-1.4):0,plan=sp&&P.planServe(sp,L.serve,-x0,.3,tx());   // 퍼시벌 serves with heavy spin
 if(!plan){sp=0;plan=P.planServe(0,L.serve,-x0,.3,tx())||P.planServe(0,2.4,-x0,.3,dbl?-.3:0);}
-ball={x:x0,y:2.89,z:.3,vx:-plan.vx,vy:-plan.vy,vz:plan.vz,spin:sp,side:0,bounces:0,owner:'ai',serving:true,type:'serve',shortServe:sp<0&&(mode==='cutman'||Math.random()<.5)};trail=[];toast(sp<0?'상대 커트 서브 · 첫 바운드 뒤, 두 번째 바운드 전에 테이블 위에서 쳐요 (아래·위로 긋기 OK, 탭은 네트)':'상대 서브 · 바운드 후 끝선 밖에서 타격!',2.2);}
+ball={x:x0,y:2.89,z:.3,vx:-plan.vx,vy:-plan.vy,vz:plan.vz,spin:sp,side:0,bounces:0,owner:'ai',serving:true,type:'serve',shortServe:mode==='cutman'};trail=[];toast(sp<0?'상대 커트 서브 · 첫 바운드 뒤, 두 번째 바운드 전에 테이블 위에서 쳐요 (아래·위로 긋기 OK, 탭은 네트)':'상대 서브 · 바운드 후 끝선 밖에서 타격!',2.2);}
 // when the opponent wins a point it teases me, half the time
 // counter-drive: a drive answered with a drive moves both players a step further back; anything else brings them in
 // each counter-drive pushes further than the last: steps grow with how deep the rally already is
