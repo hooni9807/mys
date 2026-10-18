@@ -70,12 +70,15 @@ function mediaHarness({ apiReady = true, sound = true } = {}) {
   };
 }
 
-test('original video starts with the dance, sound OFF mutes, and enabling sound preserves its position', async () => {
+test('hidden YouTube player starts the original audio, sound OFF mutes, and enabling sound preserves its position', async () => {
   const h = mediaHarness({ sound: false });
   h.start();
   await h.settle();
   const player = h.players[0];
   assert.equal(player.options.videoId, 'Q4EyleX7Qh4');
+  assert.equal(player.options.width, 1);
+  assert.equal(player.options.height, 1);
+  assert.equal(player.options.playerVars.controls, 0);
   player.ready();
   assert.equal(player.muted, true);
   assert.equal(player.calls.some(call => call[0] === 'play'), false);

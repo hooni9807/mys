@@ -1,4 +1,4 @@
-/* Original soundtrack through the visible official YouTube player; no copied audio asset.
+/* Original soundtrack through a visually hidden official YouTube player; no copied audio asset.
  * Media is optional: autoplay, an unavailable video, or slow networking never blocks a match.
  */
 (() => {
@@ -87,13 +87,13 @@
       if (token !== session || !active()) return;
       const mount = document.createElement('div'); slot.appendChild(mount);
       player = new YT.Player(mount, {
-        width: 240, height: 200, videoId: VIDEO,
-        playerVars: { playsinline: 1, controls: 1, rel: 0, origin: location.origin },
+        width: 1, height: 1, videoId: VIDEO,
+        playerVars: { playsinline: 1, controls: 0, rel: 0, origin: location.origin },
         events: {
           onReady: event => {
             if (token !== session || !active()) return;
             ready = true;
-            event.target.getIframe().title = '승리 세리머니 원본 영상과 음악';
+            event.target.getIframe().title = '승리 세리머니 원본 음악';
             if (!sound) event.target.mute();
             showStatus(); play();
           },
