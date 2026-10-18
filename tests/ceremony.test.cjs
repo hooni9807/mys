@@ -410,3 +410,16 @@ test('dance renderer handles every character and stage with finite coordinates a
     }
   }
 });
+
+test('temporarily disabled sleepy character cannot be restored, selected, randomized, or rendered for a peer', () => {
+  const client = createClient();
+  assert.equal(client.value("characterAvailable('sleepy')"), false);
+  assert.equal(client.value("AI_CHARS.includes('sleepy')"), false);
+  client.run("setCharacter('sleepy')");
+  assert.equal(client.value('charType'), 'jersey');
+  client.open('guest');
+  client.run("takeOpp({ch:'sleepy',nick:'상대',x:0,side:1,rk:'shake',shot:'drive',h:0})");
+  assert.equal(client.value('net.opp.ch'), 'jersey');
+  client.run("enterVictoryCeremony({id:'temporary',winnerChar:'sleepy',loserChar:'sleepy',winnerLocal:true,duration:12,phase:'playing',localStartedAt:performance.now()})");
+  assert.deepEqual(client.value('[victoryCeremony.winnerChar,victoryCeremony.loserChar]'), ['jersey', 'jersey']);
+});

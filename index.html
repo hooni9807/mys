@@ -217,7 +217,7 @@ drunk:{name:'만취범',nick:'만취범',kit:{name:'MANCHWI',color:'#ff8a8a'},fa
 ajae:{name:'아재범',nick:'아재범',kit:{name:'AJAE',color:'#9fb4ff'},face:'ajae',faceFit:{h:55,b:27,cx:.47},ajae:true,ceremony:'아닌데? 아닌데? 🤨',split:true,stanceK:1.05,crouchK:.1,shirt:'#1f2c5e',sleeve:'#1f2c5e',longSleeve:true,backpack:true,collar:'#16204a',pants:'#2e2f35',hair:'#1a1410',skin:'#e7b896',skinShade:'#c99474'},
 // 꿀잠범, from the user's photo: asleep in a chair - messy black hair, clear-frame glasses, eyes shut, stubble, black
 // sweatshirt; grey sweatpants. Little z's float up from him; every 3 points he naps - a sweet dream lifts him, a nightmare drags him down.
-sleepy:{name:'꿀잠범',nick:'꿀잠범',kit:{name:'KKULJAM',color:'#bfe3ff'},face:'sleepy',faceFit:{h:54,b:25,cx:.56},sleepy:true,ceremony:'Zzz… 음냐… 들어갔어? 😴',split:true,stanceK:1.05,crouchK:.08,shirt:'#17171b',sleeve:'#17171b',longSleeve:true,collar:'#0d0d10',pants:'#5d606a',hair:'#17110d',skin:'#e9bf9e',skinShade:'#cc9a7a'},
+sleepy:{disabled:true,name:'꿀잠범',nick:'꿀잠범',kit:{name:'KKULJAM',color:'#bfe3ff'},face:'sleepy',faceFit:{h:54,b:25,cx:.56},sleepy:true,ceremony:'Zzz… 음냐… 들어갔어? 😴',split:true,stanceK:1.05,crouchK:.08,shirt:'#17171b',sleeve:'#17171b',longSleeve:true,collar:'#0d0d10',pants:'#5d606a',hair:'#17110d',skin:'#e9bf9e',skinShade:'#cc9a7a'},
 // 김민희, from the user's three reference photos (backhand / serve / forehand): copper bob, light-blue polo, navy skort. Drawn in the game's own style.
 // 무한 리턴 봇: an endless-rally machine for 무한 드라이브 (returns every ball, only ever drives). Face drawn for the game (infibot-face.png).
 infibot:{name:'무한 리턴 봇',nick:'무한 리턴 봇',kit:{name:'INFINITY',color:'#6fe3ff'},face:'infibot',faceFit:{h:52,b:25,cx:.5},ceremony:'삐-빅! 리턴 완료 ♾️',split:true,stanceK:1.1,crouchK:.1,shirt:'#2a3b52',sleeve:'#3b516e',collar:'#6fe3ff',pants:'#1b2433',shorts:false,socks:true,wristband:true,hair:'#2b3a4d',skin:'#9fb4c6',skinShade:'#7d93a8'},
@@ -233,7 +233,8 @@ const RUBBERS={spin:{name:'09C',speed:.9,spin:1.4,err:.03,note:'속도 ↓ · �
 // sometimes flies off it long and an opponent's cut sometimes floats up
 pips:{name:'SP 숏핌플',speed:1.3,spin:.6,err:.1,vsDrive:.25,vsCut:.25,note:'속도 ×1.3 · 회전 적음 · 컨트롤 어려움 · 상대 드라이브는 날아갈 수 있음 · 상대 커트는 붕 뜰 수 있음'}};
 let bladeType='ply',rubberType='control';   // saved choice is read once store exists (below)
-const AI_CHARS=['jersey','leesin','percival','drunk','ajae','sleepy','minhee'],pickAi=()=>AI_CHARS[Math.floor(Math.random()*AI_CHARS.length)];
+const characterAvailable=k=>!!LOOKS[k]&&!LOOKS[k].disabled&&k!=='ai';
+const AI_CHARS=['jersey','leesin','percival','drunk','ajae','minhee'].filter(characterAvailable),pickAi=()=>AI_CHARS[Math.floor(Math.random()*AI_CHARS.length)];
 let charType='jersey',aiChar=pickAi();
 // Signature sides: on the strong side a shot sometimes goes in as a power shot, on the weak side it sometimes errs.
 const TIMING_SUCCESS={PERFECT:1,GREAT:.98,GOOD:.95,LATE:.9};
@@ -1127,8 +1128,8 @@ g.lineWidth=1.6;g.beginPath();g.moveTo(54,53);g.quadraticCurveTo(56,51.8,58,53);
 // nose and mouth (neutral, closed)
 el(57.6,66.5,1.6,4.2,'#dcae8870');g.strokeStyle='#c99676';g.lineWidth=1.2;g.beginPath();g.moveTo(51.5,70.5);g.quadraticCurveTo(53.5,72.6,56,72.2);g.quadraticCurveTo(58.5,72.6,60.5,70.5);g.stroke();
 g.strokeStyle='#a46b5a';g.lineWidth=1.8;g.beginPath();g.moveTo(50.5,80);g.quadraticCurveTo(56,81,61.5,80);g.stroke();g.fillStyle='#cf9a87';g.beginPath();g.ellipse(56,82.3,4.2,1.2,0,0,P2);g.fill();}
-function renderCharPick(){document.querySelectorAll('#char-pick button').forEach(b=>{drawFace(b.querySelector('canvas'),LOOKS[b.dataset.char]);b.setAttribute('aria-checked',b.dataset.char===charType);});}
-function setCharacter(v){if(!LOOKS[v]||v==='ai')v='jersey';charType=v;$('character').value=v;renderCharPick();drawFace($('you-face'),LOOKS[v]);drawFace($('char-face'),LOOKS[v]);$('char-name').textContent=LOOKS[v].nick||LOOKS[v].name;$('mychar-sel').textContent='· '+(LOOKS[v].nick||LOOKS[v].name);$('you-name').textContent=LOOKS[v].nick||'YOU';store.set('character',v);const lh=!!LOOKS[v].lefty;document.querySelector('.court-label.left').textContent=lh?'◀ 포핸드':'◀ 백핸드';document.querySelector('.court-label.right').textContent=lh?'백핸드 ▶':'포핸드 ▶';}
+function renderCharPick(){document.querySelectorAll('#char-pick button').forEach(b=>{const available=characterAvailable(b.dataset.char);drawFace(b.querySelector('canvas'),LOOKS[b.dataset.char]);b.disabled=!available;b.setAttribute('aria-checked',available&&b.dataset.char===charType);b.setAttribute('aria-disabled',String(!available));b.title=available?'':'현재 임시 비활성화된 캐릭터입니다';});}
+function setCharacter(v){if(!characterAvailable(v))v='jersey';charType=v;for(const o of $('character').options)o.disabled=!characterAvailable(o.value);$('character').value=v;renderCharPick();drawFace($('you-face'),LOOKS[v]);drawFace($('char-face'),LOOKS[v]);$('char-name').textContent=LOOKS[v].nick||LOOKS[v].name;$('mychar-sel').textContent='· '+(LOOKS[v].nick||LOOKS[v].name);$('you-name').textContent=LOOKS[v].nick||'YOU';store.set('character',v);const lh=!!LOOKS[v].lefty;document.querySelector('.court-label.left').textContent=lh?'◀ 포핸드':'◀ 백핸드';document.querySelector('.court-label.right').textContent=lh?'백핸드 ▶':'포핸드 ▶';}
 setCharacter(store.get('character')||'jersey');$('cpu-name').textContent='AI '+LOOKS[aiChar].nick;
 if(BLADES[store.get('blade')])bladeType=store.get('blade');if(RUBBERS[store.get('rubber')])rubberType=store.get('rubber');
 $('blade').value=bladeType;$('rubber').value=rubberType;setRacket(store.get('racket')||'shake');best=+store.get('best')||0;updateScore();
@@ -1143,7 +1144,7 @@ ajae:{tag:'동호회 20년 차 · 백팩 멘 아재',rows:[['plus','우기기','
 sleepy:{tag:'어디서든 잘 자는 사람 · 머리 위로 z z z',rows:[['info','잠자기','경기 시작과 3점마다 잠을 자요'],['plus','꿀잠 50%','3점 동안 모든 능력치 +10% ✨'],['minus','악몽 50%','3점 동안 모든 능력치 −10% 💀'],['perf','PERFECT','"Zzz… 음냐… 들어갔어? 😴"']]},
 minhee:{tag:'너무 강력한 포핸드 · 구리빛 단발 · 하늘색 폴로',rows:[['info','포핸드 60%','보통 공'],['plus','포핸드 10%','공 재끼기: 상대가 받을 수 없는 공 → 득점 + "쵸레이~" 🔥'],['plus','포핸드 20%','공 속도 · 회전 ×1.3'],['minus','포핸드 10%','너무 세게 쳐서 라켓이 깨져 실점 💥'],['perf','PERFECT','포핸드 드라이브 "김민희 드라이브!" · 스매싱 "김민희 스매싱!" · 쇼트 "김민희 쇼트!" · 백드라이브 "김민희 백드라이브!"']]}};
 let ciChar=null;
-function showCharInfo(k){const L=LOOKS[k],I=CHAR_INFO[k];if(!L||!I){setCharacter(k);markPending();return;}ciChar=k;drawFace($('ci-face'),L);$('ci-name').textContent=L.nick||L.name;$('ci-tag').textContent=I.tag;
+function showCharInfo(k){if(!characterAvailable(k)){toast('꿀잠범은 현재 임시 비활성화 상태입니다.',1.8);return;}const L=LOOKS[k],I=CHAR_INFO[k];if(!L||!I){setCharacter(k);markPending();return;}ciChar=k;drawFace($('ci-face'),L);$('ci-name').textContent=L.nick||L.name;$('ci-tag').textContent=I.tag;
 const ul=$('ci-list');ul.textContent='';for(const [cls,lab,txt] of I.rows){const li=document.createElement('li'),b=document.createElement('b'),sp=document.createElement('span');li.className=cls;b.textContent=lab;sp.textContent=txt;li.append(b,sp);ul.append(li);}
 $('ci-pick').textContent=k===charType?'지금 선택된 캐릭터예요 ✓':'이 캐릭터로 할래요 ✓';$('char-info').showModal();}
 $('ci-close').onclick=()=>{$('char-info').close();ciSync();};$('ci-pick').onclick=()=>{if(ciChar&&ciChar!==charType){setCharacter(ciChar);markPending();toast(LOOKS[charType].nick+' 선택!',1.2);}$('char-info').close();ciSync();
@@ -1188,6 +1189,7 @@ function restorePreviewMenu(c){if(!c?.menu)return;document.querySelector('.start
 function cancelVictoryCeremony(){clearTimeout(victoryTimer);victoryTimer=null;const c=victoryCeremony;if(c){victoryCeremony=null;victoryEvent('cancel',c);if(c.preview)restorePreviewMenu(c);}ceremonyControls(false);$('toast').style.display='';victoryStatus('');}
 function scheduleVictoryFinish(){clearTimeout(victoryTimer);if(ceremonyActive())victoryTimer=setTimeout(()=>{victoryTimer=null;tickVictoryCeremony();},Math.max(1,(victoryCeremony.duration-ceremonyElapsed())*1000));}
 function enterVictoryCeremony(c){
+if(!characterAvailable(c.winnerChar))c.winnerChar='jersey';if(!characterAvailable(c.loserChar))c.loserChar='jersey';
 cancelVictoryCeremony();victoryCeremony=c;playing=paused=false;ball=null;trail=[];fx=[];pops=[];down=false;swingMemory=null;smashUntil=-1;lastTap=null;release();me.sadT=foe.sadT=null;
 for(const st of [me,foe]){delete st.taunt;delete st.cheerT;delete st.ceremT;}
 $('overlay').classList.add('hidden');$('home').hidden=false;$('restart').hidden=!!net&&net.role==='guest';$('toss-btn').hidden=true;$('equip-pop').hidden=true;$('toast').style.display='none';
@@ -1230,7 +1232,7 @@ const wire=b=>b&&{x:b.x,y:b.y,z:b.z,vx:b.vx,vy:b.vy,vz:b.vz,spin:b.spin,side:b.s
 function me4net(){const base=project(0,-.15);return {nick:store.get('nick')||'',x:(paddle.x-base.x)/(W*.43*base.scale),side:playerSide,rk:racketType,ch:charType,shot:lastShot,h:lastHit,c:me.ceremT};}
 function snapshot(){return {t:'S',round:net.round,matchId:net.matchId,packet:++net.snapshotNo,clock:performance.now(),ceremony:ceremonyWire(),b:wire(ball),you,cpu,rally,best:matchBest,playing,reason:lastReason,seq:net.seq,...me4net()};}
 function oppServe(){ball={x:0,y:2.89,z:-.3,vx:0,vy:0,vz:0,spin:0,side:0,bounces:0,owner:'ai',held:true,tossed:false};trail=[];toast('상대 서브',1.5);}
-function takeOpp(m){const o=net.opp;o.ch=LOOKS[m.ch]?m.ch:'ai';o.nick=cleanName(m.nick||'');$('cpu-name').textContent=o.nick||LOOKS[o.ch].nick||'상대';o.x=m.x;o.side=m.side;o.rk=RACKETS[m.rk]?m.rk:'shake';if(m.h!==o.h){if(o.h!==undefined){o.hitT=time;o.shot=m.shot;}o.h=m.h;}if(Number.isFinite(m.c)&&m.c!==o.c){o.c=m.c;perfectCeremony(foe,LOOKS[o.ch]);}}
+function takeOpp(m){const o=net.opp;o.ch=characterAvailable(m.ch)?m.ch:'jersey';o.nick=cleanName(m.nick||'');$('cpu-name').textContent=o.nick||LOOKS[o.ch].nick||'상대';o.x=m.x;o.side=m.side;o.rk=RACKETS[m.rk]?m.rk:'shake';if(m.h!==o.h){if(o.h!==undefined){o.hitT=time;o.shot=m.shot;}o.h=m.h;}if(Number.isFinite(m.c)&&m.c!==o.c){o.c=m.c;perfectCeremony(foe,LOOKS[o.ch]);}}
 function onNet(m){if(!net||!m)return;
 if(m.t==='Q'||m.t==='A'){receiveNetClock(m);return;}
 if(m.t==='P')takeOpp(m);
@@ -1438,7 +1440,7 @@ function loginStatus(t){$('login-status').textContent=t;}
 // Loaded on sign-in, saved whenever a game is started from the setup window. The device copy stays as a fallback.
 const SETUP_KEYS=['racket','blade','rubber','difficulty','character'];
 async function loadCloudSetup(uid){try{const db=await remote();if(!db)return;const snap=await rankFs.getDoc(rankFs.doc(db,'settings',uid));if(!snap.exists())return;const d=snap.data();
-for(const k of SETUP_KEYS)if(typeof d[k]==='string'&&[...$(k).options].some(o=>o.value===d[k]))$(k).value=d[k];applySettings();store.set('setupDone','1');}catch{}}
+for(const k of SETUP_KEYS)if(typeof d[k]==='string'&&[...$(k).options].some(o=>o.value===d[k])&&(k!=='character'||characterAvailable(d[k])))$(k).value=d[k];applySettings();store.set('setupDone','1');}catch{}}
 async function saveCloudSetup(){if(!googleUser)return;try{const db=await remote();if(!db)return;const d={at:rankFs.serverTimestamp()};for(const k of SETUP_KEYS)d[k]=$(k).value;await rankFs.setDoc(rankFs.doc(db,'settings',googleUser.uid),d);}catch{}}
 // Naver login (네이버): Firebase has no Naver provider, so a small Cloudflare Worker (naver-worker.js) swaps the Naver
 // authorization code for a Firebase custom token. Only the public client id is here; the secret stays in the worker.
