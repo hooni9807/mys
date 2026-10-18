@@ -367,7 +367,7 @@ const SPKINDS=[['crescent','drive',1.35],['lightning','drive',1.5],['thunder','s
 let runRally=0;
 let aiTier=(()=>{try{const v=localStorage.getItem('tier');return TIERS[v]?v:'easy';}catch{return 'easy';}})(),aiCharge=0;
 const tierNow=()=>mode==='match'&&!net?aiTier:'easy',tierP=()=>{const t=tierNow();return t==='easy'?null:TIERS[t];},tierL=L=>{const t=tierP();return t?{...L,speed:L.speed*t.speed,serve:L.serve*t.serve,aim:L.aim*t.aim}:L;};
-const pracLike=()=>mode==='practice'||mode==='twoclick',dualRate=()=>mode==='twoclick'?.85:tierNow()==='extreme'?(DUAL_RATE[aiDif()]??.1):0,dualOff=()=>Math.max(40,W*.065),DUAL_GAP=.3,DUAL_CLOSE=.45;   // 투클릭: ② appears DUAL_GAP s after ① was touched and closes in over DUAL_CLOSE s
+const pracLike=()=>mode==='practice'||mode==='twoclick',dualRate=()=>mode==='twoclick'?.85:tierNow()==='extreme'?(DUAL_RATE[aiDif()]??.1):0,dualOff=()=>Math.max(40,W*.065),DUAL_GAP=.2,DUAL_CLOSE=.55;   // 투클릭: ② appears DUAL_GAP s after ① was touched and closes in over DUAL_CLOSE s
 const PRAC_MODES=['practice','cutman','twoclick'],NOEND=[...PRAC_MODES,'infdrive'],infd=()=>mode==='infdrive'&&!net,MODE_TEXT={practice:'연습 봇',cutman:'커트맨 봇전',twoclick:'투클릭 연습',infdrive:'무한 드라이브',doubles:'복식',boss:'보스전'};
 const modeText=m=>m==='match'?'AI 대전 · '+TIERS[aiTier].name:MODE_TEXT[m]||m;
 const aiDif=()=>mode==='boss'&&!net?'boss':infd()?'b5':difficulty;   // the boss plays its own level; the chosen difficulty stays untouched

@@ -438,3 +438,9 @@ test('only infinite drive hides the point score', () => {
   assert.equal(client.nodes.get('cpu').hidden, true);
   assert.equal(client.nodes.get('.score i').hidden, true);
 });
+
+test('two-click timing brings up the second target sooner and leaves a longer swing window', () => {
+  const client = createClient();
+  assert.equal(client.value('DUAL_GAP'), 0.2);
+  assert.equal(client.value('DUAL_CLOSE'), 0.55);
+});
