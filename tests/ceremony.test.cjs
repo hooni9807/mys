@@ -423,3 +423,18 @@ test('temporarily disabled sleepy character cannot be restored, selected, random
   client.run("enterVictoryCeremony({id:'temporary',winnerChar:'sleepy',loserChar:'sleepy',winnerLocal:true,duration:12,phase:'playing',localStartedAt:performance.now()})");
   assert.deepEqual(client.value('[victoryCeremony.winnerChar,victoryCeremony.loserChar]'), ['jersey', 'jersey']);
 });
+
+test('only infinite drive hides the point score', () => {
+  const client = createClient();
+  for (const mode of ['practice', 'match', 'doubles', 'boss', 'cutman', 'twoclick']) {
+    client.context.testMode = mode;
+    client.run('setMode(testMode)');
+    assert.equal(client.nodes.get('you').hidden, false, `${mode} should show the player score`);
+    assert.equal(client.nodes.get('cpu').hidden, false, `${mode} should show the opponent score`);
+    assert.equal(client.nodes.get('.score i').hidden, false, `${mode} should show the score separator`);
+  }
+  client.run("setMode('infdrive')");
+  assert.equal(client.nodes.get('you').hidden, true);
+  assert.equal(client.nodes.get('cpu').hidden, true);
+  assert.equal(client.nodes.get('.score i').hidden, true);
+});
