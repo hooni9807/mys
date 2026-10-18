@@ -67,7 +67,7 @@ html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-a
 </div></section>
 <section class="ranking" aria-labelledby="rank-title"><div class="tech-heading"><h3 id="rank-title">🏆 랭킹</h3><span id="rank-src">내 기기 기록</span></div>
 <div class="segmented rank-tabs" role="tablist"><button data-board="pvp" class="active" role="tab">PvP 레이팅</button><button data-board="rally" role="tab">최고 랠리</button><button data-board="wins" role="tab">AI전 승리</button><button data-board="inf" role="tab">♾️ 무한 드라이브</button><button data-board="bossM" role="tab">👑 김민희 클리어</button><button data-board="bossW" role="tab">😈 마왕 클리어</button></div>
-<ol id="rank-list"></ol><p class="help-note">PvP 레이팅: 온라인 1:1 랭킹전, 1000점 시작 · 이기면 +10 지면 −10 · 연승/연패마다 1점씩 더. 최고 랠리 · AI전 승리는 11점 AI 경기 후 등록 (승리 점수 = 난이도 × 10 + 점수 차).</p></section><footer><span>SPIN LAB</span> <span>작은 움직임이 만드는, 새로운 랠리.</span><span>BUILT FOR THE FEEL OF PLAY</span></footer></main><script>
+<ol id="rank-list"></ol><p class="help-note">PvP 레이팅: 온라인 1:1 랭킹전, 1000점 시작 · 이기면 +10 지면 −10 · 연승/연패마다 1점씩 더. 최고 랠리 · AI전 승리는 11점 AI 경기 후 등록 (승리 점수 = (부수 × 10 + 점수 차) × 난이도 배율: 이지 ×1 · 하드 ×1.5 · 익스트림 ×2).</p></section><footer><span>SPIN LAB</span> <span>작은 움직임이 만드는, 새로운 랠리.</span><span>BUILT FOR THE FEEL OF PLAY</span></footer></main><script>
 /* Shared swing classification and ball physics. */
 (function(root){
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -1212,6 +1212,7 @@ $('net-host').onclick=()=>netHost();$('net-join').onclick=()=>netJoin();$('net-c
 const FIREBASE_CONFIG={apiKey:"AIzaSyAWdG1ybx321oEc6PeYy7elnGsBOafpEbQ",authDomain:"spin-lab-ea7df.firebaseapp.com",
   projectId:"spin-lab-ea7df",storageBucket:"spin-lab-ea7df.firebasestorage.app",messagingSenderId:"632748801549",
   appId:"1:632748801549:web:3556b7ea3acdaba1c31f44"};   // public web config; access is guarded by firestore.rules
+const TIER_MULT={easy:1,hard:1.5,extreme:2};   // AI 대전 승리 점수 배율 (이지 x1 · 하드 x1.5 · 익스트림 x2)
 const BOSS_LABEL={minhee:'김민희 보스',boss:'탁구 마왕'};
 // Boss records from before the boss name was stored say 마왕전. Known ones that were really 김민희 are listed here.
 const BOSS_FIX=[{name:'김훈2',detail:'11:9 · 랠리 8',boss:'minhee'}];
@@ -1230,15 +1231,15 @@ function cleanName(v){return String(v).replace(/[\u0000-\u001f<>]/g,'').trim().s
 // One record per match (id = matchId, so a resend can never add it twice). Everything is captured now, so it can also be
 // sent on the next visit when the page was closed mid-game.
 function rankRecord(quit){const lv=LEVEL_NO[aiDif()]||4,won=!quit&&you>cpu&&!infd(),boss=mode==='boss'&&!net,
-tn=mode==='match'&&!net&&aiTier!=='easy'?TIERS[aiTier].name+' ':'',
-rec={id:matchId,rally:infd()?Math.min(300,matchBest):matchBest,wins:won&&!boss?lv*10+(you-cpu):0,detail:infd()?`랠리 ${matchBest}`:`${tn}${LEVEL_NAME[aiDif()]} ${you}:${cpu}${quit?' 중단':''}`,level:infd()?'무한 드라이브':boss?BOSS_LABEL[aiChar]||'보스':tn+(LEVEL_NAME[aiDif()]||'4부'),character:LOOKS[charType].nick||'선수',racket:RACKETS[racketType].name.slice(0,10)};
+tn=mode==='match'&&!net?TIERS[aiTier].name+' ':'',tm=mode==='match'&&!net?TIER_MULT[aiTier]:1,
+rec={id:matchId,rally:infd()?Math.min(300,matchBest):matchBest,wins:won&&!boss?Math.round((lv*10+(you-cpu))*tm):0,detail:infd()?`랠리 ${matchBest}`:`${you}:${cpu}${quit?' 중단':''}`,level:infd()?'무한 드라이브':boss?BOSS_LABEL[aiChar]||'보스':tn+(LEVEL_NAME[aiDif()]||'4부'),character:LOOKS[charType].nick||'선수',racket:RACKETS[racketType].name.slice(0,10)};
 // 보스 클리어 board: only a win over the boss; bigger point gap first, then the longer rally of that match
 if(boss&&won){rec.boss=(you-cpu)*100+Math.min(99,matchBest);rec.bossDetail=`${you}:${cpu} · 랠리 ${matchBest}`;}return rec;}
 // Leaving mid-game (tab closed, app killed): the running match is kept as a 중단 record and sent on the next visit.
 function keepPending(){if(playing&&!net&&matchId&&matchBest>0)store.set('rank-pending',JSON.stringify(rankRecord(true)));}
 function rankEntries(p){const base={name:cleanName(store.get('nick')||'')||'선수',level:p.level,character:p.character,racket:p.racket,detail:p.detail};
 return [['rally',p.rally],['wins',p.wins],['boss',p.boss]].filter(([,v])=>v>0).map(([k,v])=>[k,{...base,...(k==='boss'?{detail:p.bossDetail}:{}),value:v}]);}
-async function remoteRank(p){const db=await remote();if(!db)return false;for(const [k,d] of rankEntries(p))await rankFs.setDoc(rankFs.doc(db,k,p.id),{...d,at:rankFs.serverTimestamp()});return true;}
+async function remoteRank(p){const db=await remote();if(!db)return false;let part=false;for(const [k,d] of rankEntries(p)){try{await rankFs.setDoc(rankFs.doc(db,k,p.id),{...d,at:rankFs.serverTimestamp()});}catch(e){if(k==='wins'&&d.value>100)part='wins';else throw e;}}return part||true;}
 // device top 10; a match already on the list (same id) is replaced, never listed twice
 function localRank(p){for(const [k,d] of rankEntries(p)){const list=localBoard(k).filter(e=>!p.id||e.id!==p.id);list.push({...d,id:p.id,at:Date.now()});list.sort((a,b)=>b.value-a.value);store.set('rank-'+k,JSON.stringify(list.slice(0,10)));}}
 function flushPending(){const raw=store.get('rank-pending');if(!raw||playing)return;store.set('rank-pending','');let p;try{p=JSON.parse(raw);}catch{return;}if(!p||!p.id)return;
@@ -1246,13 +1247,13 @@ localRank(p);
 remoteRank(p).catch(()=>{}).then(()=>showBoard(board));toast(`지난번 중단한 경기 기록을 랭킹에 남겼어요 (최고 랠리 ${p.rally})`,2.5);}
 addEventListener('pagehide',()=>{if(!playing||net||matchBest<=0)return;keepPending();remoteRank(rankRecord(true)).catch(()=>{});});   // best effort now; the next visit sends it again (same id, no double)
 function offerRank(quit){store.set('rank-pending','');pendingRank=rankRecord(quit);
-if(!pendingRank.rally&&!pendingRank.wins&&!pendingRank.boss)return;$('rank-name').value=store.get('nick')||'';$('rank-msg').textContent=`최고 랠리 ${pendingRank.rally}`+(pendingRank.boss?` · 👑 ${pendingRank.level} 클리어 ${pendingRank.bossDetail}`:pendingRank.wins?` · 승리 점수 ${pendingRank.wins}`:' · 패배한 경기는 랠리만 등록돼요');$('rank-submit').hidden=false;$('rank-send').disabled=false;
+if(!pendingRank.rally&&!pendingRank.wins&&!pendingRank.boss)return;$('rank-name').value=store.get('nick')||'';$('rank-msg').textContent=`최고 랠리 ${pendingRank.rally}`+(pendingRank.boss?` · 👑 ${pendingRank.level} 클리어 ${pendingRank.bossDetail}`:pendingRank.wins?` · ${pendingRank.level} 승리 점수 ${pendingRank.wins}점`:' · 패배한 경기는 랠리만 등록돼요');$('rank-submit').hidden=false;$('rank-send').disabled=false;
 if(!cleanName($('rank-name').value))$('rank-name').value=cleanName(googleUser&&googleUser.displayName||'')||'선수';sendRank();}
 async function sendRank(){const name=cleanName($('rank-name').value);if(!name){$('rank-msg').textContent='닉네임을 입력하세요';return;}if(!pendingRank)return;
 store.set('nick',name);$('rank-send').disabled=true;$('rank-msg').textContent='등록 중…';
 localRank(pendingRank);
 try{const db=await remoteRank(pendingRank);
-$('rank-msg').textContent=db?'전체 랭킹에 등록했어요!':'내 기기 랭킹에 저장했어요';}catch(e){$('rank-msg').textContent='전체 랭킹 등록 실패 · 내 기기에는 저장했어요';}
+$('rank-msg').textContent=db==='wins'?'등록했어요 · 100점이 넘는 AI전 점수는 서버 규칙을 업데이트해야 올라가요':db?'전체 랭킹에 등록했어요!':'내 기기 랭킹에 저장했어요';}catch(e){$('rank-msg').textContent='전체 랭킹 등록 실패 · 내 기기에는 저장했어요';}
 pendingRank=null;showBoard(board);}
 async function showBoard(k){board=k;document.querySelectorAll('.rank-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.board===k));
 if(k==='pvp'){let rows=[],src='내 기기 기록';const me=pvpLocal();if(me.wins+me.losses)rows=[{name:store.get('nick')||'나',...me}];
@@ -1267,7 +1268,7 @@ try{const db=await remote();if(db){const q=rankFs.query(rankFs.collection(db,bk)
 $('rank-src').textContent=src;const ol=$('rank-list');ol.textContent='';
 if(!rows.length){const li=document.createElement('li');li.className='empty';li.textContent=k==='inf'?'아직 기록이 없어요. 무한 드라이브에서 랠리를 이어 보세요! ♾️':bl?`아직 ${bl}을(를) 쓰러뜨린 사람이 없어요. 보스전에서 이겨 보세요! 👑`:'아직 기록이 없어요. 11점 경기를 끝내고 등록해 보세요!';ol.append(li);return;}
 rows.forEach((r,i)=>{const li=document.createElement('li'),no=document.createElement('span'),nm=document.createElement('span'),sub=document.createElement('span'),val=document.createElement('span');
-no.className='no';no.textContent=i+1;nm.className='nm';nm.textContent=r.name;sub.className='sub';sub.textContent=bl?[bossOfRow(r),r.character,r.racket,r.detail.split(' · ')[1]].filter(Boolean).join(' · '):[r.level,r.character,k==='wins'?r.detail:''].filter(Boolean).join(' · ');val.className='val';val.textContent=k==='rally'||k==='inf'?r.value+' 랠리':bl?r.detail.split(' · ')[0]+' 클리어':r.value+'점';li.append(no,nm,sub,val);ol.append(li);});}
+no.className='no';no.textContent=i+1;nm.className='nm';nm.textContent=r.name;sub.className='sub';sub.textContent=bl?[bossOfRow(r),r.character,r.racket,r.detail.split(' · ')[1]].filter(Boolean).join(' · '):[r.level,r.character,k==='wins'?((r.detail||'').match(/\d+:\d+/)||[''])[0]:''].filter(Boolean).join(' · ');val.className='val';val.textContent=k==='rally'||k==='inf'?r.value+' 랠리':bl?r.detail.split(' · ')[0]+' 클리어':r.value+'점';li.append(no,nm,sub,val);ol.append(li);});}
 // ===== PvP rating (online 1:1). Local record always; on Firebase each device signs in anonymously and may only
 // write its own players/{uid} doc, and only with the exact rating step the rules recompute (see firestore.rules).
 function pvpLocal(){try{return {rating:1000,wins:0,losses:0,streak:0,...JSON.parse(store.get('pvp'))};}catch{return {rating:1000,wins:0,losses:0,streak:0};}}

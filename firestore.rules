@@ -20,9 +20,10 @@ service cloud.firestore {
       allow read: if true;
       allow create: if valid(300);
     }
+    // AI 대전 승리 점수: (부수 x 10 + 점수 차) x 난이도 배율 (이지 1 · 하드 1.5 · 익스트림 2), 최대 182
     match /wins/{id} {
       allow read: if true;
-      allow create: if valid(100);
+      allow create: if valid(300);
     }
     // 보스 클리어: point gap x100 + that match's best rally (max 99)
     match /boss/{id} {
