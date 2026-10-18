@@ -93,7 +93,7 @@ function perfectSpan(b){return .52*EQUIP.len*clamp(FAST_REF/Math.max(Math.abs(b.
 // over the table: from the top of its first bounce until just before the second one. A second bounce = server's point.
 // shortLeft: seconds until that second bounce (null if the ball is not a short ball) - the timing ring shrinks to it.
 function shortLeft(b,d=back(b)){const g=6+(b.spin||0)*EQUIP.spin*.55,t=(b.vz+Math.sqrt(b.vz*b.vz+2*g*Math.max(b.z,0)))/g;return b.y+b.vy*t>-d?t:null;}
-function timing(b){if(!b||b.owner!=='ai')return 'none';const d=back(b);if(b.bounces===1&&b.y>-d){const t=shortLeft(b,d);if(t!==null)return t<.14?'perfect':'ready';}if(b.bounces!==1||b.y>-d||b.y<-(b.dual?1.6:.95)-d)return 'wait';if(b.y<-.08-d-perfectSpan(b))return 'late';return b.y<=-.08-d?'perfect':'ready';}
+function timing(b){if(!b||b.owner!=='ai')return 'none';const d=back(b);if(b.bounces===1&&b.y>-d){const t=shortLeft(b,d);if(t!==null)return t<.14?'perfect':'ready';}if(b.bounces!==1||b.y>-d||b.y<-(b.dual?2.4:.95)-d)return 'wait';if(b.y<-.08-d-perfectSpan(b))return 'late';return b.y<=-.08-d?'perfect':'ready';}
 const DEEP_M=1.4,OFF_T=.18,DEEP_STEP=.2;   // up to 1.4 m further back after a long drive-vs-drive rally
 // how far past my end line the hit window starts: always clearly off the table, further back in a drive rally
 function back(b){return OFF_T+DEEP_M*(b&&b.deep||0);}
@@ -164,7 +164,8 @@ function aiReturn(kind,x,y,z,speed,aimX){if(kind==='smash'&&z<.25)kind='drive'; 
 const spin=kind==='drive'?.7:kind==='cut'?-.8:0,side=kind==='side'?(Math.random()<.5?-1:1)*1.4:0,vy=speed*(kind==='smash'?1.7:kind==='block'?.72:1),g=6+spin*.55,f=(y-.5)/vy;
 const tn=(y-1.37)/vy,clear=(.22-z+.5*g*tn*tn)/tn;   // never lower than what clears the net
 return {vx:(aimX-x)/f-.15*side*f,vy:-vy,vz:Math.max(clear,clamp((.5*g*f*f-z)/f,kind==='smash'?-1:.35,3.7)),spin,side,type:kind};}
-function step(b,dt){b.vx+=b.side*dt*.3;b.vz-=(6+b.spin*EQUIP.spin*.55)*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;b.z+=b.vz*dt;}
+// 투클릭 balls (b.dual) float: lighter gravity so there is time for two touches
+function step(b,dt){b.vx+=b.side*dt*.3;b.vz-=(6+b.spin*EQUIP.spin*.55)*dt*(b.dual?.4:1);b.x+=b.vx*dt;b.y+=b.vy*dt;b.z+=b.vz*dt;}
 // PvP rating: start 1000, win +10 / loss -10, each extra game in a streak adds 1 more (+11, +12 ... / -11, -12 ...).
 function nextRating(o,won){const streak=won?(o.streak>0?o.streak+1:1):(o.streak<0?o.streak-1:-1),delta=won?9+streak:-9+streak;
 return {rating:o.rating+delta,wins:o.wins+(won?1:0),losses:o.losses+(won?0:1),streak,delta};}
@@ -290,7 +291,7 @@ function beep(freq=420){if(!sound)return;try{audio||=new (window.AudioContext||w
 function toast(message,duration=1.5){$('toast').textContent=message;toastUntil=time+duration;}
 function reset(){for(const st of [me,foe]){delete st.ceremT;delete st.taunt;delete st.cheerT;}you=cpu=rally=0;matchBest=0;$('rank-submit').hidden=true;ball=null;wait=.65;trail=[];fx=[];lastHit=lastAIHit=-10;charge=0;lastTap=null;smashUntil=-1;swingMemory=null;release();updateSpecial();$('shot').firstChild.textContent='READY';$('shot-sub').textContent='첫 스윙을 기다리는 중';$('timing').textContent='—';$('spin').textContent='—';updateScore();}
 function updateScore(){matchBest=mode==='cutman'||mode==='twoclick'?0:Math.max(matchBest,rally);keepPending();$('you').textContent=String(you).padStart(2,'0');$('cpu').textContent=String(cpu).padStart(2,'0');$('rally').textContent=rally;$('best').textContent=best;store.set('best',best);}
-function begin(){if(!net&&!loginGate())return;if(playing&&!net&&matchBest>0)offerRank(true);reset();matchId=Date.now().toString(36)+Math.random().toString(36).slice(2,8);rollGear();me.mood=foe.mood=0;aiCharge=0;me.sadT=foe.sadT=null;if(!net){aiChar=mode==='boss'?bossChoice:mode==='infdrive'?'infibot':mode==='cutman'||mode==='twoclick'?'plain':pickAi();$('cpu-name').textContent=mode==='infdrive'?'AI 무한 리턴 봇':mode==='cutman'?'AI 커트맨':mode==='twoclick'?'AI 투클릭 봇':bossMin()?'AI 김민희 (보스)':'AI '+LOOKS[aiChar].nick+(tierNow()!=='easy'?' · '+TIERS[aiTier].name:'');if(mode==='doubles'){const other=c=>AI_CHARS.filter(k=>k!==c);mateChar=other(charType)[Math.random()*2|0]||'plain';const f2=other(aiChar);foe2Char=f2.find(k=>k!==mateChar&&k!==charType)||f2[Math.random()*2|0];$('cpu-name').textContent='AI '+LOOKS[aiChar].nick+' · '+LOOKS[foe2Char].nick;}}mate.x=foe2.x=null;clearSave();$('resume').hidden=true;$('home').hidden=false;playing=true;paused=false;down=false;updateSpecial();$('overlay').classList.add('hidden');$('pause').disabled=false;$('pause').textContent='일시정지 Ⅱ';if(!net)setTimeout(()=>{if(playing)napTick();},1800);toast(mode==='infdrive'&&!net?'♾️ 무한 드라이브 · 포핸드/백핸드 드라이브만! 봇은 100% 리턴해요 — 랠리가 몇 번 이어지는지 랭킹에 기록돼요':mode==='twoclick'&&!net?'🎯 투클릭 공 연습 · 공마다 터치 위치가 ①②로 두 곳! 차례로 두 번 쳐서 넘기세요':mode==='match'&&!net&&aiTier==='hard'?'🔥 하드 · 상대가 모든 공을 받아내고 필살기를 써요':mode==='match'&&!net&&aiTier==='extreme'?'💀 익스트림 · 하드 + 투클릭 공 (터치 위치 ①②) 주의!':mode==='cutman'&&!net?'✂️ 커트맨 봇전 · 서브는 항상 두 번 튀는 짧은 커트! 두 번째 바운드 전에 테이블 위에서 쳐요':bossMin()?'👑 보스 김민희 등장! 어떤 공도 95% 받아내요 · 포핸드/백핸드 모두 재끼기 · 라켓 파손':mode==='boss'&&!net?`😈 탁구 마왕 등장! 내가 ${BOSS.rage}점을 따면 분노해요`:'링이 라켓 크기 원에 딱 맞는 순간 스윙하세요!',3);lockPage(true);}
+function begin(){if(!net&&!loginGate())return;if(playing&&!net&&matchBest>0)offerRank(true);reset();matchId=Date.now().toString(36)+Math.random().toString(36).slice(2,8);rollGear();me.mood=foe.mood=0;aiCharge=0;me.sadT=foe.sadT=null;if(!net){aiChar=mode==='boss'?bossChoice:mode==='infdrive'?'infibot':mode==='cutman'||mode==='twoclick'?'plain':pickAi();$('cpu-name').textContent=mode==='infdrive'?'AI 무한 리턴 봇':mode==='cutman'?'AI 커트맨':mode==='twoclick'?'AI 투클릭 봇':bossMin()?'AI 김민희 (보스)':'AI '+LOOKS[aiChar].nick+(tierNow()!=='easy'?' · '+TIERS[aiTier].name:'');if(mode==='doubles'){const other=c=>AI_CHARS.filter(k=>k!==c);mateChar=other(charType)[Math.random()*2|0]||'plain';const f2=other(aiChar);foe2Char=f2.find(k=>k!==mateChar&&k!==charType)||f2[Math.random()*2|0];$('cpu-name').textContent='AI '+LOOKS[aiChar].nick+' · '+LOOKS[foe2Char].nick;}}mate.x=foe2.x=null;clearSave();$('resume').hidden=true;$('home').hidden=false;playing=true;paused=false;down=false;updateSpecial();$('overlay').classList.add('hidden');$('pause').disabled=false;$('pause').textContent='일시정지 Ⅱ';if(!net)setTimeout(()=>{if(playing)napTick();},1800);toast(mode==='infdrive'&&!net?'♾️ 무한 드라이브 · 포핸드/백핸드 드라이브만! 봇은 100% 리턴해요 — 랠리가 몇 번 이어지는지 랭킹에 기록돼요':mode==='twoclick'&&!net?'🎯 투클릭 공 연습 · ① 원을 누르면 잠시 뒤 ② 원이 떠요! 차례로 두 번 쳐서 넘기세요':mode==='match'&&!net&&aiTier==='hard'?'🔥 하드 · 상대가 모든 공을 받아내고 필살기를 써요':mode==='match'&&!net&&aiTier==='extreme'?'💀 익스트림 · 하드 + 투클릭 공 (터치 위치 ①②) 주의!':mode==='cutman'&&!net?'✂️ 커트맨 봇전 · 서브는 항상 두 번 튀는 짧은 커트! 두 번째 바운드 전에 테이블 위에서 쳐요':bossMin()?'👑 보스 김민희 등장! 어떤 공도 95% 받아내요 · 포핸드/백핸드 모두 재끼기 · 라켓 파손':mode==='boss'&&!net?`😈 탁구 마왕 등장! 내가 ${BOSS.rage}점을 따면 분노해요`:'링이 라켓 크기 원에 딱 맞는 순간 스윙하세요!',3);lockPage(true);}
 // Doubles (복식) vs AI: me + AI partner against two AIs. Each side's players must hit in turn; every serve goes
 // diagonally from the server's right half to the receiver's right half; within each team the server (and my team's
 // receiver) changes every time the serve comes round.
@@ -353,7 +354,7 @@ const SPKINDS=[['crescent','drive',1.35],['lightning','drive',1.5],['thunder','s
 let runRally=0;
 let aiTier=(()=>{try{const v=localStorage.getItem('tier');return TIERS[v]?v:'easy';}catch{return 'easy';}})(),aiCharge=0;
 const tierNow=()=>mode==='match'&&!net?aiTier:'easy',tierP=()=>{const t=tierNow();return t==='easy'?null:TIERS[t];},tierL=L=>{const t=tierP();return t?{...L,speed:L.speed*t.speed,serve:L.serve*t.serve,aim:L.aim*t.aim}:L;};
-const pracLike=()=>mode==='practice'||mode==='twoclick',dualRate=()=>mode==='twoclick'?.85:tierNow()==='extreme'?(DUAL_RATE[aiDif()]??.1):0,dualOff=()=>Math.max(40,W*.065);
+const pracLike=()=>mode==='practice'||mode==='twoclick',dualRate=()=>mode==='twoclick'?.85:tierNow()==='extreme'?(DUAL_RATE[aiDif()]??.1):0,dualOff=()=>Math.max(40,W*.065),DUAL_GAP=.3,DUAL_CLOSE=.45;   // 투클릭: ② appears DUAL_GAP s after ① was touched and closes in over DUAL_CLOSE s
 const PRAC_MODES=['practice','cutman','twoclick'],NOEND=[...PRAC_MODES,'infdrive'],infd=()=>mode==='infdrive'&&!net,MODE_TEXT={practice:'연습 봇',cutman:'커트맨 봇전',twoclick:'투클릭 연습',infdrive:'무한 드라이브',doubles:'복식',boss:'보스전'};
 const modeText=m=>m==='match'?'AI 대전 · '+TIERS[aiTier].name:MODE_TEXT[m]||m;
 const aiDif=()=>mode==='boss'&&!net?'boss':infd()?'b5':difficulty;   // the boss plays its own level; the chosen difficulty stays untouched
@@ -374,16 +375,23 @@ $('special-status').textContent=ready?'✦ 충전 완료 · 다음 타격에 자
 }
 // Shrinking ring: appears as the ball crosses the net and closes in on a racket-sized circle; when they match (PERFECT window,
 // just past my end line) swing. It keeps shrinking and turns red while the ball is late.
+// 투클릭 rings, rhythm-game style: ① shows first; once it is touched a ✓ stays and ② appears DUAL_GAP later, closing in so that it is PERFECT when it meets the racket circle.
+function dualRing(p0,state){const off=dualOff(),R0=19*p0.scale*P.EQUIP.len;ctx.save();ctx.textAlign='center';
+const ring=(x,r,col,w,label)=>{ctx.setLineDash([3,4]);ctx.lineWidth=1.5;ctx.strokeStyle='#f3eeff70';ctx.beginPath();ctx.arc(x,p0.y,R0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=w;ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=12;ctx.beginPath();ctx.arc(x,p0.y,r,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=col;ctx.font='bold 15px Arial';ctx.fillText(label,x,p0.y+5);};
+if(!ball.dualHit){const y=ball.y+P.back(ball),r=y>-.08?R0+(y+.08)/1.45*95*p0.scale:R0,col=state==='wait'?'#f3eeff':'#ffd166';ring(p0.x-off,r,col,state==='wait'?3:5,'①');ctx.font='bold 11px Arial';ctx.fillStyle='#f3eeffcc';ctx.fillText(state==='wait'?'①':'① 지금 터치',p0.x-off,p0.y-R0-12);}
+else{ctx.fillStyle='#7dffb2';ctx.font='bold 16px Arial';ctx.fillText('✓',p0.x-off,p0.y+5);const t=time-ball.dualT-DUAL_GAP;
+if(t>=0){const e=t-DUAL_CLOSE,r=R0+P.clamp(1-t/DUAL_CLOSE,0,1.2)*70*p0.scale,col=Math.abs(e)<.12?'#7dffb2':e>.22?'#ff4d6d':'#ffd166';ring(p0.x+off,r,col,Math.abs(e)<.12?6:4,'②');ctx.font='bold 11px Arial';ctx.fillStyle=col;ctx.fillText(Math.abs(e)<.12?'지금!':e>.22?'LATE':'② 터치',p0.x+off,p0.y-R0-12);}}
+ctx.restore();}
 function timingRing(p0){
 const state=P.timing(ball);if(state==='none'||ball.unreturn||ball.y>1.37||mode==='doubles'&&myTurn==='mate')return;
-const off=dualOff(),p=ball.dual?{...p0,x:p0.x+(ball.dualHit?off:-off)}:p0;   // 투클릭: the ring sits on the active touch point
+if(ball.dual){dualRing(p0,state);return;}
+const p=p0;
 const racketR=19*p.scale*P.EQUIP.len,y=ball.y+P.back(ball),color={wait:'#f3eeff',ready:'#ffd166',perfect:'#7dffb2',late:'#ff4d6d'}[state];
 const sl=ball.bounces===1&&ball.y>-P.back(ball)?P.shortLeft(ball):null;   // over-the-table ball: ring closes on the second bounce
 const r=sl!==null?racketR+P.clamp(sl/.5,0,1)*70*p.scale:y>-.08?racketR+(y+.08)/1.45*95*p.scale:state==='perfect'?racketR:racketR*P.clamp(1-(-.6-y)/.4,.35,1);
 ctx.save();ctx.setLineDash([3,4]);ctx.lineWidth=1.5;ctx.strokeStyle='#f3eeff70';ctx.beginPath();ctx.arc(p.x,p.y,racketR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);   // racket-size target
 ctx.lineWidth=state==='perfect'?5:3;ctx.strokeStyle=color;ctx.shadowColor=color;ctx.shadowBlur=state==='perfect'?22:10;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
 ctx.fillStyle=color;ctx.font='bold 11px Arial';ctx.textAlign='center';if(state!=='wait')ctx.fillText({ready:'READY',perfect:'지금!',late:'LATE'}[state],p.x,p.y-Math.max(r,racketR)-9);
-if(ball.dual){const o=p0.x+(ball.dualHit?-off:off);ctx.setLineDash([3,4]);ctx.lineWidth=1.5;ctx.strokeStyle='#f3eeff66';ctx.beginPath();ctx.arc(o,p0.y,racketR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.font='bold 14px Arial';ctx.fillStyle=ball.dualHit?'#7dffb2':'#f3eeff99';ctx.fillText(ball.dualHit?'①':'②',o,p0.y+5);ctx.fillStyle=color;ctx.fillText(ball.dualHit?'②':'①',p.x,p.y+5);}
 ctx.restore();const k=KIND[shotKind(ball)];pill(k.label,p.x,p.y+Math.max(r,racketR)+19,k.rgb,12);
 }
 // Shot kinds on screen: one colour + label per kind, used for the ball trail, the spin line, the ring badge and the callout over the opponent.
@@ -802,7 +810,7 @@ ANSWER={cut:'커트 · 드라이브',drive:'블록(탭) · 드라이브',smash:'
 function hit(tap){
 if(mode==='doubles'&&ball&&!ball.held&&ball.owner==='ai'&&myTurn==='mate')return;   // partner's ball
 if(ball&&ball.held){if(playing&&!paused&&ball.owner==='you')serveHit();return;}
-if(!playing||paused||!ball||ball.owner!=='ai'||ball.bounces!==1||time-lastHit<.3||ball.unreturn||ball.dual&&ball.dualHit&&time-ball.dualT<.1)return;
+if(!playing||paused||!ball||ball.owner!=='ai'||ball.bounces!==1||time-lastHit<.3||ball.unreturn||ball.dual&&ball.dualHit&&time-ball.dualT<DUAL_GAP)return;
 if(tap==='short'&&P.incoming(ball)==='drive')tap='block';
 let smash=infd()?false:time<=smashUntil;const state=P.timing(ball);if(state==='wait'||state==='none')return;
 const motion=swingMemory&&time<=swingMemory.until?swingMemory:null,R=RACKETS[racketType];
@@ -810,8 +818,8 @@ if(!smash&&!tap&&motion&&ball.chance&&(motion.dir!=='down'||racketType==='defens
 const p0=project(ball.x,ball.y,ball.z),p=ball.dual?{...p0,x:p0.x+(ball.dualHit?dualOff():-dualOff())}:p0;let distance=Math.hypot(p.x-paddle.x,p.y-paddle.y);   // 투클릭: touch point ① (left of the ball) first, then ② (right)
 if(motion){const dx=motion.x-motion.fromX,dy=motion.y-motion.fromY,t=P.clamp(((p.x-motion.fromX)*dx+(p.y-motion.fromY)*dy)/(dx*dx+dy*dy||1),0,1);distance=Math.min(distance,Math.hypot(p.x-motion.fromX-t*dx,p.y-motion.fromY-t*dy));}
 if(distance>Math.max(touchInput?64:52,W*.075)*R.reach*(ball.kill?.75:1)||(!smash&&!motion&&!tap))return;   // a kill smash is harder to reach
-if(ball.dual&&!ball.dualHit){ball.dualHit=true;ball.dualT=time;swingMemory=null;lastTap=null;mySwing.type='short';mySwing.t=time;fx.push({x:p.x,y:p.y,t:time});pops.push({x:p.x,y:p.y,t:time,text:'①',rgb:'125,255,178'});beep(560);toast('① 성공! 이제 ② 로!',1);return;}
-const quality=state==='perfect'?(distance<Math.max(touchInput?42:28,W*.04)*R.reach*(R.perfect||1)?'PERFECT':'GREAT'):state==='late'?'LATE':'GOOD';
+if(ball.dual&&!ball.dualHit){ball.dualHit=true;ball.dualT=time;swingMemory=null;lastTap=null;mySwing.type='short';mySwing.t=time;fx.push({x:p.x,y:p.y,t:time});pops.push({x:p.x,y:p.y,t:time,text:'①',rgb:'125,255,178'});beep(560);toast('① 성공! 잠시 뒤 ② 원이 떠요',1);return;}
+const qs=ball.dual&&ball.dualHit?(Math.abs(time-ball.dualT-DUAL_GAP-DUAL_CLOSE)<.12?'perfect':time-ball.dualT-DUAL_GAP-DUAL_CLOSE>.22?'late':'ready'):state,quality=qs==='perfect'?(distance<Math.max(touchInput?42:28,W*.04)*R.reach*(R.perfect||1)?'PERFECT':'GREAT'):qs==='late'?'LATE':'GOOD';
 if(motion&&motion.side)playerSide=motion.side==='right'?1:-1;else updateSide();
 const special=!infd()&&charge===100;if(special&&R.special==='chiquita')playerSide=-fhDir();
 const boost=racketType==='jpen'&&playerSide*fhDir()>0?{loop:1.25,drive:1.25,side:1.25}:racketType==='shake'&&playerSide*fhDir()<0?{loop:1.25,drive:1.25,back:1.25}:R.boost;
@@ -873,10 +881,10 @@ if(!net&&ball.owner==='you'&&ball.bounces===1&&(ball.y>2.8+P.DEEP_M*deep||!deep&
 if((bossMin()||infd()||Math.abs(ball.x)<.87&&ball.z<(ball.chance?1.5:.8+.6*deep))&&(infd()||Math.random()<(bossMin()?.95:chance*(aiT&&aiFore===aiT.weak?1-TRAIT_ERR:1)*(1-SLEEP_K*(me.mood||0))*(1+SLEEP_K*(foe.mood||0))))){const wasChance=!!ball.chance;const L=tierL(P.LEVELS[dif]||P.LEVELS.b4),speed=L.speed*(1+SLEEP_K*(foe.mood||0)),mix=mode==='cutman'?[.04,.98]:pracLike()?P.LEVELS.b7.mix:L.mix,r=Math.random(),spk=tierNow()!=='easy'&&aiCharge>=100&&!wasChance?SPKINDS[Math.random()*SPKINDS.length|0]:null,dualNow=!spk&&!wasChance&&!LOOKS[aiChar].drunk&&Math.random()<dualRate(),kind=infd()?'drive':spk?spk[1]:dualNow?(r<.7?'drive':'cut'):(drunkR=LOOKS[aiChar].drunk?Math.random():1)<DRUNK_FLOAT?'block':wasChance&&Math.random()<.85?'smash':P.incoming(ball)==='drive'&&Math.random()<AI_BLOCK?'block':r<mix[0]?'drive':r<mix[1]?'cut':'smash';
 const myType=ball.type;
 // spk: 하드 / 익스트림 AI fires a 필살기 once its gauge is full · dualNow: 투클릭 공 (two touch points, so it comes in slower), chosen up front so its share matches the table
-Object.assign(ball,P.aiReturn(spk?spk[1]:kind,ball.x,ball.y,ball.z,(dualNow?speed*.72:speed)*(spk?spk[2]:1),(Math.random()-.5)*(infd()?.4:pracLike()?.5:L.aim)),{bounces:0,owner:'ai',chance:kind==='block',kill:wasChance&&kind==='smash'&&ball.z>=.25,power:false,shadow:false,skill:null,dual:dualNow,dualHit:false,aiSpecial:!!spk});
-if(infd())fitReturn(ball);
+Object.assign(ball,P.aiReturn(spk?spk[1]:kind,ball.x,ball.y,ball.z,(dualNow?1.5:speed)*(spk?spk[2]:1),(Math.random()-.5)*(infd()?.4:pracLike()?.5:L.aim)),{bounces:0,owner:'ai',chance:kind==='block',kill:wasChance&&kind==='smash'&&ball.z>=.25,power:false,shadow:false,skill:null,dual:dualNow,dualHit:false,aiSpecial:!!spk});
+if(infd()||dualNow)fitReturn(ball);
 if(spk){ball.type=spk[0];aiCharge=0;ball.skill=`AI 필살기! ${SPECIALS[spk[0]].name} ⚡ PERFECT로 막으세요`;}else if(tierNow()!=='easy'){aiCharge=Math.min(100,aiCharge+(dualNow?25:20));if(aiCharge>=100)ball.skill='AI 필살기 충전 완료! ⚡ 다음 공을 조심하세요';}
-if(dualNow)ball.skill='🎯 투클릭 공! ①② 두 곳을 차례로 터치하세요';
+if(dualNow)ball.skill='🎯 투클릭 공! ① 원을 누르면 잠시 뒤 ② 원이 떠요';
 if(infd()&&(rally+1)%10===0)ball.skill=`♾️ ${rally+1}회 연속 드라이브!`;
 deepen(P.family(myType)==='drive'&&kind==='drive');
 const aiPower=aiT&&aiFore===aiT.strong&&!ball.kill&&kind!=='block'&&Math.random()<TRAIT_POWER;if(aiPower)Object.assign(ball,P.power(ball,ball.y,ball.z,TRAIT_MULT));
