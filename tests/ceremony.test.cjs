@@ -444,3 +444,11 @@ test('two-click timing brings up the second target sooner and leaves a longer sw
   assert.equal(client.value('DUAL_GAP'), 0.2);
   assert.equal(client.value('DUAL_CLOSE'), 0.55);
 });
+
+test('AI win score adds drive-rally bonuses and subtracts conceded-point penalties', () => {
+  const client = createClient();
+  assert.equal(client.value('rankWinScore(4,4,3,7,2)'), 80);
+  assert.equal(client.value('rankWinScore(4,2,0,9,1)'), 24);
+  assert.equal(client.value('rankWinScore(1,2,0,99,1)'), 1);
+  assert.equal(client.value('rankWinScore(8,100,1000,0,2)'), 500);
+});
