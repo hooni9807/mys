@@ -67,6 +67,18 @@ service cloud.firestore {
         && request.resource.data.at == request.time;
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
+    // 친구창: who is online. Each signed-in player writes only its own presence doc.
+    match /presence/{uid} {
+      allow read: if true;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom']
+        && request.resource.data.keys().hasOnly(['name', 'status', 'at'])
+        && request.resource.data.keys().hasAll(['name', 'status', 'at'])
+        && request.resource.data.name is string && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 12
+        && request.resource.data.status is string && request.resource.data.status.size() <= 12
+        && request.resource.data.at == request.time;
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
     match /players/{uid} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == uid && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom'] && pvpShape(request.resource.data)
