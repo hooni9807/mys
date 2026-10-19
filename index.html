@@ -535,9 +535,9 @@ function timingRing(p0){
 const state=P.timing(ball);if(state==='none'||ball.unreturn||ball.y>1.37||mode==='doubles'&&myTurn==='mate'||net&&net.dbl&&!dblMine())return;
 if(ball.dual){dualRing(p0,state);return;}
 const p=p0;
-const racketR=19*p.scale*P.EQUIP.len,y=ball.y+P.back(ball),color={wait:'#f3eeff',ready:'#ffd166',perfect:'#7dffb2',late:'#ff4d6d'}[state];
+const racketR=19*p.scale*P.EQUIP.len*ringK,y=ball.y+P.back(ball),color={wait:'#f3eeff',ready:'#ffd166',perfect:'#7dffb2',late:'#ff4d6d'}[state];
 const sl=ball.bounces===1&&ball.y>-P.back(ball)?P.shortLeft(ball):null;   // over-the-table ball: ring closes on the second bounce
-const r=sl!==null?racketR+P.clamp(sl/.5,0,1)*70*p.scale:y>-.08?racketR+(y+.08)/1.45*95*p.scale:state==='perfect'?racketR:racketR*P.clamp(1-(-.6-y)/.4,.35,1);
+const r=sl!==null?racketR+P.clamp(sl/.5,0,1)*70*p.scale*ringK:y>-.08?racketR+(y+.08)/1.45*95*p.scale*ringK:state==='perfect'?racketR:racketR*P.clamp(1-(-.6-y)/.4,.35,1);
 ctx.save();ctx.setLineDash([3,4]);ctx.lineWidth=1.5;ctx.strokeStyle='#f3eeff70';ctx.beginPath();ctx.arc(p.x,p.y,racketR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);   // racket-size target
 ctx.lineWidth=state==='perfect'?5:3;ctx.strokeStyle=color;ctx.shadowColor=color;ctx.shadowBlur=state==='perfect'?22:10;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
 ctx.fillStyle=color;ctx.font='bold 11px Arial';ctx.textAlign='center';if(state!=='wait')ctx.fillText({ready:'READY',perfect:'지금!',late:'LATE'}[state],p.x,p.y-Math.max(r,racketR)-9);
@@ -921,7 +921,7 @@ const baseZ=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK*(1-.4*deepS);let go
 cam.cx=lerp(cam.cx||W/2,inc?hx:W/2,k);cam.cy=lerp(cam.cy||H*.62,inc?me.waistY:H*.62,k);cam.ax=lerp(cam.ax||W/2,W/2,k);cam.ay=lerp(cam.ay||H*.62,inc?H*.5:H*.62,k);}
 // 투클릭: if the ball, ① or ② would leave the screen, zoom out just enough to keep them all in view; the rings and the
 // touch radius are scaled back up by ringK so they stay the same size on screen
-if(ball&&ball.dual&&!ball.held&&ball.owner==='ai'&&ball.bounces===1){const p0=project(ball.x,ball.y,ball.z),m=56,pts=[p0,{x:p0.x-dualOff(),y:p0.y},ball.dualX!=null?project(ball.dualX,ball.y,ball.z):{x:p0.x+dualOff(),y:p0.y}];
+if(ball&&!ball.held&&ball.owner==='ai'&&(ball.dual||deep>0)){goalZ=Math.min(goalZ,baseZ*.85);const p0=project(ball.x,ball.y,ball.z),m=56,pts=[p0,{x:p0.x,y:p0.y-40},project(ball.x,contactY(),.25)];if(ball.dual&&ball.bounces===1)pts.push({x:p0.x-dualOff(),y:p0.y},ball.dualX!=null?project(ball.dualX,ball.y,ball.z):{x:p0.x+dualOff(),y:p0.y});   // 맞드라이브 / 투클릭: wider view, the high ball and its hit spot always on screen
 for(const q of pts){const dx=Math.abs(q.x-cam.cx),up=cam.cy-q.y,dn=q.y-cam.cy;if(dx>1)goalZ=Math.min(goalZ,(W/2-m)/dx);if(up>1)goalZ=Math.min(goalZ,(cam.ay-m)/up);if(dn>1)goalZ=Math.min(goalZ,(H-cam.ay-m)/dn);}goalZ=Math.max(goalZ,baseZ*.45);}
 cam.z=lerp(cam.z,goalZ,Math.min(1,cdt*(focus?10:4)));ringK=Math.max(1,baseZ/cam.z);if(Math.abs(cam.z-goalZ)<.002)cam.z=goalZ;
 const sk=Math.max(0,1-(time-shakeT)/.5)*10;ctx.save();ctx.translate(cam.ax+(Math.random()-.5)*sk,cam.ay+(Math.random()-.5)*sk);ctx.scale(cam.z,cam.z);ctx.translate(-cam.cx,-cam.cy);renderScene();ctx.restore();courtHud();}
