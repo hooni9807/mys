@@ -1032,6 +1032,7 @@ if(verdict==='ok'&&!special&&!flair&&!shot.chance&&P.family(shot.type)==='cut'&&
 if(fh&&(f==='drive'||f==='smash')&&Math.random()<.05){shot=P.miss(shot,ball.y,ball.z,'over');flair='overhit';}
 else if(f==='cut'){if(inc==='drive')shot={...shot,spin:shot.spin*({PERFECT:1.1,GREAT:1.05,GOOD:1.025}[quality]||1)};
 if(!fh){if(ball.type==='serve'&&(ball.spin||0)<0)shot={...shot,spin:Math.max(.6,Math.abs(shot.spin)),type:'loop'};
+else if(inc==='cut')shot={...shot,spin:.35,type:'loop'};   // rally cut on the backhand long: unwinds into a weak topspin
 if(quality==='PERFECT')shot={...P.power(shot,ball.y,ball.z,1.15),defMiss:.05};else if(quality==='GREAT')shot={...shot,defMiss:.025};}}}}
 // 충대 화잡이: forehand drives x1.3 speed and x1.5 spin
 {const L=LOOKS[charType];if(L.fhDrive&&verdict==='ok'&&!special&&!flair&&!shot.chance&&P.family(shot.type)==='drive'&&playerSide*fhDir()>0){const pw=P.power(shot,ball.y,ball.z,L.fhDrive.speed);shot={...pw,spin:pw.spin*L.fhDrive.spin,power:true};}}
@@ -1248,7 +1249,7 @@ $('blade').value=bladeType;$('rubber').value=rubberType;setRacket(store.get('rac
 $('apply-settings').onclick=applySettings;markPending();
 // Character card: what each character can do, shown before picking one
 const CHAR_INFO={
-songstar:{tag:'커트 수비의 달인 · 수비수 라켓',rows:[['plus','백핸드 롱 수비','PERFECT: 낮고 빠른 커트 + 상대 실수 +5% · GREAT: 보통 커트 + 상대 실수 +2.5%'],['info','서브 리시브','회전(상회전) 서브를 백핸드 롱으로 받으면 커트로 · 커트 서브를 받으면 상회전으로 바꿔서 리턴'],['plus','드라이브 커트','드라이브를 커트로 막으면 회전 추가: PERFECT +10% · GREAT +5% · GOOD +2.5%'],['plus','찬스볼','상대가 띄운 공은 스매싱 · 드라이브'],['minus','포핸드 공격','포핸드 드라이브 · 스매싱은 5% 확률로 너무 세게 쳐서 실수'],['perf','PERFECT','"허허이! 😆" / "으악~ 😱"']]},
+songstar:{tag:'커트 수비의 달인 · 수비수 라켓',rows:[['plus','백핸드 롱 수비','PERFECT: 낮고 빠른 커트 + 상대 실수 +5% · GREAT: 보통 커트 + 상대 실수 +2.5%'],['info','회전 바꾸기','백핸드 롱으로 상회전 서브를 받으면 커트로 · 커트 서브는 상회전으로 · 랠리 중 커트 공은 약한 상회전으로 풀려서 리턴'],['plus','드라이브 커트','드라이브를 커트로 막으면 회전 추가: PERFECT +10% · GREAT +5% · GOOD +2.5%'],['plus','찬스볼','상대가 띄운 공은 스매싱 · 드라이브'],['minus','포핸드 공격','포핸드 드라이브 · 스매싱은 5% 확률로 너무 세게 쳐서 실수'],['perf','PERFECT','"허허이! 😆" / "으악~ 😱"']]},
 chungdae:{tag:'충대 포핸드 장인',rows:[['plus','포핸드 드라이브','회전 ×1.5 · 속도 ×1.3'],['minus','서브','10% 확률로 서브 미스 (실점)'],['perf','PERFECT','"오~~ 👏" 감탄']]},
 kumho:{tag:'6부 20년 차 · 금호탁구장 관장님 · 일본식 펜홀더',rows:[['info','로빙','모든 리시브가 높이 뜬 로빙 (상대에게 찬스볼이지만 받기가 20% 까다로워요 → 실수 유도)'],['plus','연속 로빙','한 랠리에서 2번째 로빙부터 상대 실수 +2.5%씩 (3번째 +5% · 4번째 +7.5% · 5번째 +10% … 최대 +25%)'],['plus','찬스볼','상대 공이 뜨면 스윙 한 번으로 스매싱'],['info','서브','서브는 무조건 상회전 서브'],['perf','PERFECT','"이게 6부에서 20년 있던 실력? 😎"']]},
 jongryeong:{tag:'백핸드 장인 · 곱슬머리 안경',rows:[['plus','백핸드 10%','백스매시! 공 속도 ×1.3 💥'],['plus','백핸드 블록','상대 공격을 백핸드로 막을 때 PERFECT · GREAT 성공률 +5%'],['minus','포핸드 5%','공이 붕 떠서 상대 스매시 찬스'],['perf','PERFECT','"이게 빽종령~ 😏"']]},
