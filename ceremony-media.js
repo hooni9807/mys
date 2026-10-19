@@ -75,11 +75,4 @@
   window.addEventListener('spin-sound', () => { if (!active()) return; if (sound) startMusic(); else { stopMusic(); showStatus(); } });
   document.addEventListener('visibilitychange', () => { if (!active()) return; if (document.hidden) stopMusic(); else startMusic(); });
   window.addEventListener('pagehide', stop);
-  for (const [id, won] of [['ceremony-preview-win', true], ['ceremony-preview-lose', false]]) {
-    document.getElementById(id).onclick = () => {
-      if (net || playing || active()) return;
-      setSound(true);   // the preview buttons say they play dance + music
-      previewVictoryCeremony(won);
-    };
-  }
 })();
