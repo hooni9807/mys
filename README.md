@@ -506,6 +506,11 @@ node --test tests/*.test.cjs
 
 최신 순. 버전 옆 코드를 누르면 해당 변경 내용을 볼 수 있습니다.
 
+### v3.27 — 실제 탁구 타구음 ([dc77645](https://github.com/hooni9807/spin-tt/commit/dc77645)) · 2026-10-19
+- 라켓에 맞을 때 · 테이블에 튈 때 **실제 탁구 소리** (전자음 대신). 타구음 4개 · 바운드음 4개 중 매번 랜덤 + 살짝 다른 높이로 재생해 반복감 줄임
+- 소리 출처: Wikimedia Commons [Ping pong.ogg](https://commons.wikimedia.org/wiki/File:Ping_pong.ogg) (원 출처 pdsounds.org, **퍼블릭 도메인**)에서 0.12초씩 잘라 `sounds/` 폴더에 저장 (파일당 약 5KB)
+- 필살기 타구는 실제 타구음 + 기존 효과음 같이
+
 ### v3.26 — 딸각세 서브 압박 개편 ([1f3a181](https://github.com/hooni9807/spin-tt/commit/1f3a181)) · 2026-10-19
 - 상대 리시브 −25% → 딸각세 서브를 받은 공이 **30% 붕 떠서 찬스볼 · 5% 네트 · 5% 아웃** (나 · AI · 1대1 상대 모두 동일 규칙)
 
