@@ -439,6 +439,10 @@ node --test tests/*.test.cjs
 
 최신 순. 버전 옆 코드를 누르면 해당 변경 내용을 볼 수 있습니다.
 
+### v2.84 — 찬스볼 강타 리시브 ([c7cc8b7](https://github.com/hooni9807/spin-tt/commit/c7cc8b7)) · 2026-10-19
+- 찬스볼 강타도 타이밍대로 받아져요: **PERFECT 낮고 빠르게 · GREAT 보통 · GOOD 붕 떠서 상대가 또 찬스볼 스매싱** (드라이브 · 쇼트 모두)
+- 보스 지옥불 스매시만 여전히 PERFECT로만 막을 수 있어요
+
 ### v2.83 — 투클릭 ② 탭 허용 ([1806224](https://github.com/hooni9807/spin-tt/commit/1806224)) · 2026-10-19
 - ② 는 스윙 · 탭 모두 가능 ("② 는 스윙으로!" 안내 삭제)
 
