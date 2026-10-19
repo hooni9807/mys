@@ -475,6 +475,9 @@ node --test tests/*.test.cjs
 
 최신 순. 버전 옆 코드를 누르면 해당 변경 내용을 볼 수 있습니다.
 
+### v3.03 — 아재범 너프 ([d64eee0](https://github.com/hooni9807/spin-tt/commit/d64eee0)) · 2026-10-19
+- 서브 우기기 50% → **30%** (AI 아재범도 동일)
+
 ### v3.02 — 송스타 랠리 중 회전 바꾸기 ([f2b3e43](https://github.com/hooni9807/spin-tt/commit/f2b3e43)) · 2026-10-19
 - 랠리 중에도 커트 공을 백핸드 롱으로 받으면 **약한 상회전**으로 풀려서 넘어가요
 
