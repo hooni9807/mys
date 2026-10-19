@@ -90,6 +90,18 @@ service cloud.firestore {
         && request.resource.data.unlocked is list && request.resource.data.unlocked.size() <= 40
         && request.resource.data.at == request.time;
     }
+    // 레벨 랭킹: each signed-in player writes only its own row; anyone may read the board.
+    match /levels/{uid} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom']
+        && request.resource.data.keys().hasOnly(['name', 'xp', 'chars', 'at'])
+        && request.resource.data.keys().hasAll(['name', 'xp', 'chars', 'at'])
+        && request.resource.data.name is string && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 12
+        && request.resource.data.xp is int && request.resource.data.xp >= 0
+        && request.resource.data.chars is int && request.resource.data.chars >= 1 && request.resource.data.chars <= 40
+        && request.resource.data.at == request.time;
+    }
     match /players/{uid} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == uid && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom'] && pvpShape(request.resource.data)

@@ -107,7 +107,7 @@ html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-a
 <article class="special-tech"><span class="tech-icon">✦</span><div><b>필살기 · 라켓마다 다름</b><small>게이지 100% → 다음 타격에 자동 발동! 쉐이크 초승달 드라이브 · 중펜 번개 속공 · 일펜 천둥 스매시 · 수비 유령 커트</small></div><span class="tech-number">09</span></article>
 </div></section>
 <section class="ranking" aria-labelledby="rank-title"><div class="tech-heading"><h3 id="rank-title">🏆 랭킹</h3><span id="rank-src">내 기기 기록</span></div>
-<div class="segmented rank-tabs" role="tablist"><button data-board="pvp" class="active" role="tab">PvP 레이팅</button><button data-board="rally" role="tab">최고 랠리</button><button data-board="wins" role="tab">AI전 승리</button><button data-board="inf" role="tab">♾️ 무한 드라이브</button><button data-board="bossM" role="tab">👑 민희쌤 클리어</button><button data-board="bossW" role="tab">😈 마왕 클리어</button></div>
+<div class="segmented rank-tabs" role="tablist"><button data-board="pvp" class="active" role="tab">PvP 레이팅</button><button data-board="level" role="tab">⭐ 레벨</button><button data-board="rally" role="tab">최고 랠리</button><button data-board="wins" role="tab">AI전 승리</button><button data-board="inf" role="tab">♾️ 무한 드라이브</button><button data-board="bossM" role="tab">👑 민희쌤 클리어</button><button data-board="bossW" role="tab">😈 마왕 클리어</button></div>
 <ol id="rank-list"></ol><p class="help-note">PvP 레이팅: 온라인 1:1 랭킹전, 1000점 시작 · 이기면 +10 지면 −10 · 연승/연패마다 1점씩 더. 최고 랠리 · AI전 승리는 11점 AI 경기 후 등록 (승리 점수 = (부수 × 10 + 점수 차) × 난이도 배율: 이지 ×1 · 하드 ×1.5 · 익스트림 ×2).</p></section><footer><span>SPIN LAB</span> <span>작은 움직임이 만드는, 새로운 랠리.</span><span>BUILT FOR THE FEEL OF PLAY</span></footer></main><script>
 /* Shared swing classification and ball physics. */
 (function(root){
@@ -286,7 +286,7 @@ const XP={ai:50,pvp:80,boss:100},XP_LEVEL=100,START_CHARS=['jersey'],UNLOCKABLE=
 let prog=(()=>{try{const p=JSON.parse(localStorage.getItem('spinlab.progress'));if(p&&Array.isArray(p.unlocked))return p;}catch{}return {xp:0,unlocked:[...START_CHARS]};})();
 const charUnlocked=k=>prog.unlocked.includes(k)||!UNLOCKABLE().includes(k),
 progLevel=()=>1+Math.floor(prog.xp/XP_LEVEL),picksOwed=()=>Math.min(progLevel()-1-(prog.unlocked.length-START_CHARS.length),UNLOCKABLE().filter(k=>!prog.unlocked.includes(k)).length);
-function saveProg(cloud=true){store.set('progress',JSON.stringify(prog));renderLevel();if(cloud&&googleUser)pvpRemote().then(db=>db&&rankFs.setDoc(rankFs.doc(db,'progress',rankUid),{xp:prog.xp,unlocked:prog.unlocked,q:prog.q||{},runes:prog.runes||{},runeSets:prog.runeSets||{},at:rankFs.serverTimestamp()})).catch(()=>{});}
+function saveProg(cloud=true){store.set('progress',JSON.stringify(prog));renderLevel();if(cloud&&googleUser)pvpRemote().then(db=>db&&rankFs.setDoc(rankFs.doc(db,'progress',rankUid),{xp:prog.xp,unlocked:prog.unlocked,q:prog.q||{},runes:prog.runes||{},runeSets:prog.runeSets||{},at:rankFs.serverTimestamp()}).then(()=>rankFs.setDoc(rankFs.doc(db,'levels',rankUid),{name:myName(),xp:prog.xp,chars:prog.unlocked.length,at:rankFs.serverTimestamp()}))).catch(()=>{});}   // levels/{uid}: the public 레벨 ranking row
 function renderLevel(){if($('q-list'))renderQuests();if($('rn-badge'))$('rn-badge').hidden=runePoints()-runeSpent()<=0;const lv=progLevel(),into=prog.xp%XP_LEVEL;$('lv-label').textContent='Lv '+lv;$('lv-fill').style.width=into+'%';$('lv-xp').textContent=`${into} / ${XP_LEVEL} XP · 캐릭터 ${prog.unlocked.length}/${UNLOCKABLE().length+START_CHARS.length}`;if(typeof setCharacter==='function')setCharacter(charType);}
 function gainXp(n,why){n=Math.round(n*(1+R_('utXp')));const before=progLevel();prog.xp+=n;saveProg();toast(`+${n} XP · ${why}`+(progLevel()>before?` · 🎉 Lv ${progLevel()}!`:''),2.2);if(progLevel()>before)setTimeout(offerUnlock,900);}
 function offerUnlock(){if(picksOwed()<=0||$('unlock').open)return;const locked=UNLOCKABLE().filter(k=>!prog.unlocked.includes(k));
@@ -1670,6 +1670,11 @@ try{const db=await remoteRank(pendingRank);
 $('rank-msg').textContent=db==='wins'?'등록했어요 · 100점이 넘는 AI전 점수는 서버 규칙을 업데이트해야 올라가요':db?'전체 랭킹에 등록했어요!':'내 기기 랭킹에 저장했어요';}catch(e){$('rank-msg').textContent='전체 랭킹 등록 실패 · 내 기기에는 저장했어요';}
 pendingRank=null;showBoard(board);}
 async function showBoard(k){board=k;document.querySelectorAll('.rank-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.board===k));
+if(k==='level'){let rows=[{name:myName()+' (나)',xp:prog.xp,chars:prog.unlocked.length}],src='내 기기 기록';
+try{const db=await remote();if(db){const q=rankFs.query(rankFs.collection(db,'levels'),rankFs.orderBy('xp','desc'),rankFs.limit(20));const got=(await rankFs.getDocs(q)).docs.map(d=>d.data());if(got.length){rows=got;src='전체 레벨 랭킹 · 상위 20';}}}catch{src='전체 랭킹을 불러오지 못해 내 기록만 보여줘요';}
+$('rank-src').textContent=src;const ol=$('rank-list');ol.textContent='';
+rows.forEach((r,i)=>{const li=document.createElement('li'),no=document.createElement('span'),nm=document.createElement('span'),sub=document.createElement('span'),val=document.createElement('span');const xp=+r.xp||0;
+no.className='no';no.textContent=i+1;nm.className='nm';nm.textContent=r.name;sub.className='sub';sub.textContent=`경험치 ${xp} XP · 캐릭터 ${r.chars||1}명`;val.className='val';val.textContent='Lv '+(1+Math.floor(xp/XP_LEVEL));li.append(no,nm,sub,val);ol.append(li);});return;}
 if(k==='pvp'){let rows=[],src='내 기기 기록';const me=pvpLocal();if(me.wins+me.losses)rows=[{name:store.get('nick')||'나',...me}];
 try{const db=await remote();if(db){const q=rankFs.query(rankFs.collection(db,'players'),rankFs.orderBy('rating','desc'),rankFs.limit(20));rows=(await rankFs.getDocs(q)).docs.map(d=>d.data());src='전체 PvP 랭킹 · 상위 20';}}catch{src='전체 랭킹을 불러오지 못해 내 기기 기록을 보여줘요';}
 $('rank-src').textContent=src;const ol=$('rank-list');ol.textContent='';
