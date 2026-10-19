@@ -1,150 +1,84 @@
-/* Original soundtrack through a visually hidden official YouTube player; no copied audio asset.
- * Media is optional: autoplay, an unavailable video, or slow networking never blocks a match.
+/* Victory ceremony soundtrack, synthesised live with Web Audio (no audio file, no outside media).
+ * A cheeky 4-bar loop to wind up the loser: the playground "nyah-nyah" chant (G E A G E) on a kazoo-ish square lead over an
+ * oom-pah tuba bass and claps, then a slide-whistle boing and a sad-trombone "wah wah wah waaah". Media is optional:
+ * sound off, autoplay blocks or a hidden tab never hold up the ceremony.
  */
 (() => {
   'use strict';
-  const VIDEO = 'Q4EyleX7Qh4', DANCE_START = 1.4;
+  const DANCE_START = 1.4, BPM = 140, BEAT = 60 / BPM, BAR = 4 * BEAT;
   const panel = document.getElementById('ceremony-media');
-  const slot = document.getElementById('ceremony-player-slot');
   const status = document.getElementById('ceremony-music-status');
   const button = document.getElementById('ceremony-music-play');
-  let apiPromise = null, player = null, ready = false, session = 0;
-  let raf = 0, retryTimer = 0, requested = false, blocked = false, failed = false, lastSync = -1;
+  let ctx = null, master = null, timer = 0, startTimer = 0, nextBar = 0, bar = 0;
   const active = () => typeof ceremonyActive === 'function' && ceremonyActive();
-  const position = () => Math.max(0, ceremonyElapsed() - DANCE_START);
+  const hz = midi => 440 * 2 ** ((midi - 69) / 12);
 
-  function loadAPI() {
-    if (window.YT && window.YT.Player) return Promise.resolve();
-    if (apiPromise) return apiPromise;
-    apiPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      const prior = window.onYouTubeIframeAPIReady;
-      const timeout = setTimeout(() => { script.remove(); apiPromise = null; reject(new Error('timeout')); }, 10000);
-      window.onYouTubeIframeAPIReady = () => {
-        clearTimeout(timeout);
-        if (typeof prior === 'function') prior();
-        resolve();
-      };
-      script.src = 'https://www.youtube.com/iframe_api';
-      script.onerror = () => { clearTimeout(timeout); script.remove(); apiPromise = null; reject(new Error('network')); };
-      document.head.appendChild(script);
-    });
-    return apiPromise;
+  function tone(t, f, d, type, vol, slideTo) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + d);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .012); g.gain.exponentialRampToValueAtTime(.001, t + d);
+    o.connect(g).connect(master); o.start(t); o.stop(t + d + .03);
+  }
+  function clap(t) {
+    const len = ctx.sampleRate * .08 | 0, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len) ** 2;
+    const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    f.type = 'bandpass'; f.frequency.value = 1800; g.gain.value = .45; s.buffer = buf;
+    s.connect(f).connect(g).connect(master); s.start(t);
+  }
+  // beats into the bar, midi note, length in beats
+  const CHANT = [[0, 79, .5], [.5, 76, .5], [1, 81, .5], [1.5, 79, .5], [2, 76, 1.5]];
+  function scheduleBar(t, b) {
+    for (let i = 0; i < 4; i++) tone(t + i * BEAT, hz(i % 2 ? 50 : 43), BEAT * .45, 'sawtooth', .16);   // oom-pah
+    clap(t + BEAT); clap(t + 3 * BEAT);
+    if (b % 4 < 3) {
+      for (const [at, n, len] of CHANT) tone(t + at * BEAT, hz(n), len * BEAT * .9, 'square', .1);
+      if (b % 4 === 1) tone(t + 3.5 * BEAT, hz(86), BEAT * .45, 'square', .08, hz(74));                  // "nyah~" flick
+    } else {
+      tone(t, hz(72), BEAT * .8, 'sine', .2, hz(98));                                                   // boing
+      for (const [at, n] of [[1, 62], [1.75, 61], [2.5, 60]]) tone(t + at * BEAT, hz(n), BEAT * .7, 'sawtooth', .14);
+      tone(t + 3.2 * BEAT, hz(59), BEAT * 1.4, 'sawtooth', .14, hz(54));                                // waaah
+    }
+  }
+  function pump() { if (!ctx || !master) return; while (nextBar < ctx.currentTime + .6) { scheduleBar(nextBar, bar++); nextBar += BAR; } }
+  function startMusic() {
+    stopMusic();
+    if (!active() || !sound || document.hidden) { showStatus(); return; }
+    try { ctx ??= new (window.AudioContext || window.webkitAudioContext)(); } catch { showStatus(); return; }
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    master = ctx.createGain(); master.gain.value = .55; master.connect(ctx.destination);
+    bar = 0; nextBar = ctx.currentTime + .05; pump(); timer = setInterval(pump, 150);
+    setTimeout(showStatus, 400);
+  }
+  function stopMusic() {
+    clearInterval(timer); timer = 0;
+    if (master) { const m = master; m.gain.setTargetAtTime(0, ctx.currentTime, .04); setTimeout(() => m.disconnect(), 300); master = null; }
   }
   function showStatus() {
-    if (failed) status.textContent = '원본 음악을 불러오지 못했어요. 춤은 계속됩니다.';
-    else if (!sound) status.textContent = '사운드 OFF · 음악 켜기를 누르면 원본 음악이 나와요.';
-    else if (blocked) status.textContent = '음악 재생을 눌러 원본 음악을 함께 들어보세요.';
-    else if (!ready) status.textContent = '원본 음악 준비 중…';
-    else status.textContent = '원본 영상의 음악과 함께 세리머니 중';
+    const blocked = master && ctx && ctx.state !== 'running';
+    status.textContent = !sound ? '사운드 OFF · 음악 켜기를 누르면 약 올리는 비트가 나와요 😜'
+      : blocked ? '음악 재생을 눌러 주세요' : '메롱~ 약 올리는 승리 비트 ♪ 😜';
     button.textContent = !sound ? '음악 켜기 ♪' : '음악 재생 ♪';
-    button.hidden = !failed && sound && ready && !blocked;
+    button.hidden = !!sound && !blocked;
   }
-  function play() {
-    if (!active() || !ready || !player || document.hidden || failed) return;
-    if (ceremonyElapsed() < DANCE_START) return;
-    if (sound) { player.unMute(); player.setVolume(65); } else player.mute();
-    player.seekTo(position(), true);
-    player.playVideo();
-    requested = true;
-    clearTimeout(retryTimer);
-    const token = session;
-    retryTimer = setTimeout(() => {
-      if (token !== session || !active() || !player) return;
-      if (player.getPlayerState() !== 1) { blocked = true; showStatus(); }
-    }, 1800);
+  function start() {
+    clearTimeout(startTimer); stopMusic();
+    panel.hidden = false; showStatus();
+    const wait = Math.max(0, DANCE_START - ceremonyElapsed()) * 1000;
+    startTimer = setTimeout(startMusic, wait);
   }
-  function tick() {
-    if (!active()) return;
-    const elapsed = ceremonyElapsed();
-    if (ready && !failed && !document.hidden) {
-      if (!requested && elapsed >= DANCE_START) play();
-      // Correct a delayed start/background return without continuously scrubbing the video.
-      if (requested && player.getPlayerState() === 1 && elapsed - lastSync > 2) {
-        lastSync = elapsed;
-        if (Math.abs(player.getCurrentTime() - position()) > 1.1) player.seekTo(position(), true);
-      }
-    }
-    raf = requestAnimationFrame(tick);
-  }
-  function stop() {
-    session++;
-    cancelAnimationFrame(raf);
-    clearTimeout(retryTimer);
-    if (player) { try { player.destroy(); } catch {} }
-    player = null; ready = requested = blocked = failed = false; lastSync = -1;
-    slot.replaceChildren();
-    panel.hidden = true;
-  }
-  async function start() {
-    stop();
-    const token = session;
-    panel.hidden = false;
-    showStatus();
-    raf = requestAnimationFrame(tick);
-    try {
-      await loadAPI();
-      if (token !== session || !active()) return;
-      const mount = document.createElement('div'); slot.appendChild(mount);
-      player = new YT.Player(mount, {
-        width: 1, height: 1, videoId: VIDEO,
-        playerVars: { playsinline: 1, controls: 0, rel: 0, origin: location.origin },
-        events: {
-          onReady: event => {
-            if (token !== session || !active()) return;
-            ready = true;
-            event.target.getIframe().title = '승리 세리머니 원본 음악';
-            if (!sound) event.target.mute();
-            showStatus(); play();
-          },
-          onAutoplayBlocked: () => {
-            if (token !== session || !active()) return;
-            blocked = true; showStatus();
-          },
-          onStateChange: event => {
-            if (token !== session || !active()) return;
-            if (event.data === 1) { blocked = false; showStatus(); }
-            else if (event.data === 2 && requested && !document.hidden) { blocked = true; showStatus(); }
-          },
-          onError: () => {
-            if (token !== session || !active()) return;
-            failed = true; showStatus();
-          }
-        }
-      });
-    } catch {
-      if (token === session && active()) { failed = true; showStatus(); }
-    }
-  }
-  button.onclick = () => {
-    if (!active()) return;
-    setSound(true);
-    if (failed) { start(); return; }
-    blocked = false; showStatus(); play();
-  };
-  window.addEventListener('victoryceremony', event => {
-    if (event.detail.phase === 'start') start(); else stop();
-  });
-  window.addEventListener('spin-sound', () => {
-    if (!active()) return;
-    if (ready && player) { if (sound) play(); else player.mute(); }
-    showStatus();
-  });
-  document.addEventListener('visibilitychange', () => {
-    if (!active() || !ready || !player) return;
-    if (document.hidden) player.pauseVideo();
-    else { requested = false; play(); }
-  });
+  function stop() { clearTimeout(startTimer); stopMusic(); panel.hidden = true; }
+
+  button.onclick = () => { if (!active()) return; setSound(true); startMusic(); };
+  window.addEventListener('victoryceremony', event => { if (event.detail.phase === 'start') start(); else stop(); });
+  window.addEventListener('spin-sound', () => { if (!active()) return; if (sound) startMusic(); else { stopMusic(); showStatus(); } });
+  document.addEventListener('visibilitychange', () => { if (!active()) return; if (document.hidden) stopMusic(); else startMusic(); });
   window.addEventListener('pagehide', stop);
-  for (const id of ['net-host', 'net-join', 'net-quick', 'lb-start']) {
-    document.getElementById(id).addEventListener('click', () => { loadAPI().catch(() => {}); });
-  }
   for (const [id, won] of [['ceremony-preview-win', true], ['ceremony-preview-lose', false]]) {
     document.getElementById(id).onclick = () => {
       if (net || playing || active()) return;
-      // These controls explicitly say they preview dance + music.
-      setSound(true);
-      loadAPI().catch(() => {});
+      setSound(true);   // the preview buttons say they play dance + music
       previewVictoryCeremony(won);
     };
   }
