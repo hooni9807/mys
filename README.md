@@ -475,6 +475,9 @@ node --test tests/*.test.cjs
 
 최신 순. 버전 옆 코드를 누르면 해당 변경 내용을 볼 수 있습니다.
 
+### v3.07 — 휴고범 · 리신범 약점 완화 ([770e75f](https://github.com/hooni9807/spin-tt/commit/770e75f)) · 2026-10-19
+- 약한 쪽 실수 확률 12% → **10%** (휴고범 포핸드 · 리신범 백핸드, AI도 동일)
+
 ### v3.06 — 송스타 얼굴 사진 ([3177cd1](https://github.com/hooni9807/spin-tt/commit/3177cd1)) · 2026-10-19
 - 송스타 얼굴을 보내준 사진으로 교체 (배경 제거 `songstar-face.png`) · 캐릭터 선택 · 경기 화면 · 정보 팝업 모두 적용
 
