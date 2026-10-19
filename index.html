@@ -451,7 +451,9 @@ else if(k===1){ball.spin*=1.8;ball.skill='😈 암흑 회전! 🌀 회전 ×1.8'
 else{ball.shadow=true;ball.skill='😈 그림자 공! 👻 공이 잠깐 사라져요 · 바닥 그림자를 보세요';}}
 // 아재범 서브 우기기: a serve he couldn't return is, 50% of the time, "네트였잖아요?" - no point, the same server serves again
 const AJAE_LET=.5;
-function point(player,reason){if(!ball)return;
+// 금호관장 로빙: a lob is 20% harder to put away, and from the 2nd lob in a rally each further lob adds 2.5% more (2nd 2.5%, 3rd 5% ... capped at +25%)
+const lobStreak={you:0,ai:0},lobK=b=>b&&b.lob?1-.2-Math.min(.25,.025*Math.max(0,(b.lobN||1)-1)):1;
+function point(player,reason){if(!ball)return;lobStreak.you=lobStreak.ai=0;
 if(!net&&ball.type==='serve'&&!ball.mateServe){const rcv=ball.owner==='ai'&&!player?[me,LOOKS[charType],'']:ball.owner==='you'&&player?[foe,LOOKS[aiChar],'상대 ']:null;
 if(rcv&&rcv[1].ajae&&Math.random()<AJAE_LET){rcv[0].taunt='서브 네트 아니예요? 🤨';rcv[0].tauntT=time;toast(rcv[2]+'아재범: "서브 네트 아니예요?" 🤨 · 우겨서 서브 다시!',2);ball=null;wait=1.65;rally=0;swingMemory=null;updateScore();return;}}if(infd()&&rally>1)reason+=` · ${rally}회 연속 드라이브`;if(ball.unreturn&&ball.owner==='you'){player=true;reason='공 재끼기! 상대가 받을 수 없어요 · 쵸레이~';}   // 재끼기 always scores
 if(!net&&(reason==='아웃'||reason==='테이블 밖으로 나갔어요')){const mine=ball.owner==='you'&&!player,claimer=mine?LOOKS[charType]:ball.owner==='ai'&&player?LOOKS[aiChar]:null;
@@ -994,7 +996,7 @@ const inc=P.incoming(ball),resp=P.family(shot.type),verdict=special?'ok':ball.he
 if(verdict!=='ok')shot=P.miss(shot,ball.y,ball.z,verdict);
 let flair=infd()?'inf':'';   // 무한 드라이브: no random gear / trait errors, only timing decides
 if(ball.aiSpecial&&verdict==='ok'&&!special&&quality!=='PERFECT'&&Math.random()<.45){shot=P.miss(shot,ball.y,ball.z,Math.random()<.5?'net':'over');flair='spec';}   // a 필살기 is hard to catch without PERFECT
-if(verdict==='ok'&&!special){const base=TIMING_SUCCESS[quality]??1,roll=Math.random(),JL=LOOKS[charType],bhBlk=JL.bhBlock&&playerSide*fhDir()<0&&(resp==='short'||resp==='block')&&(inc==='drive'||inc==='smash')&&(quality==='PERFECT'||quality==='GREAT')?JL.bhBlock:0;if(roll>base*(1-P.spinMiss(ball))*(ball.lob?.8:1)+bhBlk){shot=P.miss(shot,ball.y,ball.z,Math.random()<.5?'net':'over');flair=roll>base?'timing':'spin';}}   // timing: PERFECT 100%, GOOD 95%, LATE 90% go in
+if(verdict==='ok'&&!special){const base=TIMING_SUCCESS[quality]??1,roll=Math.random(),JL=LOOKS[charType],bhBlk=JL.bhBlock&&playerSide*fhDir()<0&&(resp==='short'||resp==='block')&&(inc==='drive'||inc==='smash')&&(quality==='PERFECT'||quality==='GREAT')?JL.bhBlock:0;if(roll>base*(1-P.spinMiss(ball))*lobK(ball)+bhBlk){shot=P.miss(shot,ball.y,ball.z,Math.random()<.5?'net':'over');flair=roll>base?'timing':'spin';}}   // timing: PERFECT 100%, GOOD 95%, LATE 90% go in
 const kill=verdict==='ok'&&!special&&!flair&&shot.type==='smash'&&!!ball.chance;   // smashing a chance ball
 const cutShort=resp==='cut'&&(ball.type==='block'||ball.type==='short'),floatCut=cutShort&&quality!=='PERFECT';
 // cutting a short back needs PERFECT timing; anything less floats it up
@@ -1020,7 +1022,7 @@ if(roll<.1){shot=P.power(shot,ball.y,ball.z,1.5);flair='jaetgi';}else if(roll<.3
 // 충대 화잡이: forehand drives x1.3 speed and x1.5 spin
 {const L=LOOKS[charType];if(L.fhDrive&&verdict==='ok'&&!special&&!flair&&!shot.chance&&P.family(shot.type)==='drive'&&playerSide*fhDir()>0){const pw=P.power(shot,ball.y,ball.z,L.fhDrive.speed);shot={...pw,spin:pw.spin*L.fhDrive.spin,power:true};}}
 // 금호관장: every return that isn't a smash goes up as a lob (marked so the receiver errs more)
-if(LOOKS[charType].lobber&&verdict==='ok'&&!special&&!flair&&P.family(shot.type)!=='smash'){shot={...P.popup(shot,ball.y,ball.z),lob:true};flair='lob';}
+if(LOOKS[charType].lobber&&verdict==='ok'&&!special&&!flair&&P.family(shot.type)!=='smash'){shot={...P.popup(shot,ball.y,ball.z),lob:true,lobN:++lobStreak.you};flair='lob';}
 // 차윤환: cuts carry 1.3x backspin · 김서현: a drive answered with a drive carries 1.3x topspin
 {const L=LOOKS[charType];if(verdict==='ok'&&!special&&!flair&&!shot.chance){if(L.cutK&&P.family(shot.type)==='cut')shot={...shot,spin:shot.spin*L.cutK};else if(L.counterK&&P.family(shot.type)==='drive'&&P.incoming(ball)==='drive'){const pw=P.power(shot,ball.y,ball.z,L.counterSpeed||1);shot={...pw,spin:pw.spin*L.counterK,power:true};}}}
 const driveK=verdict==='ok'&&!special&&!flair&&!shot.chance&&P.family(shot.type)==='drive'?DRIVE_BY_TIMING[quality]:null;
@@ -1028,7 +1030,7 @@ if(driveK)shot=driveK>1?{...P.power(shot,ball.y,ball.z,driveK),power:shot.power}
 if(mode==='doubles')myTurn='mate';
 if(me.mood&&verdict==='ok'&&!special&&!shot.chance&&!flair)shot=me.mood>0?{...P.power(shot,ball.y,ball.z,1+SLEEP_K),spin:shot.spin*(1+SLEEP_K),power:shot.power}:P.retime(shot,ball.y,ball.z,1-SLEEP_K,1-SLEEP_K);   // nap mood
 if(flair==='break'){pops.push({x:p.x,y:p.y,t:time,text:'💥 BREAK',rgb:'255,77,109'});toast('너무 세게 쳐서 라켓이 깨졌어요! 💥 (김민희 10%)',2);point(false,'라켓이 깨졌어요! 💥');return;}
-const inType=ball.type;Object.assign(ball,shot,{lob:!!shot.lob,owner:'you',bounces:0,aiAttempt:false,chance:!!shot.chance,kill,power:!!shot.power,edge:shot.edge||0,dual:false,dualHit:false,aiSpecial:false});
+const inType=ball.type;Object.assign(ball,shot,{lob:!!shot.lob,lobN:shot.lobN||0,owner:'you',bounces:0,aiAttempt:false,chance:!!shot.chance,kill,power:!!shot.power,edge:shot.edge||0,dual:false,dualHit:false,aiSpecial:false});
 if(net&&special)slowForDual(ball);   // 1:1: the other side has to take my 필살기 with two touches
 if(flair==='jaetgi'){ball.unreturn=true;me.taunt='쵸레이~ 🔥';me.tauntT=time;}if(!net)deepen(P.family(inType)==='drive'&&P.family(shot.type)==='drive');lastHit=time;lastShot=shot.type;mySwing.type=shot.type;mySwing.t=time;smashUntil=-1;lastTap=null;
 const sp=motion?Math.hypot(motion.vx,motion.vy):0;me.amp=motion?P.clamp(.55+sp/2000,.55,1.25):tap?.45:1;me.dirX=motion?P.clamp(motion.vx/(sp||1),-1,1):0;swingMemory=null;
@@ -1057,13 +1059,13 @@ if(ball.shortServe){ball.shortServe=false;const g=6+(ball.spin||0)*.55,T=.6,mine
 beep(270);}   // the table grips and bleeds off side spin
 // The AI takes the ball past its end line - or over the table when a short / backspin ball would otherwise bounce twice.
 if(!net&&ball.owner==='you'&&ball.bounces===1&&(ball.y>2.8+P.DEEP_M*deep||!deep&&ball.y>1.6&&ball.vz<0&&ball.z<.12||infd()&&ball.y>1.6&&ball.vz<0&&ball.z<.09)&&!ball.aiAttempt&&!ball.unreturn){ball.aiAttempt=true;const dif=aiDif();const chance=bossMin()?.95:P.aiChance(ball,dif,pracLike(),tierP())*(ball.type==='serve'&&!ball.mateServe&&LOOKS[charType].serveEdge?1-LOOKS[charType].serveEdge:1);const aiT=LOOKS[aiChar].trait,aiFore=(ball.x<0?1:-1)*(aiLefty?-1:1);   // AI faces us: balls on our left are its forehand
-if((bossMin()||infd()||Math.abs(ball.x)<.87&&ball.z<(ball.chance?1.5:.8+.6*deep))&&(infd()||Math.random()<(bossMin()?.95:chance*(ball.lob?.8:1)*(aiT&&aiFore===aiT.weak?1-(LOOKS[aiChar].traitErr??TRAIT_ERR):1)*(1-SLEEP_K*(me.mood||0))*(1+SLEEP_K*(foe.mood||0))))){const wasChance=!!ball.chance;const L=tierL(P.LEVELS[dif]||P.LEVELS.b4),speed=L.speed*(1+SLEEP_K*(foe.mood||0)),mix=mode==='cutman'?[.04,.98]:pracLike()?P.LEVELS.b7.mix:L.mix,r=Math.random(),spk=tierNow()!=='easy'&&aiCharge>=100&&!wasChance?SPKINDS[Math.random()*SPKINDS.length|0]:null,dualNow=!spk&&!wasChance&&!LOOKS[aiChar].drunk&&Math.random()<dualRate(),kind=infd()?'drive':spk?spk[1]:dualNow?(r<.7?'drive':'cut'):(drunkR=LOOKS[aiChar].drunk?Math.random():1)<DRUNK_FLOAT?'block':wasChance&&Math.random()<.85?'smash':P.incoming(ball)==='drive'&&Math.random()<AI_BLOCK?'block':r<mix[0]?'drive':r<mix[1]?'cut':'smash';
+if((bossMin()||infd()||Math.abs(ball.x)<.87&&ball.z<(ball.chance?1.5:.8+.6*deep))&&(infd()||Math.random()<(bossMin()?.95:chance*lobK(ball)*(aiT&&aiFore===aiT.weak?1-(LOOKS[aiChar].traitErr??TRAIT_ERR):1)*(1-SLEEP_K*(me.mood||0))*(1+SLEEP_K*(foe.mood||0))))){const wasChance=!!ball.chance;const L=tierL(P.LEVELS[dif]||P.LEVELS.b4),speed=L.speed*(1+SLEEP_K*(foe.mood||0)),mix=mode==='cutman'?[.04,.98]:pracLike()?P.LEVELS.b7.mix:L.mix,r=Math.random(),spk=tierNow()!=='easy'&&aiCharge>=100&&!wasChance?SPKINDS[Math.random()*SPKINDS.length|0]:null,dualNow=!spk&&!wasChance&&!LOOKS[aiChar].drunk&&Math.random()<dualRate(),kind=infd()?'drive':spk?spk[1]:dualNow?(r<.7?'drive':'cut'):(drunkR=LOOKS[aiChar].drunk?Math.random():1)<DRUNK_FLOAT?'block':wasChance&&Math.random()<.85?'smash':P.incoming(ball)==='drive'&&Math.random()<AI_BLOCK?'block':r<mix[0]?'drive':r<mix[1]?'cut':'smash';
 const myType=ball.type;
 // spk: 하드 / 익스트림 AI fires a 필살기 once its gauge is full · dualNow: 투클릭 공 (two touch points, so it comes in slower), chosen up front so its share matches the table
 Object.assign(ball,P.aiReturn(spk?spk[1]:kind,ball.x,ball.y,ball.z,(dualNow?1.5:speed)*(spk?spk[2]:1),(Math.random()-.5)*(infd()?.4:pracLike()?.5:L.aim)),{bounces:0,owner:'ai',chance:kind==='block',kill:wasChance&&kind==='smash'&&ball.z>=.25,power:false,shadow:false,hellfire:false,lob:false,skill:null,dual:dualNow,dualHit:false,aiSpecial:!!spk});
 if(infd()||dualNow)fitReturn(ball);
 if(LOOKS[aiChar].fhDrive&&!infd()&&!spk&&!dualNow&&!ball.kill&&kind==='drive'&&aiFore>0){Object.assign(ball,P.power(ball,ball.y,ball.z,LOOKS[aiChar].fhDrive.speed));ball.spin*=LOOKS[aiChar].fhDrive.spin;}
-if(LOOKS[aiChar].lobber&&!infd()&&!spk&&!dualNow&&kind!=='smash')Object.assign(ball,P.aiReturn('block',ball.x,ball.y,ball.z,L.speed,(Math.random()-.5)*L.aim),{chance:true,lob:true});   // AI 금호관장: lob
+if(LOOKS[aiChar].lobber&&!infd()&&!spk&&!dualNow&&kind!=='smash')Object.assign(ball,P.aiReturn('block',ball.x,ball.y,ball.z,L.speed,(Math.random()-.5)*L.aim),{chance:true,lob:true,lobN:++lobStreak.ai});   // AI 금호관장: lob
 if(spk){ball.type=spk[0];aiCharge=0;ball.skill=`AI 필살기! ${SPECIALS[spk[0]].name} ⚡ PERFECT로 막으세요`;}else if(tierNow()!=='easy'){aiCharge=Math.min(100,aiCharge+(dualNow?25:20));if(aiCharge>=100)ball.skill='AI 필살기 충전 완료! ⚡ 다음 공을 조심하세요';}
 if(dualNow)ball.skill='🎯 투클릭 공! ① 원은 타이밍 맞춰 터치 → 공이 ② 로 가면 스윙 · 탭';
 if(infd()&&(rally+1)%10===0)ball.skill=`♾️ ${rally+1}회 연속 드라이브!`;
@@ -1231,7 +1233,7 @@ $('apply-settings').onclick=applySettings;markPending();
 // Character card: what each character can do, shown before picking one
 const CHAR_INFO={
 chungdae:{tag:'충대 포핸드 장인',rows:[['plus','포핸드 드라이브','회전 ×1.5 · 속도 ×1.3'],['minus','서브','10% 확률로 서브 미스 (실점)'],['perf','PERFECT','"오~~ 👏" 감탄']]},
-kumho:{tag:'6부 20년 차 · 금호탁구장 관장님 · 일본식 펜홀더',rows:[['info','로빙','모든 리시브가 높이 뜬 로빙 (상대에게 찬스볼이지만 받기가 20% 까다로워요 → 실수 유도)'],['plus','찬스볼','상대 공이 뜨면 스윙 한 번으로 스매싱'],['info','서브','서브는 무조건 상회전 서브'],['perf','PERFECT','"이게 6부에서 20년 있던 실력? 😎"']]},
+kumho:{tag:'6부 20년 차 · 금호탁구장 관장님 · 일본식 펜홀더',rows:[['info','로빙','모든 리시브가 높이 뜬 로빙 (상대에게 찬스볼이지만 받기가 20% 까다로워요 → 실수 유도)'],['plus','연속 로빙','한 랠리에서 2번째 로빙부터 상대 실수 +2.5%씩 (3번째 +5% · 4번째 +7.5% · 5번째 +10% … 최대 +25%)'],['plus','찬스볼','상대 공이 뜨면 스윙 한 번으로 스매싱'],['info','서브','서브는 무조건 상회전 서브'],['perf','PERFECT','"이게 6부에서 20년 있던 실력? 😎"']]},
 jongryeong:{tag:'백핸드 장인 · 곱슬머리 안경',rows:[['plus','백핸드 10%','백스매시! 공 속도 ×1.3 💥'],['plus','백핸드 블록','상대 공격을 백핸드로 막을 때 PERFECT · GREAT 성공률 +5%'],['minus','포핸드 5%','공이 붕 떠서 상대 스매시 찬스'],['perf','PERFECT','"이게 빽종령~ 😏"']]},
 yunhwan:{tag:'깎아 치는 커트 장인',rows:[['plus','커트','커트로 칠 때 회전 ×1.3 (상대가 받기 어려워요)'],['perf','PERFECT','"오오오!!! 🔥"']]},
 seohyun:{tag:'맞드라이브에 강한 바가지 머리',rows:[['plus','맞드라이브','드라이브를 드라이브로 받아칠 때 속도 ×1.5 · 회전 ×1.3'],['info','서브','서브는 무조건 짧은 커트 (투바운드)'],['minus','약점','백핸드: 10% 확률로 실수 (네트 · 아웃)'],['perf','PERFECT','"이게 충대 이종석 클라스~ 😎"']]},
