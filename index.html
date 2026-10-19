@@ -456,7 +456,7 @@ else{ball.shadow=true;ball.skill='😈 그림자 공! 👻 공이 잠깐 사라�
 // 아재범 서브 우기기: a serve he couldn't return is, 30% of the time, "네트였잖아요?" - no point, the same server serves again
 function shortCutShot(s,y,z){const g=6+s.spin*P.EQUIP.spin*.55,yT=1.37+.25+Math.random()*.2;
 for(let T=.5;T<=1.2;T+=.05){const vy=(yT-y)/T,vz=(.5*g*T*T-z)/T,tn=(1.37-y)/vy;if(z+vz*tn-.5*g*tn*tn>.2)return {...s,vx:s.vx*vy/(s.vy||vy),vy,vz,shortServe:true,shortCut:true};}return null;}
-let blindT=-10;   // 리신범 눈가리개: the screen goes 90% dark for 0.6 s
+let blindT=-10,ringK=1;   // 리신범 눈가리개: the screen goes 90% dark for 0.6 s
 const SHORT_CUT_DRIVE_MISS=.3,AJAE_LET=.3,AJAE_MAX=3,ajaeUsed={me:0,foe:0};   // 엣지 우기기 gives at most 3 points per match
 // 금호관장 로빙: a lob is 20% harder to put away, and from the 2nd lob in a rally each further lob adds 2.5% more (2nd 2.5%, 3rd 5% ... capped at +25%)
 const lobStreak={you:0,ai:0},lobK=b=>b&&b.lob?1-.2-Math.min(.25,.025*Math.max(0,(b.lobN||1)-1)):1;
@@ -477,7 +477,7 @@ $('special-status').textContent=ready?'✦ 충전 완료 · 다음 타격에 자
 // after ① the ball flies on slowly (35% speed) past ① over to ② until ② is due + a little grace, so ② stays on screen
 const dualHold=()=>!!(ball&&ball.dual&&ball.dualHit&&ball.owner==='ai'&&time-ball.dualT<DUAL_GAP+DUAL_CLOSE+.35);
 function dualRing(p0,state){const off=dualOff(),R0=19*p0.scale*P.EQUIP.len;ctx.save();ctx.textAlign='center';
-const ring=(x,r,col,w,label)=>{ctx.setLineDash([3,4]);ctx.lineWidth=1.5;ctx.strokeStyle='#f3eeff70';ctx.beginPath();ctx.arc(x,p0.y,R0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=w;ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=12;ctx.beginPath();ctx.arc(x,p0.y,r,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=col;ctx.font='bold 15px Arial';ctx.fillText(label,x,p0.y+5);};
+const ring=(x,r,col,w,label)=>{ctx.setLineDash([3,4]);ctx.lineWidth=1.5;ctx.strokeStyle='#f3eeff70';ctx.beginPath();ctx.arc(x,p0.y,R0*ringK,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=w;ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=12;ctx.beginPath();ctx.arc(x,p0.y,r*ringK,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=col;ctx.font='bold 15px Arial';ctx.fillText(label,x,p0.y+5);};
 if(!ball.dualHit){const y=ball.y+P.back(ball),r=y>-.08?R0+(y+.08)/1.45*95*p0.scale:R0,col=state==='wait'?'#f3eeff':'#ffd166';ring(p0.x-off,r,col,state==='wait'?3:5,'①');ctx.font='bold 11px Arial';ctx.fillStyle='#f3eeffcc';ctx.fillText(state==='wait'?'①':'① 지금 터치',p0.x-off,p0.y-R0-12);}
 else{const q1=project(ball.dualX0??ball.x,ball.y,ball.z),q2=project(ball.dualX??ball.x,ball.y,ball.z),x1=ball.dualX0!=null?q1.x-off:p0.x-off,x2=ball.dualX!=null?q2.x:p0.x+off;ctx.fillStyle='#7dffb2';ctx.font='bold 16px Arial';ctx.fillText('✓',x1,p0.y+5);const t=time-ball.dualT-DUAL_GAP;
 {const e=t-DUAL_CLOSE,r=R0+P.clamp(1-Math.max(0,t)/DUAL_CLOSE,0,1.2)*80*p0.scale,ok=Math.abs(e)<.15,col=t<0?'#f3eeff99':ok?'#7dffb2':e>.25?'#ff4d6d':'#ffd166';ring(x2,r,col,ok?8:6,'');ctx.font='bold 14px Arial';ctx.fillStyle=col;ctx.fillText(ok?'② 지금!':e>.25?'LATE':'② 원이 공에 맞을 때 스윙 · 탭',x2,p0.y-R0-14);}}
@@ -864,13 +864,17 @@ YAW.a=lerp(YAW.a,offTable?(ball.x>0?1:-1)*YAW_HIT:ball&&!ball.held?-P.clamp(ball
 deepS=lerp(deepS,deep,Math.min(1,cdt*2));
 const focus=!!(ball&&!ball.held&&ball.owner==='ai'&&ball.bounces===1&&ball.y<.4&&ball.y>-.95-P.back(ball));   // from the bounce near my end line through the hit window
 // base view: pulled back a little in fullscreen and when a drive rally drives me away from the table
-const baseZ=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK*(1-.4*deepS),goalZ=baseZ;   // no zoom-in on the hit: the camera only pans to keep me centred
+const baseZ=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK*(1-.4*deepS);let goalZ=baseZ;   // no zoom-in on the hit: the camera only pans to keep me centred
 // While the ball is coming to me the camera pans so the hitting spot sits mid-screen and my waist line (the raise /
 // lower divider) runs through the middle of the screen - room to draw the stroke above and below it. The point comes
 // from the ball, not from my finger, so moving the racket never drags the camera along.
 {const inc=!!(ball&&!ball.held&&ball.owner==='ai'&&me.waistY!=null),hx=inc?project(ball.x,contactY(),.25).x:W/2,k=Math.min(1,cdt*(inc?4:3));
 cam.cx=lerp(cam.cx||W/2,inc?hx:W/2,k);cam.cy=lerp(cam.cy||H*.62,inc?me.waistY:H*.62,k);cam.ax=lerp(cam.ax||W/2,W/2,k);cam.ay=lerp(cam.ay||H*.62,inc?H*.5:H*.62,k);}
-cam.z=lerp(cam.z,goalZ,Math.min(1,cdt*(focus?10:4)));if(Math.abs(cam.z-goalZ)<.002)cam.z=goalZ;
+// 투클릭: if the ball, ① or ② would leave the screen, zoom out just enough to keep them all in view; the rings and the
+// touch radius are scaled back up by ringK so they stay the same size on screen
+if(ball&&ball.dual&&!ball.held&&ball.owner==='ai'&&ball.bounces===1){const p0=project(ball.x,ball.y,ball.z),m=56,pts=[p0,{x:p0.x-dualOff(),y:p0.y},ball.dualX!=null?project(ball.dualX,ball.y,ball.z):{x:p0.x+dualOff(),y:p0.y}];
+for(const q of pts){const dx=Math.abs(q.x-cam.cx),up=cam.cy-q.y,dn=q.y-cam.cy;if(dx>1)goalZ=Math.min(goalZ,(W/2-m)/dx);if(up>1)goalZ=Math.min(goalZ,(cam.ay-m)/up);if(dn>1)goalZ=Math.min(goalZ,(H-cam.ay-m)/dn);}goalZ=Math.max(goalZ,baseZ*.45);}
+cam.z=lerp(cam.z,goalZ,Math.min(1,cdt*(focus?10:4)));ringK=Math.max(1,baseZ/cam.z);if(Math.abs(cam.z-goalZ)<.002)cam.z=goalZ;
 const sk=Math.max(0,1-(time-shakeT)/.5)*10;ctx.save();ctx.translate(cam.ax+(Math.random()-.5)*sk,cam.ay+(Math.random()-.5)*sk);ctx.scale(cam.z,cam.z);ctx.translate(-cam.cx,-cam.cy);renderScene();ctx.restore();courtHud();}
 const KIND_HINT={cut:'하회전 · 내려서 아래→위로 걸어 올리기',drive:'상회전 · 라켓 덮어서 맞드라이브 / 탭 블록',smash:'강타 · 드라이브 / 쇼트로 받기 (PERFECT 낮게 · GOOD 뜸)',spin:'회전 · 공 방향 보고 맞춰 치기',chance:'찬스볼 · 높이 뜬 공, 강하게 때리기!',kill:'찬스볼 강타 · PERFECT 낮게 · GREAT 보통 · GOOD 뜸',short:'짧은 공 · 가볍게 넘기기',serve:'서브 · 바운드 보고 받기'};
 function shotBanner(){const since=time-(net?net.opp.hitT:lastAIHit);if(!ball||ball.owner!=='ai'||ball.held||since<0||since>1.2)return;
@@ -992,9 +996,9 @@ const motion=swingMemory&&time<=swingMemory.until?swingMemory:null,R=RACKETS[rac
 if(!smash&&!tap&&motion&&ball.chance&&(motion.dir!=='down'||racketType==='defense'))smash=true;   // a floated chance ball: any swing smashes it (the defender's chop swing too)
 const p0=project(ball.x,ball.y,ball.z),p=ball.dual?(ball.dualHit&&ball.dualX!=null?project(ball.dualX,ball.y,ball.z):{...p0,x:p0.x+(ball.dualHit?dualOff():-dualOff())}):p0;let distance=Math.hypot(p.x-paddle.x,p.y-paddle.y);   // 투클릭: touch point ① (left of the ball) first, then ② (right)
 if(motion){const dx=motion.x-motion.fromX,dy=motion.y-motion.fromY,t=P.clamp(((p.x-motion.fromX)*dx+(p.y-motion.fromY)*dy)/(dx*dx+dy*dy||1),0,1);distance=Math.min(distance,Math.hypot(p.x-motion.fromX-t*dx,p.y-motion.fromY-t*dy));}
-if(distance>Math.max(touchInput?64:52,W*.075)*R.reach*(ball.kill?.75:1)||(!smash&&!motion&&!tap))return;   // a kill smash is harder to reach
+if(distance>Math.max(touchInput?64:52,W*.075)*ringK*R.reach*(ball.kill?.75:1)||(!smash&&!motion&&!tap))return;   // a kill smash is harder to reach
 if(ball.dual&&!ball.dualHit){ball.dualHit=true;ball.dualT=time;{const a=project(ball.x,ball.y,ball.z),b=project(ball.x+.1,ball.y,ball.z);ball.dualX0=ball.x;ball.dualX=ball.x+dualOff()*.1/((b.x-a.x)||1);}swingMemory=null;lastTap=null;mySwing.type='short';mySwing.t=time;fx.push({x:p.x,y:p.y,t:time});pops.push({x:p.x,y:p.y,t:time,text:'①',rgb:'125,255,178'});beep(560);toast(state==='perfect'?'① PERFECT! 공이 ② 로 가요':'① 터치! 공이 ② 로 가요',1.2);return;}
-const qs=ball.dual&&ball.dualHit?(Math.abs(time-ball.dualT-DUAL_GAP-DUAL_CLOSE)<.15?'perfect':time-ball.dualT-DUAL_GAP-DUAL_CLOSE>.25?'late':'ready'):state,quality=qs==='perfect'?(distance<Math.max(touchInput?42:28,W*.04)*R.reach*(R.perfect||1)?'PERFECT':'GREAT'):qs==='late'?'LATE':'GOOD';
+const qs=ball.dual&&ball.dualHit?(Math.abs(time-ball.dualT-DUAL_GAP-DUAL_CLOSE)<.15?'perfect':time-ball.dualT-DUAL_GAP-DUAL_CLOSE>.25?'late':'ready'):state,quality=qs==='perfect'?(distance<Math.max(touchInput?42:28,W*.04)*ringK*R.reach*(R.perfect||1)?'PERFECT':'GREAT'):qs==='late'?'LATE':'GOOD';
 if(motion&&motion.side)playerSide=motion.side==='right'?1:-1;else updateSide();
 const special=!infd()&&charge===100;if(special&&R.special==='chiquita')playerSide=-fhDir();
 const boost=racketType==='jpen'&&playerSide*fhDir()>0?{loop:1.25,drive:1.25,side:1.25}:racketType==='shake'&&playerSide*fhDir()<0?{loop:1.25,drive:1.25,back:1.25}:R.boost;
@@ -1148,6 +1152,13 @@ canvas.addEventListener('pointercancel',cancelPointer);canvas.addEventListener('
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 function pause(){if(!playing||net)return;paused=!paused;lockPage(!paused);swingMemory=null;release();lastTap=null;smashUntil=-1;updateSpecial();$('pause').textContent=paused?'계속하기 ▶':'일시정지 Ⅱ';$('overlay').classList.toggle('hidden',!paused);if(paused){document.querySelector('.start-card h2').innerHTML='잠깐, 숨 고르기.';document.querySelector('.start-card p').textContent='준비가 되면 랠리를 이어가세요.';$('start').firstChild.textContent='계속하기 ';}}
 function racketNote(type,blade,rubber){const R=RACKETS[type],S=SPECIALS[R.special];return `타격 범위 ${Math.round(R.reach*100)}% · 파워 ${Math.round(R.power*100)}% · ${R.skill} · 필살기: ${S.name}`+(type==='shake'?gearNote(blade,rubber):'');}
+// Characters with their own racket (금호관장 일본식 펜홀더, 송스타 수비수 라켓): picking one puts my own racket / blade / rubber
+// aside; picking a normal character again brings that setup back.
+const charRacket=k=>LOOKS[k]?.racket||(LOOKS[k]?.pen?'jpen':null);
+function gearForChar(prev){const was=charRacket(prev),now=charRacket(charType);if(!was&&!now)return;
+if(now){if(!was)store.set('myGear',JSON.stringify({racket:racketType,blade:bladeType,rubber:rubberType}));setRacket(now);return;}
+let g=null;try{g=JSON.parse(store.get('myGear'));}catch{}if(!g||!RACKETS[g.racket])return;
+if(BLADES[g.blade])bladeType=g.blade;if(RUBBERS[g.rubber])rubberType=g.rubber;store.set('blade',bladeType);store.set('rubber',rubberType);$('blade').value=bladeType;$('rubber').value=rubberType;setRacket(g.racket);toast(`내 장비로 돌아왔어요: ${RACKETS[g.racket].name}`+(g.racket==='shake'?` · ${BLADES[bladeType].name} + ${RUBBERS[rubberType].name}`:''),1.8);}
 function setRacket(type){if(!RACKETS[type])return;racketType=type;$('racket').value=type;$('racket-note').textContent=racketNote(type,bladeType,rubberType);$('special-name').textContent='✦ '+SPECIALS[RACKETS[type].special].name;store.set('racket',type);$('gear').hidden=type!=='shake';}
 function gearNote(blade,rubber){const B=BLADES[blade],U=RUBBERS[rubber],pc=v=>Math.round(v*100)+'%';return ` · 목판 ${B.name}(${B.note}) · 러버 ${U.name}(${U.note}) → 속도 ${pc(B.speed*U.speed)} · 회전 ${pc(B.spin*U.spin)} · 실수 확률 ${pc(Math.max(0,B.err+U.err))}`;}
 if(P.LEVELS[store.get('difficulty')])difficulty=store.get('difficulty');$('difficulty').value=difficulty;
@@ -1171,7 +1182,7 @@ $('su-last').textContent='';for(const [k,v] of rows){const li=document.createEle
 $('su-blade').onchange=()=>{su.blade=$('su-blade').value;suRefresh();};$('su-rubber').onchange=()=>{su.rubber=$('su-rubber').value;suRefresh();};
 $('su-next').onclick=()=>suStep(suList()[1]);$('su-back2').onclick=()=>suStep(1);$('su-next2').onclick=()=>suStep(3);$('su-reset').onclick=()=>suStep(1);$('su-quick').onclick=()=>$('su-play').click();$('su-back').onclick=()=>{const L=suList();suStep(L[L.length-2]);};$('su-cancel').onclick=()=>$('setup').close();
 $('su-play').onclick=()=>{$('racket').value=su.racket;$('blade').value=su.blade;$('rubber').value=su.rubber;$('difficulty').value=su.diff;aiTier=su.tier;try{localStorage.setItem('tier',aiTier);}catch{}setMode(mode);applySettings();store.set('setupDone','1');saveCloudSetup();$('setup').close();begin();};
-function applySettings(){if(!pendingSettings())return;setCharacter($('character').value);bladeType=$('blade').value;rubberType=$('rubber').value;store.set('blade',bladeType);store.set('rubber',rubberType);setRacket($('racket').value);difficulty=$('difficulty').value;store.set('difficulty',difficulty);markPending();
+function applySettings(){if(!pendingSettings())return;const prevC=charType;setCharacter($('character').value);bladeType=$('blade').value;rubberType=$('rubber').value;store.set('blade',bladeType);store.set('rubber',rubberType);setRacket($('racket').value);if(charType!==prevC)gearForChar(prevC);difficulty=$('difficulty').value;store.set('difficulty',difficulty);markPending();
 toast(`설정 적용 · ${LOOKS[charType].nick||LOOKS[charType].name} · ${RACKETS[racketType].name} · 난이도 ${$('difficulty').selectedOptions[0].text.split(' · ')[0]}`,2);}
 function previewSettings(){const rk=$('racket').value,ch=LOOKS[$('character').value]||LOOKS.jersey;$('gear').hidden=rk!=='shake';$('racket-note').textContent=racketNote(rk,$('blade').value,$('rubber').value);drawFace($('char-face'),ch);$('char-name').textContent=ch.nick||ch.name;}
 for(const id of ['character','racket','difficulty','blade','rubber'])$(id).onchange=()=>{markPending();previewSettings();};
@@ -1271,7 +1282,7 @@ let ciChar=null;
 function showCharInfo(k){if(!characterAvailable(k)){toast('꿀잠범은 현재 임시 비활성화 상태입니다.',1.8);return;}const L=LOOKS[k],I=CHAR_INFO[k];if(!L||!I){setCharacter(k);markPending();return;}ciChar=k;drawFace($('ci-face'),L);$('ci-name').textContent=L.nick||L.name;$('ci-tag').textContent=I.tag;
 const ul=$('ci-list');ul.textContent='';for(const [cls,lab,txt] of I.rows){const li=document.createElement('li'),b=document.createElement('b'),sp=document.createElement('span');li.className=cls;b.textContent=lab;sp.textContent=txt;li.append(b,sp);ul.append(li);}
 $('ci-pick').textContent=k===charType?'지금 선택된 캐릭터예요 ✓':'이 캐릭터로 할래요 ✓';$('char-info').showModal();}
-$('ci-close').onclick=()=>{$('char-info').close();ciSync();};$('ci-pick').onclick=()=>{if(ciChar&&ciChar!==charType){setCharacter(ciChar);if(LOOKS[charType].pen)setRacket('jpen');if(LOOKS[charType].racket)setRacket(LOOKS[charType].racket);markPending();toast(LOOKS[charType].nick+' 선택!',1.2);}$('char-info').close();ciSync();
+$('ci-close').onclick=()=>{$('char-info').close();ciSync();};$('ci-pick').onclick=()=>{if(ciChar&&ciChar!==charType){const prev=charType;setCharacter(ciChar);gearForChar(prev);markPending();toast(LOOKS[charType].nick+' 선택!',1.2);}$('char-info').close();ciSync();
 // next step in view: the Google sign-in (or, once signed in, the play button)
 const nx=$('google-login').hidden?$('start'):$('google-login');setTimeout(()=>nx.scrollIntoView({behavior:'smooth',block:'center'}),80);
 setTimeout(()=>{const r=nx.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)nx.scrollIntoView({block:'center'});},900);};   // smooth where it animates, a plain jump otherwise
