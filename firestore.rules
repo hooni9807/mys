@@ -59,7 +59,7 @@ service cloud.firestore {
       allow read: if true;
       allow create, update: if request.auth != null && request.auth.uid == uid
         && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom']
-        && request.resource.data.keys().hasOnly(['code', 'name', 'rating', 'at'])
+        && request.resource.data.keys().hasOnly(['code', 'name', 'rating', 'kind', 'n', 'at'])
         && request.resource.data.keys().hasAll(['code', 'name', 'rating', 'at'])
         && request.resource.data.code is string && request.resource.data.code.matches('^[A-Z0-9]{4}$')
         && request.resource.data.name is string && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 12
