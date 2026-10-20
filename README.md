@@ -544,6 +544,9 @@ node --test tests/*.test.cjs
 
 최신 순. 버전 옆 코드를 누르면 해당 변경 내용을 볼 수 있습니다.
 
+### v3.56 — 하이드 문신 방향 ([54bc973](https://github.com/hooni9807/spin-tt/commit/54bc973)) · 2026-10-20
+- 볼 문신을 **9시 → 3시 방향(가로)** 으로 변경
+
 ### v3.55 — 하이드 문신 ([a8d6ddd](https://github.com/hooni9807/spin-tt/commit/a8d6ddd)) · 2026-10-20
 - 하이드 얼굴 오른쪽 볼에 **가시 모양 트라이벌 문신** 추가 (눈 밑에서 턱선까지)
 
