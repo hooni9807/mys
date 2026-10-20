@@ -415,8 +415,8 @@ function titleFxText(id){const f=TITLE_FX[id];if(!f)return '';return Object.entr
 // divisions IV..I of 50 points. The opponent is my tier, one above or one below; win streaks push the draw up, loss streaks down.
 // Points: 20 base, ±8 per tier gap (beat a higher tier: more, lose to a higher tier: less; the reverse for a lower tier), plus
 // +2 per streak game (max +10) on both wins and losses. Higher tiers play a much harder AI (부수 + 난이도 tier).
-const RANK_TIERS=[{id:'bronze',n:'브론즈',icon:'🥉',c:'#cd7f32',min:0,dif:'b6',ai:'easy'},{id:'silver',n:'실버',icon:'🥈',c:'#c0c7d0',min:1000,dif:'b4',ai:'easy'},{id:'gold',n:'골드',icon:'🥇',c:'#ffd166',min:1200,dif:'b3',ai:'hard'},
-{id:'plat',n:'플래티넘',icon:'💠',c:'#4fd1c5',min:1400,dif:'b2',ai:'hard'},{id:'dia',n:'다이아',icon:'💎',c:'#63b3ed',min:1600,dif:'b1',ai:'extreme'},{id:'master',n:'마스터',icon:'🔮',c:'#b794f4',min:1800,dif:'pro',ai:'ultra'},{id:'chall',n:'챌린저',icon:'👑',c:'#ff8c42',min:2000,dif:'pro',ai:'uhard'}];
+const RANK_TIERS=[{id:'bronze',n:'브론즈',icon:'🥉',c:'#cd7f32',min:0,dif:'b5',ai:'hard'},{id:'silver',n:'실버',icon:'🥈',c:'#c0c7d0',min:1000,dif:'b4',ai:'hard'},{id:'gold',n:'골드',icon:'🥇',c:'#ffd166',min:1200,dif:'b3',ai:'extreme'},
+{id:'plat',n:'플래티넘',icon:'💠',c:'#4fd1c5',min:1400,dif:'b2',ai:'ultra'},{id:'dia',n:'다이아',icon:'💎',c:'#63b3ed',min:1600,dif:'b1',ai:'ultra'},{id:'master',n:'마스터',icon:'🔮',c:'#b794f4',min:1800,dif:'pro',ai:'uhard'},{id:'chall',n:'챌린저',icon:'👑',c:'#ff8c42',min:2000,dif:'pro',ai:'uext'}];
 const RANK_START=1000;let rankOn=false,rankStarting=false,rankGame=null;
 const rankIdx=m=>{let i=0;RANK_TIERS.forEach((t,k)=>{if(m>=t.min)i=k;});return i;},rankTier=m=>RANK_TIERS[rankIdx(m)];
 function rankName(m){const i=rankIdx(m),t=RANK_TIERS[i];if(i>=5)return t.n;const lo=i===0?800:t.min,d=Math.min(3,Math.max(0,Math.floor((m-lo)/50)));return t.n+' '+['IV','III','II','I'][d];}
