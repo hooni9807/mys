@@ -184,7 +184,7 @@ COURSE_GAIN=1.4;   // course = sideways / vertical travel of the stroke; x1.4 ->
 // The PERFECT stretch (.52 m at a normal 3 m/s ball) shrinks with the ball's speed, down to 45% - fast balls are harder to time.
 // table + ball of this game (set by the page): speed scales flight time, spin the spin felt, len the PERFECT window
 const EQUIP={speed:1,spin:1,len:1};
-function perfectSpan(b){return .52*EQUIP.len*clamp(FAST_REF/Math.max(Math.abs(b.vy||0),.1),.45,1);}
+function perfectSpan(b){return .52*EQUIP.len*clamp(FAST_REF/Math.max(Math.abs(b.vy||0),.1),.45,1)*(b.easy?1.6:1);}
 // In a drive-vs-drive rally the ball carries further (b.deep, 0..1): the whole window moves up to DEEP_M back from the table.
 // A ball that would bounce a second time on my half before reaching the hit window (short ball, backspin serve) is taken
 // over the table: from the top of its first bounce until just before the second one. A second bounce = server's point.
@@ -824,9 +824,10 @@ TIERS.uext={...TIERS.uhard,name:'울트라 익스트림',resist:.75};   // 울�
 let aiTier=(()=>{try{const v=localStorage.getItem('tier');return TIERS[v]?v:'easy';}catch{return 'easy';}})(),aiCharge=0;
 const runeResist=()=>net||pracLike()||mode==='cutman'||mode==='infdrive'?0:mode==='boss'?.5:TIERS[tierNow()].resist||0,tierNow=()=>mode==='match'&&!net?aiTier:'easy',tierP=()=>{const t=tierNow();return t==='easy'?null:TIERS[t];},tierL=L=>{const t=tierP();return t?{...L,speed:L.speed*t.speed,serve:L.serve*t.serve,aim:L.aim*t.aim}:L;};
 const pracLike=()=>mode==='practice'||clickPrac(),dualRate=()=>clickPrac()?.85:tierNow()==='ultra'?1:tierNow()==='uext'?.8:tierNow()==='uhard'?.7:tierNow()==='extreme'?(DUAL_RATE[aiDif()]??.1):0,dualOff=()=>Math.max(40,W*.065),DUAL_GAP=.12,DUAL_CLOSE=.85;   // 투클릭: ② appears DUAL_GAP s after ① was touched and closes in over DUAL_CLOSE s
-function triE(){return (ball.pre-ball.preHit)*(DUAL_GAP+DUAL_CLOSE)-(ball.y+P.back(ball)+.08)/Math.max(.3,-ball.vy);}   // pre-touch on the incoming ball: >0 late, <0 early; due 1 beat (쓰리터치) or 2 beats (포터치, first) before the 투클릭 part
+function triE(){return (ball.pre-ball.preHit)*(ball.pre===2?QUAD_BEAT:DUAL_GAP+DUAL_CLOSE)-(ball.y+P.back(ball)+.08)/Math.max(.3,-ball.vy);}   // pre-touch on the incoming ball: >0 late, <0 early; due 1 beat (쓰리터치) or 2 beats (포터치, first) before the 투클릭 part
 function quadE(){return -(2.8-ball.y)/Math.max(.3,ball.vy)-.07;}
-const quadPending=()=>ball&&ball.quadNext&&ball.owner==='you'&&!ball.held&&!ball.earlyPre&&ball.vy>0,CIRC=['①','②','③','④'],preLeft=()=>ball&&ball.pre?ball.pre-ball.preHit:0;
+const QUAD_BEAT=.62,quadPending=()=>false,   /* 포터치: no touch on my own outgoing ball any more; ① ② sit on the incoming ball at a quicker beat */
+CIRC=['①','②','③','④'],preLeft=()=>ball&&ball.pre?ball.pre-ball.preHit:0;
 function jsK(x){if(!net&&LOOKS[charType].pcv&&ball&&ball.pcv)x*=.92;if(!net&&LOOKS[aiChar].pcv)x*=.95;if(!net&&LOOKS[aiChar].jekyll)return jk()>0?1-(1-x)*.8:x*.9;if(net||!LOOKS[aiChar].swing)return x;const d=cpu-you;return d>=3?x*.9:d<=-3?1-(1-x)*.7:x;}   // AI 김치성: 승승패패패 / 패패승승승
 // 감정표현 (inspired by LoL's emote wheel; our own emoji, not Riot art): 10 emotes, up to 3 per 10 s like LoL's spam limit
 const EMOTES=[['👍','좋아요'],['😂','ㅋㅋㅋ'],['😭','엉엉'],['😡','부들부들'],['❤️','하트'],['👏','박수'],['😜','메롱~'],['😱','헉!'],['🤷','어쩌라고'],['🤝','GG']];let emoLog=[];
@@ -1781,9 +1782,10 @@ if(verdict==='ok'&&!special){const base=TIMING_SUCCESS[quality]??1,roll=Math.ran
 const kill=verdict==='ok'&&!special&&!flair&&shot.type==='smash'&&!!ball.chance;   // smashing a chance ball
 const cutShort=resp==='cut'&&(ball.type==='block'||ball.type==='short'),floatCut=cutShort&&quality!=='PERFECT';
 // cutting a short back needs PERFECT timing; anything less floats it up
-if(verdict==='ok'&&!special&&!flair&&(quality==='LATE'||floatCut))shot=P.popup(shot,ball.y,ball.z,floatCut?2:undefined);
+if(verdict==='ok'&&!special&&!flair&&(quality==='LATE'||floatCut))shot={...P.popup(shot,ball.y,ball.z,floatCut?2:3.6),easy:!floatCut};   // LATE: floats a bit (chance ball), easier PERFECT for the receiver
+else if(verdict==='ok'&&!special&&!flair&&quality==='GOOD'&&inc!=='smash'&&!shot.chance)shot={...P.popup(shot,ball.y,ball.z,4.6),chance:false,easy:true};   // GOOD: floats a little
 // 스매시 리시브 (drive and short/block alike): PERFECT goes back low and fast, GREAT normal, GOOD floats up - another smash coming
-if(inc==='smash'&&verdict==='ok'&&!special&&!flair&&!shot.chance){if(quality==='GOOD')shot=P.popup(shot,ball.y,ball.z);else if(quality==='PERFECT'&&P.family(shot.type)!=='drive')shot={...P.power(shot,ball.y,ball.z,DRIVE_BY_TIMING.PERFECT),power:shot.power};}   // late: it floats up
+if(inc==='smash'&&verdict==='ok'&&!special&&!flair&&!shot.chance){if(quality==='GOOD')shot={...P.popup(shot,ball.y,ball.z,4.2),easy:true};else if(quality==='PERFECT'&&P.family(shot.type)!=='drive')shot={...P.power(shot,ball.y,ball.z,DRIVE_BY_TIMING.PERFECT),power:shot.power};}   // late: it floats up
 if(racketType==='shake'&&verdict==='ok'&&!special&&!flair&&!shot.chance&&shot.type!=='short'&&shot.type!=='block'){const B=BLADES[bladeType],U=RUBBERS[rubberType];
 const inc=P.incoming(ball);
 if(U.vsDrive&&inc==='drive'&&Math.random()<U.vsDrive){shot=P.miss(shot,ball.y,ball.z,'over');flair='pipsDrive';}
@@ -1870,7 +1872,7 @@ if((bossMin()||infd()||Math.abs(ball.x)<.87&&ball.z<(ball.chance?1.5:.8+.6*deep)
 const myType=ball.type,myShort=!!ball.shortCut;
 // spk: 하드 / 익스트림 AI fires a 필살기 once its gauge is full · dualNow: 투클릭 공 (two touch points, so it comes in slower), chosen up front so its share matches the table
 const preN=!dualNow?0:quadNow?2:Math.random()<triRate()?1:0;   // 포터치 is decided while my ball flies over, so its ① ring can close on the AI's hit
-Object.assign(ball,P.aiReturn(spk?spk[1]:kind,ball.x,ball.y,sjF?Math.max(ball.z,.26):ball.z,(dualNow?1.5:speed)*(spk?spk[2]:1),(Math.random()-.5)*(infd()?.4:pracLike()?.5:L.aim)),{bounces:0,owner:'ai',chance:kind==='block',kill:wasChance&&kind==='smash'&&ball.z>=.25,power:false,shadow:false,hellfire:false,lob:false,shortCut:false,defMiss:0,skill:null,dual:dualNow,pre:preN,preHit:earlyPre,pcv:false,quadNext:null,earlyPre:0,dualHit:false,aiSpecial:!!spk});
+Object.assign(ball,P.aiReturn(spk?spk[1]:kind,ball.x,ball.y,sjF?Math.max(ball.z,.26):ball.z,(dualNow?1.5:speed)*(spk?spk[2]:1),(Math.random()-.5)*(infd()?.4:pracLike()?.5:L.aim)),{bounces:0,owner:'ai',chance:kind==='block',kill:wasChance&&kind==='smash'&&ball.z>=.25,power:false,shadow:false,hellfire:false,lob:false,shortCut:false,defMiss:0,skill:null,dual:dualNow,pre:preN,preHit:earlyPre,pcv:false,easy:false,quadNext:null,earlyPre:0,dualHit:false,aiSpecial:!!spk});
 if(infd()||dualNow)fitReturn(ball);
 if(myShort&&kind==='drive'&&!spk&&Math.random()<SHORT_CUT_DRIVE_MISS+R_('utShort')){ball.vz+=2.2;ball.skill='상대가 짧은 커트를 드라이브하다 실수! ✂️ (30%)';}
 if(LOOKS[aiChar].dragon&&!infd()&&!spk&&!dualNow&&(kind==='smash'||kind==='drive'&&aiFore>0))Object.assign(ball,P.power(ball,ball.y,ball.z,LOOKS[aiChar].dragon));   // AI 리신범 용의 드라이브 / 스매싱
@@ -2454,7 +2456,7 @@ try{const db=await remote();if(db){const q=rankFs.query(rankFs.collection(db,bk)
 $('rank-src').textContent=src;const ol=$('rank-list');ol.textContent='';
 if(!rows.length){const li=document.createElement('li');li.className='empty';li.textContent=k==='inf'?'아직 기록이 없어요. 무한 드라이브에서 랠리를 이어 보세요! ♾️':bl?(bl.length?'아직 고른 보스를 쓰러뜨린 사람이 없어요. 보스전에서 이겨 보세요! 👑':'보고 싶은 보스를 하나 이상 체크하세요'):'아직 기록이 없어요. 11점 경기를 끝내고 등록해 보세요!';ol.append(li);return;}
 rows.forEach((r,i)=>{const li=document.createElement('li'),no=document.createElement('span'),nm=document.createElement('span'),sub=document.createElement('span'),val=document.createElement('span');
-no.className='no';no.textContent=i+1;nm.className='nm';nameTtl(nm,r);sub.className='sub';sub.textContent=bl?[r.character,r.racket,r.detail.split(' · ')[1]].filter(Boolean).join(' · '):[r.level,r.character,k==='wins'?((r.detail||'').match(/\d+:\d+/)||[''])[0]:''].filter(Boolean).join(' · ');sub.textContent=sub.textContent.replace(/김민희/g,'민희쌤').replace(/차윤환/g,'카사노바 윤');val.className='val';val.textContent=k==='rally'||k==='inf'?r.value+' 랠리':bl?(BOSS_ICON[Object.keys(BOSS_LABEL).find(b=>BOSS_LABEL[b]===bossOfRow(r))]||'')+' '+r.detail.split(' · ')[0]+' 클리어':r.value+'점';li.append(no,nm,sub,val);ol.append(li);});}
+no.className='no';no.textContent=i+1;nm.className='nm';nameTtl(nm,r);sub.className='sub';sub.textContent=bl?(r.character||''):[r.level,r.character,k==='wins'?((r.detail||'').match(/\d+:\d+/)||[''])[0]:''].filter(Boolean).join(' · ');sub.textContent=sub.textContent.replace(/김민희/g,'민희쌤').replace(/차윤환/g,'카사노바 윤');val.className='val';val.textContent=k==='rally'||k==='inf'?r.value+' 랠리':bl?r.value+'점':r.value+'점';li.append(no,nm,sub,val);ol.append(li);});}
 // ===== PvP rating (online 1:1). Local record always; on Firebase each device signs in anonymously and may only
 // write its own players/{uid} doc, and only with the exact rating step the rules recompute (see firestore.rules).
 function pvpLocal(){try{return {rating:1000,wins:0,losses:0,streak:0,...JSON.parse(store.get('pvp'))};}catch{return {rating:1000,wins:0,losses:0,streak:0};}}
