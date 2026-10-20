@@ -42,10 +42,42 @@ html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-a
 .rn-row{display:flex;gap:8px;margin-top:10px}.rn-row button{flex:1;min-height:40px;border-radius:8px;border:1px solid #3a2c5a;background:transparent;color:var(--ink);font:inherit}
 #fit-open,#t-open,#q-open{min-height:32px;padding:0 10px;border-radius:8px;border:1px solid #3a2c5a;background:#241a3d;color:var(--ink);font:inherit;font-size:12px;font-weight:700;white-space:nowrap}#q-badge{color:#ff345d}
 #quests,#fit{width:min(520px,96vw);max-height:92vh;overflow-y:auto;background:#170e2b;color:var(--ink);border:1px solid #3a2c5a;border-radius:16px;padding:14px;box-shadow:0 20px 70px #000a}#fit::backdrop{background:#0b0818c0}#fit h3{margin:0 0 4px}#fit p{font-size:11px;color:#a998d6;margin:0 0 8px}
-.fit-stage{position:relative;border-radius:12px;background:radial-gradient(circle at 50% 40%,#3a2a66,#140c26 70%);margin-bottom:8px}.fit-stage canvas{display:block;width:100%;height:auto;aspect-ratio:340/250}.fit-stage small{position:absolute;bottom:6px;font-size:10px;color:#a998d6}.fit-stage small:nth-of-type(1){left:25%}.fit-stage small:nth-of-type(2){left:75%}
-.fit-tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}.fit-tabs button{flex:1 1 auto;min-height:32px;padding:0 10px;border-radius:9px;border:1px solid #3a2c5a;background:#1c1438;color:var(--ink);font:inherit;font-size:12px;font-weight:700}.fit-tabs button.active{background:#ffd166;color:#1e113a;border-color:#ffd166}
-#fit-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px;max-height:34vh;overflow-y:auto;padding:2px}#fit-items button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 4px;border-radius:10px;border:1px solid #3a2c5a;background:#1c1438;color:var(--ink);font:inherit;font-size:11px;line-height:1.2}#fit-items button[aria-checked=true]{border-color:#ffd166;box-shadow:0 0 0 2px #ffd16655;background:#2a1d4d}#fit-items .fit-vet{grid-column:1/-1;margin:6px 0 2px;padding:6px 8px;border-radius:8px;background:linear-gradient(90deg,#3a2a08,#1c1438);color:#ffd166;font-size:11px;font-weight:800}#fit-items button.vet{border-color:#b8860b;background:linear-gradient(160deg,#2a1d4d,#1c1438 60%,#3a2a08)}#fit-items button.vet small{font-size:9px;color:#ffd166}#fit-items button.lock{opacity:.62}#fit-items i{display:block;width:38px;height:26px;border-radius:7px;border:1px solid #ffffff30;font-style:normal;font-size:18px;line-height:26px;text-align:center}
-.fit-row{display:flex;gap:8px;margin-top:10px}.fit-row button{flex:1;min-height:40px;border-radius:10px;font:inherit;font-weight:700}#fit-save{background:#ffd166;color:#1e113a;border:0}
+#fit{width:min(1060px,96vw);max-height:94dvh;padding:0;border:1px solid #544665;border-radius:24px;background:#171222;color:#f6f1ff;overflow:auto;box-shadow:0 32px 120px #0009}
+#fit::backdrop{background:#080611c9;backdrop-filter:blur(8px)}
+.fit-header{display:flex;justify-content:space-between;align-items:center;padding:25px 30px;border-bottom:1px solid #ffffff10}
+.fit-eyebrow{display:block;color:#c1b0dd;font-size:10px;letter-spacing:2.2px;font-weight:700;margin-bottom:8px}
+#fit h3{font-size:25px;letter-spacing:-1px;margin:0}.fit-close{border:1px solid #ffffff20;background:transparent;color:#d9cce9;width:40px;min-height:40px;border-radius:50%;font-size:22px}
+.fit-layout{display:grid;grid-template-columns:330px minmax(0,1fr)}
+.fit-showroom{padding:24px;background:linear-gradient(155deg,#2d2340,#191324);border-right:1px solid #ffffff10}
+.fit-stage{position:relative;isolation:isolate;border:1px solid #ffffff12;border-radius:18px;background:radial-gradient(ellipse at 50% 43%,#75618b55,transparent 65%),linear-gradient(160deg,#40334f,#241c31);overflow:hidden;margin:0}
+.fit-stage:before{content:'';position:absolute;z-index:-1;width:82%;height:75%;left:9%;top:9%;border:1px solid #d7c0f02b;border-radius:48% 48% 12% 12%}
+.fit-stage:after{content:'';position:absolute;z-index:-1;bottom:12%;left:14%;width:72%;height:8%;border-radius:50%;background:#b6a4c524;box-shadow:0 8px 0 #a390ba10}
+.fit-stage canvas{width:100%;height:auto;aspect-ratio:180/230;cursor:default}
+.fit-live{position:absolute;top:15px;left:16px;font-size:9px;letter-spacing:1.2px;color:#e2d9ee}.fit-live:before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:#b8dfbd;margin-right:7px}
+.fit-view-controls{display:flex;justify-content:center;gap:4px;margin:14px 0 18px}.fit-view-controls button{border:1px solid transparent;background:transparent;color:#ab9cbf;font-size:11px;border-radius:20px;min-height:32px;padding:4px 14px}.fit-view-controls button[aria-pressed=true]{color:#f6efff;border-color:#ffffff25;background:#ffffff0c}
+.fit-look-label{color:#ae9cc3;font-size:9px;letter-spacing:1.6px}.fit-look-name{display:block;font-size:21px;letter-spacing:-.6px;margin:8px 0}
+#fit .fit-look-desc{font-size:12px;line-height:1.7;color:#c5b8d5;margin-bottom:16px}.fit-equipped{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 0;padding:0;list-style:none}.fit-equipped li{font-size:10px;padding:6px 8px;border:1px solid #ffffff14;border-radius:6px;color:#d6c8e7}
+.fit-catalog{padding:24px;min-width:0}.fit-tabs{display:flex;gap:5px;flex-wrap:wrap;border-bottom:1px solid #ffffff13;padding-bottom:15px;margin-bottom:17px}
+.fit-tabs button{flex:0 0 auto;min-height:33px;padding:0 11px;border-radius:8px;border:0;background:transparent;color:#b5a6c9;font-size:11px;font-weight:600}
+.fit-tabs button.active{background:#e4d7f5;color:#2a1b3e}
+.fit-catalog-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.fit-catalog-heading b{font-size:14px}.fit-catalog-heading span{font-size:10px;color:#b9aacb}
+#fit-items{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;max-height:500px;overflow-y:auto;padding:2px 4px 4px 2px;scrollbar-width:thin;scrollbar-color:#655477 transparent}
+#fit-items[data-collections=true]{grid-template-columns:repeat(3,minmax(0,1fr))}
+#fit-items button{display:flex;flex-direction:column;position:relative;min-width:0;gap:0;overflow:hidden;padding:0 0 11px;border:1px solid #ffffff15;background:#231c30;border-radius:12px;color:#e9dff5;text-align:left;align-items:stretch;font-size:11px;transition:border-color .18s,background .18s}
+#fit-items button:hover{border-color:#b5a0cf;background:#30253d}#fit-items button[aria-checked=true]{border-color:#d5baf3;background:#30243f;box-shadow:0 0 0 1px #d5baf3}
+#fit-items button[aria-checked=true]:after{content:'✓';position:absolute;right:8px;top:8px;background:#e4d7f5;color:#281b38;border-radius:50%;width:18px;height:18px;line-height:18px;text-align:center;font-size:11px;font-weight:bold}
+#fit-items canvas{width:100%;height:164px;object-fit:contain;cursor:pointer;background:radial-gradient(ellipse at 50% 45%,var(--fit-tone,#564565) -120%,#ffffff00 85%)}
+#fit-items .fit-item-name{padding:8px 10px 0;font-size:11px;line-height:1.35;font-weight:600}
+#fit-items .fit-item-label{padding:0 10px;color:#baa9c9;font-size:8px;letter-spacing:.7px}
+#fit-items .fit-colors{display:flex;gap:4px;margin:8px 10px 0}#fit-items .fit-colors i{width:8px;height:8px;border:1px solid #ffffff30;border-radius:50%;margin:0;background:var(--swatch)}
+#fit-items button.vet{border-color:#9f7c45}#fit-items button.vet small{padding:5px 10px 0;color:#edd294;font-size:9px}
+#fit-items button.lock{opacity:.7}.fit-footer{display:flex;align-items:center;gap:10px;padding:18px 28px;border-top:1px solid #ffffff14;background:#1c1628;position:sticky;bottom:0;z-index:2}
+#fit .fit-footer p{flex:1;color:#b5a6c9;font-size:11px;line-height:1.6;margin:0}.fit-footer button{min-height:42px;border-radius:10px;padding:0 18px;font-size:12px;font-weight:700}
+#fit-reset{background:transparent;color:#d8cae8;border:1px solid #ffffff25}#fit-save{background:#e4d7f5;color:#2b1c3b;border:0}
+#fit button:focus-visible{outline:2px solid #f5dcaa;outline-offset:3px}
+@media(max-width:720px){#fit{width:96vw;max-height:94dvh;border-radius:18px}.fit-header{padding:18px}.fit-header h3{font-size:21px}.fit-layout{grid-template-columns:1fr}.fit-showroom{display:grid;grid-template-columns:140px minmax(0,1fr);gap:0 16px;padding:16px;border-right:0;border-bottom:1px solid #ffffff10}.fit-stage{grid-row:1/3}.fit-live{top:9px;left:10px;font-size:7px}.fit-view-controls{grid-column:2;grid-row:2;margin:8px 0 0;justify-content:flex-start;align-self:end}.fit-view-controls button{font-size:10px;padding:4px 10px}.fit-look-info{grid-column:2;grid-row:1;align-self:center}.fit-look-name{font-size:18px}#fit .fit-look-desc{font-size:10px;margin-bottom:8px}.fit-equipped{gap:4px;margin:8px 0 0}.fit-equipped li{font-size:8px;padding:4px 5px}.fit-catalog{padding:16px}.fit-tabs{gap:3px;margin-bottom:13px;padding-bottom:12px}.fit-tabs button{padding:0 9px;font-size:10px;min-height:32px}#fit-items{max-height:340px;gap:7px;grid-template-columns:repeat(3,minmax(0,1fr))}#fit-items canvas{aspect-ratio:1/1}.fit-footer{padding:12px 16px;gap:8px}.fit-footer button{padding:0 13px}#fit .fit-footer p{font-size:9px}.fit-colors{display:none}}
+@media(prefers-reduced-motion:reduce){#fit-items button{transition:none}}
+
 #titles{width:min(460px,94vw);max-height:88vh;overflow-y:auto;background:#170e2b;color:var(--ink);border:1px solid #3a2c5a;border-radius:16px;padding:16px;box-shadow:0 20px 70px #000a}#quests::backdrop,#titles::backdrop{background:#0b0818c0}#quests h3,#titles h3{margin:0 0 4px}#quests p,#titles p{font-size:11px;color:#a998d6;margin:0 0 10px}
 #q-list,#t-list{list-style:none;margin:0 0 10px;padding:0}#q-list li,#t-list li{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;padding:9px 0;border-bottom:1px solid #2b2045;font-size:13px}#q-list small,#t-list small{display:block;color:#8f7cc4;font-size:11px}
 #q-list i,#t-list i{grid-column:1;height:5px;border-radius:3px;background:linear-gradient(90deg,#ffd166 var(--p),#2b2045 var(--p))}#q-list button,#t-list button{grid-row:1/3;grid-column:2;min-height:38px;padding:0 12px;border-radius:8px;border:1px solid #ffd166;background:#ffd166;color:#1e113a;font:inherit;font-weight:700}#t-list li.off{opacity:.45}#t-list li.on button{background:#7dffb2;border-color:#7dffb2}#lv-title{flex-basis:100%;font-size:12px;color:#ffd166;font-weight:800}#q-list button:disabled,#t-list button:disabled{background:transparent;color:#8f7cc4;border-color:#3a2c5a}#q-close{width:100%;min-height:40px;border-radius:8px;border:1px solid #3a2c5a;background:transparent;color:var(--ink);font:inherit}
@@ -87,7 +119,22 @@ html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-a
 <button id="friends-btn" type="button" hidden>👥 친구 <b id="friends-badge" hidden></b></button>
 <dialog id="runes" aria-labelledby="rn-title"><h3 id="rn-title">🌟 스킬트리</h3><label class="rn-pick">캐릭터별 스킬트리 <select id="rn-char" aria-label="스킬트리를 볼 캐릭터"></select></label><p>캐릭터마다 따로 찍어요 · 레벨마다 1포인트 (최대 30) · 트리마다 스킬 20개 · 각 스킬 최대 2단계 · 트리에 4포인트를 쓸 때마다 다음 줄이 열려요 (핵심 스킬은 16포인트)</p><b id="rn-points"></b><div id="rn-trees"></div><div class="rn-row"><button type="button" id="rn-rec">✨ 추천</button><button type="button" id="rn-reset">전체 초기화</button><button type="button" id="rn-close">닫기</button></div></dialog>
 <dialog id="quests" aria-labelledby="q-title"><h3 id="q-title">📜 퀘스트</h3><p>경기를 끝까지 하면(승리 · 패배 모두) 횟수가 쌓여요 · ♾️ 무한 드라이브도 끊길 때까지 친 드라이브 · 맞드라이브가 쌓여요 · 중간에 나가면 그 경기 횟수는 사라져요</p><ul id="q-list"></ul><button type="button" id="q-close">닫기</button></dialog>
-<dialog id="fit" aria-labelledby="fit-title"><h3 id="fit-title">👕 커스터마이징</h3><p>아이템을 누르면 위 캐릭터에 바로 입혀 봐요 · 저장해야 경기에 적용돼요 (모든 캐릭터 공통 · 온라인 상대에게도 보여요)</p><div class="fit-stage"><canvas id="fit-view" width="340" height="250" aria-label="코디 미리보기 (앞 · 뒤)"></canvas><small>앞</small><small>뒤</small></div><div class="fit-tabs" role="tablist"><button type="button" data-ft="top" class="active">상의</button><button type="button" data-ft="bot">하의</button><button type="button" data-ft="head">머리</button><button type="button" data-ft="face">얼굴</button><button type="button" data-ft="arm">손목</button><button type="button" data-ft="body">목 · 몸</button><button type="button" data-ft="wing">날개</button><button type="button" data-ft="aura">이펙트</button><button type="button" data-ft="pet">펫</button></div><div id="fit-items" role="radiogroup"></div><div class="fit-row"><button type="button" id="fit-reset" class="ghost">기본으로</button><button type="button" id="fit-close" class="ghost">닫기</button><button type="button" id="fit-save">💾 저장</button></div></dialog> <dialog id="titles" aria-labelledby="t-title"><h3 id="t-title">🏅 칭호</h3><p>조건을 달성하면 칭호를 얻어요 · 하나를 장착하면 내 이름 앞에 붙고 온라인 상대에게도 보여요</p><ul id="t-list"></ul><button type="button" id="t-close">닫기</button></dialog> <dialog id="unlock" aria-labelledby="ul-title"><h3 id="ul-title">🎉 레벨 업!</h3><p id="ul-sub">해금할 캐릭터를 하나 고르세요</p><div id="ul-list"></div></dialog>
+<dialog id="fit" aria-labelledby="fit-title">
+  <div class="fit-header"><div><span class="fit-eyebrow">SPIN LAB / OUTFIT STUDIO</span><h3 id="fit-title">코트 위의 나만의 룩</h3></div><button type="button" id="fit-close" class="fit-close" aria-label="코디 창 닫기">×</button></div>
+  <div class="fit-layout">
+    <section class="fit-showroom" aria-label="착용 미리보기">
+      <div class="fit-stage"><span class="fit-live">FITTING ROOM</span><canvas id="fit-view" width="360" height="460" aria-label="현재 코디 착용 미리보기"></canvas></div>
+      <div class="fit-view-controls" role="group" aria-label="미리보기 방향"><button type="button" data-fit-back="false" aria-pressed="true">앞모습</button><button type="button" data-fit-back="true" aria-pressed="false">뒷면 디자인</button></div>
+      <div class="fit-look-info"><span class="fit-look-label">YOUR COURT, YOUR STYLE</span><strong id="fit-look-name" class="fit-look-name"></strong><p id="fit-look-desc" class="fit-look-desc"></p><ul id="fit-equipped" class="fit-equipped" aria-label="선택한 아이템"></ul></div>
+    </section>
+    <section class="fit-catalog" aria-label="코디 아이템">
+      <div class="fit-tabs" role="tablist" aria-label="아이템 종류"><button type="button" data-ft="collection">추천 룩</button><button type="button" data-ft="top">상의</button><button type="button" data-ft="bot">하의</button><button type="button" data-ft="head">머리</button><button type="button" data-ft="arm">손목</button><button type="button" data-ft="body">목 · 몸</button><button type="button" data-ft="wing">날개</button><button type="button" data-ft="aura">이펙트</button><button type="button" data-ft="pet">펫</button></div>
+      <div class="fit-catalog-heading"><b id="fit-category"></b><span id="fit-count"></span></div>
+      <div id="fit-panel" role="tabpanel"><div id="fit-items" role="radiogroup" aria-label="코디 선택"></div></div>
+    </section>
+  </div>
+  <div class="fit-footer"><p id="fit-status" role="status">자유롭게 입어보고 저장하세요.<br>모든 캐릭터 · 온라인 대전에 적용</p><button type="button" id="fit-reset">기본으로</button><button type="button" id="fit-save">이 코디 저장</button></div>
+</dialog> <dialog id="titles" aria-labelledby="t-title"><h3 id="t-title">🏅 칭호</h3><p>조건을 달성하면 칭호를 얻어요 · 하나를 장착하면 내 이름 앞에 붙고 온라인 상대에게도 보여요</p><ul id="t-list"></ul><button type="button" id="t-close">닫기</button></dialog> <dialog id="unlock" aria-labelledby="ul-title"><h3 id="ul-title">🎉 레벨 업!</h3><p id="ul-sub">해금할 캐릭터를 하나 고르세요</p><div id="ul-list"></div></dialog>
 <dialog id="friends" aria-labelledby="fr-title"><h3 id="fr-title">👥 플레이어</h3><div id="fr-list-view"><ul id="fr-list"></ul><small id="fr-note">🟢 접속 · AI전 / 보스전 / 1대1 플레이중 (대전 신청 · 채팅) · ⚪ 미접속 (마지막 접속)</small></div>
 <div id="fr-chat-view" hidden><button type="button" id="fr-back" class="ghost">← 목록</button> <b id="fr-chat-name"></b><ul id="fr-msgs"></ul><form id="fr-form"><input id="fr-input" maxlength="200" autocomplete="off" placeholder="메시지 입력" aria-label="메시지"><button type="submit">보내기</button></form></div>
 <button type="button" id="fr-close" class="ghost">닫기</button></dialog>
@@ -220,7 +267,8 @@ root.PingPhysics={shortLeft,EQUIP,back,OFF_T,DEEP_M,DEEP_STEP,spinMiss,perfectSp
 })(typeof window==='undefined'?globalThis:window);
 </script><script>
 'use strict';
-const $=id=>document.getElementById(id),canvas=$('court'),ctx=canvas.getContext('2d'),P=PingPhysics;
+const $=id=>document.getElementById(id),canvas=$('court'),P=PingPhysics;
+let ctx=canvas.getContext('2d');
 let googleUser=null,deep=0,deepS=0,pops=[],net=null,difficulty='b4',matchBest=0,driveBonus=0,lastReason='',W=900,H=465,mode='match',playing=false,paused=false,ball=null,wait=0,you=0,cpu=0,rally=0,best=0,last=0,time=0,down=false,trail=[],fx=[],sound=false,audio=null,paddle={x:450,y:380,vx:0,vy:0},samples=[],lastHit=-10,lastAIHit=-10,toastUntil=0,gesture=null,activePointer=null,lastTap=null,smashUntil=-1,charge=0,touchInput=false,swingMemory=null,racketType='shake',playerSide=1;
 const names={loop:['LOOP DRIVE','루프 드라이브 · 높은 전진 회전'],back:['BACK DRIVE','백드라이브 · 빠른 전진 회전'],chiquita:['CHIQUITA','필살기 · 치키타 (강한 백드라이브)'],lightning:['LIGHTNING','필살기 · 번개 속공'],thunder:['THUNDER','필살기 · 천둥 스매시'],phantom:['PHANTOM','필살기 · 유령 커트'],crescent:['CRESCENT','필살기 · 초승달 드라이브'],drive:['DRIVE','드라이브 · 전진 회전'],cut:['CUT','커트 · 후진 회전'],chop:['CHOP','수비 커트 · 강한 후진 회전'],short:['SHORT','쇼트 · 짧은 밀어치기'],block:['BLOCK','디펜스 쇼트 · 각도를 숙여 막기'],smash:['SMASH','스매시 · 강한 공격'],side:['SIDE SPIN','사이드스핀 · 휘어지는 궤적'],serve:['SERVE','서브']};
 // w/h: blade half-size, hw/hl: handle width/length, reach: hit radius, power: swing speed multiplier
@@ -336,16 +384,16 @@ let maxDef=0;const myTtl=()=>TITLES.some(t=>t[0]===prog.q?._t&&t[3]())?{ttl:prog
 function titleCheck(){const seen=tS().seen||'',got=TITLES.filter(t=>t[3]()).map(t=>t[0]),fresh=got.filter(id=>!seen.split(',').includes(id));if(!fresh.length)return;tS().seen=got.join(',');saveProg();if(seen)toast('🏅 칭호 획득: '+fresh.map(titleName).join(' · ')+' · 칭호창에서 장착',3);}
 function titleMatch(won){if(!won||mode==='practice'||clickPrac())return;const S=tS();if(!net){if(mode==='match'&&['hard','extreme','ultra','uhard','uext'].includes(aiTier))S.hard=1;if(mode==='match'&&['ultra','uhard','uext'].includes(aiTier))S[aiTier==='ultra'?'ultra':aiTier]=1;if(mode==='match'&&aiTier==='uext')S.uhard=1;if(mode==='boss')S[aiChar==='boss'?'maou':aiChar==='sejong'?'sejong':'minhee']=1;if(mode==='trio')S.trio=1;}
 else if(!net.dbl)S[net.trio?'trio':'online']=net.trio?1:(S.online||0)+1;if(maxDef>=5)S.comeback=1;if(mode!=='trio'&&cpu===0&&you>=11)S.shutout=1;}
-// ===== 커스터마이징 (코디): tops / bottoms / 5 accessory slots, one outfit for every character. An item is a patch over the
+// ===== 커스터마이징 (코디): tops / bottoms / 6 accessory slots, one outfit for every character. An item is a patch over the
 // character's look (shirt / sleeve / collar / pattern ...), 'def' keeps the character's own. Saved in localStorage and prog.q._fit
 // (so it follows the Google account); sent to online 1:1 opponents. Designs: plain team colours, two-tone, chevrons, gradients,
 // a temper-line wave (Japan 2025 'Hamon' kit idea) and a pink dawn band (2026 'Venus Belt' idea) - no real logos.
 // Plug-in drawers for extra coordi items (고인물 전용 등): FIT_EXT.<slot>[kind] = function(...). Signatures:
 // top(look,ux,top,th,s,isBack,at,q) inside the torso clip · bot(look,cx,hy,leg,s,at) after the legs · head(look,hx,hd,s,ph,isBack,at,{ht,hw,fh})
-// face(look,hx,hd,s,ph,at,{hw,ey,my}) · arm(look,w,s,at,which) at each wrist · neck(look,ux,top,th,s,isBack,side,at) over the torso
+// arm(look,w,s,at,which) at each wrist · neck(look,ux,top,th,s,isBack,side,at) over the torso
 // back(look,ux,top,th,ground,s,at,isBack) behind the body · wing(k,s,at) in the wing frame of one side · aura(ux,cy,s,at) · pet(x,y,s,at,dir)
-const FIT_EXT={top:{},bot:{},head:{},face:{},arm:{},neck:{},back:{},wing:{},aura:{},pet:{}};
-/*VET_START*/const VET_TOP=[],VET_BOT=[],VET_HEAD=[],VET_FACE=[],VET_ARM=[],VET_BODY=[],VET_WING=[],VET_AURA=[],VET_PET=[];/*VET_END*/
+const FIT_EXT={top:{},bot:{},head:{},arm:{},neck:{},back:{},wing:{},aura:{},pet:{}};
+/*VET_START*/const VET_TOP=[],VET_BOT=[],VET_HEAD=[],VET_ARM=[],VET_BODY=[],VET_WING=[],VET_AURA=[],VET_PET=[];/*VET_END*/
 const NOPAT={stripes:null,camo:null,tee:false,hoodie:false,tie:null,frontName:false,longSleeve:false,pat:null,pipe:null,fitted:true};
 const FIT_TOPS=[['def','캐릭터 기본',null],
 ['red','클래식 레드',{shirt:'#d0112b',sleeve:'#d0112b',collar:'#ffffff',pipe:'#ffffff'}],['navy','네이비 프로',{shirt:'#13235b',sleeve:'#13235b',collar:'#ffcf3f',pipe:'#ffcf3f'}],
@@ -377,8 +425,6 @@ const FIT_ACC=[['hb','스웨트 헤어밴드','head','🎽',{hb:'#ffffff'}],['ca
 ['bear','곰돌이 귀','head','🐻',{hat:'bear',hatC:'#9c6644'}],['fox','여우 귀','head','🦊',{hat:'fox',hatC:'#f76707'}],['crown','황금 왕관','head','👑',{hat:'crown'}],['tiara','공주 티아라','head','💎',{hat:'tiara'}],
 ['halo','천사 링','head','😇',{hat:'halo'}],['horn','악마 뿔','head','😈',{hat:'horn'}],['bow','왕리본','head','🎀',{hat:'bow',hatC:'#ff6fa5'}],['flower','꽃 화관','head','🌸',{hat:'flower'}],
 ['wizard','마법사 모자','head','🧙',{hat:'wizard'}],['santa','산타 모자','head','🎅',{hat:'santa'}],['headset','게이밍 헤드셋','head','🎧',{hat:'headset'}],
-['sun','선글라스','face','🕶️',{fx:'sun'}],['heartglass','하트 선글라스','face','💗',{fx:'heartglass'}],['starglass','별 안경','face','⭐',{fx:'starglass'}],['roundglass','동그란 금테','face','👓',{fx:'roundglass'}],
-['goggle','스포츠 고글','face','🥽',{fx:'goggle'}],['blush','볼터치','face','☺️',{fx:'blush'}],['whisker','고양이 수염','face','🐾',{fx:'whisker'}],['mask','마스크','face','😷',{fx:'mask'}],['bandaid','반창고','face','🩹',{fx:'bandaid'}],
 ['wb','흰 손목밴드 (양손)','arm','⚪',{wristband:'#ffffff',wb2:'#ffffff'}],['wbk','검정 손목밴드 (양손)','arm','⚫',{wristband:'#16161a',wb2:'#16161a'}],['watch','스마트워치','arm','⌚',{watch:true,bigWatch:true}],
 ['sleeve','팔 토시','arm','🦾',{armSleeve:'#16161a'}],['bracelet','골드 팔찌','arm','📿',{bracelet:'#f6c945'}],['rainbow','무지개 우정팔찌','arm','🌈',{bracelet:'rainbow'}],
 ['medal','금메달','body','🥇',{neck:'medal'}],['heart','하트 목걸이','body','💖',{neck:'heart'}],['bowtie','핑크 보타이','body','🎀',{neck:'bowtie'}],['scarf','줄무늬 머플러','body','🧣',{neck:'scarf'}],
@@ -389,23 +435,102 @@ const FIT_ACC=[['hb','스웨트 헤어밴드','head','🎽',{hb:'#ffffff'}],['ca
 ['petal','벚꽃잎','aura','🌸',{aura:'petal'}],['note','음표','aura','🎵',{aura:'note'}],['zap','번개','aura','⚡',{aura:'bolt'}],
 ['jelly','말랑 젤리','pet','🟢',{pet:'jelly'}],['chick','아기 병아리','pet','🐥',{pet:'chick'}],['kitten','꼬마 고양이','pet','🐈',{pet:'kitten'}],['dragonp','미니 드래곤','pet','🐲',{pet:'dragon'}],
 ['ghost','꼬마 유령','pet','👻',{pet:'ghost'}],['penguin','아기 펭귄','pet','🐧',{pet:'penguin'}],['ball','탁구공 요정','pet','🏓',{pet:'ball'}]];
-const FIT_SLOTS=['head','face','arm','body','wing','aura','pet'];
-FIT_TOPS.push(...VET_TOP);FIT_BOTS.push(...VET_BOT);FIT_ACC.push(...VET_HEAD,...VET_FACE,...VET_ARM,...VET_BODY,...VET_WING,...VET_AURA,...VET_PET);   // 고인물 전용 (unlock reqs)
+// Original coordinated capsule outfits; shared IDs are scoped by the existing equipment slots.
+FIT_TOPS.push(
+ ['studio_club','클럽 케이블 니트',{shirt:'#f2eddb',sleeve:'#f7f3e8',collar:'#244f42',pat:{k:'studio_club',a:'#244f42',b:'#c8a967'}}],
+ ['studio_cloud','클라우드 집업 후드',{shirt:'#b5a6d4',sleeve:'#b5a6d4',collar:'#eeeaf5',longSleeve:true,pat:{k:'studio_cloud',a:'#eeeaf5',b:'#756389'}}],
+ ['studio_arcade','애프터 아워 테크 재킷',{shirt:'#23313b',sleeve:'#23313b',collar:'#67d8d0',longSleeve:true,pat:{k:'studio_arcade',a:'#67d8d0',b:'#b1b8c0'}}],
+ ['studio_rose','로즈 세일러 카디건',{shirt:'#f6eee6',sleeve:'#f6eee6',collar:'#c7899c',longSleeve:true,pat:{k:'studio_rose',a:'#c7899c',b:'#784e69'}}],
+ ['studio_midnight','별자리 테일러드 코트',{shirt:'#252e50',sleeve:'#252e50',collar:'#d6bb75',longSleeve:true,pat:{k:'studio_midnight',a:'#d6bb75',b:'#818bb9'}}],
+ ['studio_varsity','캠퍼스 바시티 재킷',{shirt:'#743c4b',sleeve:'#eee1c5',collar:'#eee1c5',longSleeve:true,pat:{k:'studio_varsity',a:'#eee1c5',b:'#c8a86a'}}]
+);
+FIT_BOTS.push(
+ ['studio_club','포레스트 플리츠',{pants:'#244f42',shorts:true,shortsLen:.04,skirt:'pleat',skirtC:'#244f42',skirtTrim:'#f2eddb',socks:true}],
+ ['studio_cloud','라벤더 조거 팬츠',{pants:'#a899c8',shorts:false,pstripe:'#eeeaf5',legx:'studio_cloud'}],
+ ['studio_arcade','차콜 유틸리티 팬츠',{pants:'#26343d',shorts:false,pstripe:'#67d8d0',legx:'studio_arcade'}],
+ ['studio_rose','로즈 리본 플리츠',{pants:'#c7899c',shorts:true,shortsLen:.04,skirt:'pleat',skirtC:'#c7899c',skirtTrim:'#f6eee6',socks:true}],
+ ['studio_midnight','미드나잇 슬랙스',{pants:'#303959',shorts:false,pstripe:'#d6bb75'}],
+ ['studio_varsity','크림 캠퍼스 쇼츠',{pants:'#eee1c5',shorts:true,shortsLen:.8,pstripe:'#743c4b',socks:true}]
+);
+FIT_ACC.push(
+ ['studio_club','클럽 선바이저','head','',{hat:'studio_club',hatC:'#f2eddb'}],
+ ['studio_cloud','라벤더 니트 베레모','head','',{hat:'studio_cloud',hatC:'#b5a6d4'}],
+ ['studio_arcade','민트 테크 헤드폰','head','',{hat:'studio_arcade',hatC:'#67d8d0'}],
+ ['studio_rose','로즈 리본 베레모','head','',{hat:'studio_rose',hatC:'#c7899c'}],
+ ['studio_midnight','별빛 마법사 모자','head','',{hat:'studio_midnight',hatC:'#252e50'}],
+ ['studio_varsity','캠퍼스 베이스볼 캡','head','',{hat:'studio_varsity',hatC:'#743c4b'}]
+);
+
+const FIT_SLOTS=['head','arm','body','wing','aura','pet'];
+FIT_TOPS.push(...VET_TOP);FIT_BOTS.push(...VET_BOT);FIT_ACC.push(...VET_HEAD,...VET_ARM,...VET_BODY,...VET_WING,...VET_AURA,...VET_PET);   // 고인물 전용 (unlock reqs)
 const fitOk=r=>!r||(!r.lv||progLevel()>=r.lv)&&(!r.t||!!TITLES.find(t=>t[0]===r.t)?.[3]()),fitReqText=r=>[r.lv?`Lv${r.lv}`:'',r.t?`〔${titleName(r.t)}〕`:''].filter(Boolean).join(' · ');
 const fitClean=(f,gate=false)=>{const o={top:'def',bot:'def'};if(f&&typeof f==='object'){const t=FIT_TOPS.find(t=>t[0]===f.top),b=FIT_BOTS.find(t=>t[0]===f.bot);if(t&&(!gate||fitOk(t[3])))o.top=f.top;if(b&&(!gate||fitOk(b[3])))o.bot=f.bot;for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]&&x[2]===k);if(a&&(!gate||fitOk(a[5])))o[k]=a[0];}}return o;};
 let fitAnim=0,myFit=fitClean((()=>{try{return JSON.parse(localStorage.getItem('fit'));}catch{return null;}})()),fitDraft=null,fitTab='top';
 function withFit(look,f){if(!f||!look)return look;f=fitClean(f);let L=look;const t=FIT_TOPS.find(x=>x[0]===f.top),b=FIT_BOTS.find(x=>x[0]===f.bot);
-if(t&&t[2])L={...L,...NOPAT,...t[2]};if(b&&b[2])L={...L,socks:false,pstripe:null,...b[2]};for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]);if(a)L={...L,...a[4]};}return L;}
+if(t&&t[2])L={...L,...NOPAT,...t[2]};if(b&&b[2])L={...L,socks:false,pstripe:null,skirt:null,skirtTrim:null,legx:null,...b[2]};for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]);if(a)L={...L,...a[4]};}return L;}
 const fitLook=look=>withFit(look,myFit);
-function fitPreview(){const v=$('fit-view');if(!v)return;const d=canvas.width/W;if(v.width!==340*d){v.width=340*d;v.height=250*d;}const g=v.getContext('2d');g.clearRect(0,0,v.width,v.height);
-const L=withFit(LOOKS[charType],fitDraft),H0=H,cd=canvas.width/W;canvas.width=canvas.width;ctx.setTransform(cd,0,0,cd,0,0);   // fresh state (render may leave a clip); the game loop repaints the court next frame
-for(const [k,h] of [[0,4000],[1,10]]){H=h;ctx.clearRect(0,0,170,250);const st={x:85,vx:0,crouch:0,legLen:44,fk:null};try{person(st,172,{x:85+52,y:132},.35,L,1.3,racketType,'#16161a',1,'drive',9,null);}catch{}g.drawImage(canvas,0,0,170*cd,250*cd,k*170*d,0,170*d,250*d);}
-H=H0;canvas.width=canvas.width;ctx.setTransform(cd,0,0,cd,0,0);}
-function renderFit(){document.querySelectorAll('.fit-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.ft===fitTab));const box=$('fit-items');box.textContent='';
-const list=fitTab==='top'?FIT_TOPS.map(t=>[t[0],t[1],t[2],null,t[3]]):fitTab==='bot'?FIT_BOTS.map(t=>[t[0],t[1],t[2],null,t[3]]):[['','없음',null]].concat(FIT_ACC.filter(a=>a[2]===fitTab).map(a=>[a[0],a[1],a[4],a[3],a[5]]));let vetHead=false;
-const cur=fitDraft[fitTab]??'';for(const [id,name,c,icon,req] of list){const lock=!fitOk(req);const b=document.createElement('button'),sw=document.createElement('i');b.type='button';b.setAttribute('role','radio');b.setAttribute('aria-checked',String(cur===id||(!cur&&!id)));
-if(icon)sw.textContent=icon;else if(!c)sw.textContent=id===''?'✖':'🙂';else{const a=c.shirt||c.pants,bb=c.pat?.b||c.pat?.a||c.stripes?.[0]||c.pstripe||c.sleeve||a;sw.style.background=`linear-gradient(135deg,${a} 55%,${bb} 55%)`;}
-b.append(sw,name);if(req){b.classList.add('vet');b.classList.toggle('lock',lock);const sm=document.createElement('small');sm.textContent=(lock?'🔒 ':'✅ ')+fitReqText(req);b.append(sm);}b.onclick=()=>{if(id)fitDraft[fitTab]=id;else delete fitDraft[fitTab];renderFit();fitPreview();if(lock)toast(`🔒 ${fitReqText(req)} 달성 시 착용 가능 · 미리보기만 돼요`,1.8);};box.append(b);}}
+const FIT_COLLECTIONS=[
+ {id:'club',name:'선데이 테니스 클럽',label:'COURT CLUB',desc:'크림 니트와 포레스트 그린. 주말 코트의 여유를 담은 클래식 스포츠 룩.',colors:['#f2eddb','#244f42','#c8a967']},
+ {id:'cloud',name:'라벤더 클라우드',label:'SOFT STREET',desc:'폭신한 후드와 니트 베레모. 라벤더 톤으로 가볍게 맞춘 데일리 룩.',colors:['#b5a6d4','#eeeaf5','#756389']},
+ {id:'arcade',name:'네온 애프터 아워',label:'ARCADE RUNNER',desc:'차콜 테크 재킷에 민트 포인트. 코트에서도 선명한 나만의 존재감.',colors:['#23313b','#67d8d0','#b1b8c0']},
+ {id:'rose',name:'로즈 리본 세일러',label:'ROSE ATELIER',desc:'아이보리 세일러와 로즈 플리츠. 작은 리본까지 사랑스러운 한 벌.',colors:['#f6eee6','#c7899c','#784e69']},
+ {id:'midnight',name:'미드나잇 오빗',label:'STARRY NIGHT',desc:'별자리 자수와 골드 트리밍. 깊은 밤빛을 입은 코트의 마법사.',colors:['#252e50','#d6bb75','#818bb9']},
+ {id:'varsity',name:'버건디 바시티',label:'CAMPUS LEAGUE',desc:'버건디 재킷과 크림 쇼츠. 레터 패치로 완성한 캠퍼스 팀 스타일.',colors:['#743c4b','#eee1c5','#c8a86a']}
+].map(c=>({...c,fit:{top:'studio_'+c.id,bot:'studio_'+c.id,head:'studio_'+c.id}}));
+const FIT_LABELS={collection:'스튜디오 컬렉션',top:'상의',bot:'하의',head:'머리',arm:'손목',body:'목 · 몸',wing:'날개',aura:'이펙트',pet:'펫'};
+let fitBack=false;
+function fitApplyCollection(id){const c=FIT_COLLECTIONS.find(c=>c.id===id);if(!c)return;fitDraft=fitClean(c.fit);renderFit();fitPreview();}
+// Draw the actual game model on its own canvas; fitting must never clear the live court.
+function fitDrawModel(v,f,back=false,detail='full'){
+ const d=Math.min(devicePixelRatio||1,2),w=180,h=230,g=v.getContext('2d'),oldCtx=ctx,oldH=H;
+ if(v.width!==w*d||v.height!==h*d){v.width=w*d;v.height=h*d;}
+ g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,h);g.save();
+ try{
+  ctx=g;H=back?10:4000;
+  if(detail==='top'){g.translate(-80,-140);g.scale(2,2);}
+  if(detail==='bot'){g.translate(-90,-255);g.scale(2,2);}
+  if(detail==='head'){g.translate(-165,-105);g.scale(3,3);}
+  const look=withFit(LOOKS[charType],f),st={x:85,vx:0,crouch:0,legLen:44,fk:null};
+  person(st,172,{x:137,y:132},.35,look,1.3,racketType,'#16161a',1,'drive',9,null);
+ }finally{ctx=oldCtx;H=oldH;g.restore();}
+}
+function fitPreview(){const v=$('fit-view');if(!v||!fitDraft)return;fitDrawModel(v,fitDraft,fitBack);}
+function fitSummary(){
+ const c=FIT_COLLECTIONS.find(c=>Object.keys(c.fit).every(k=>fitDraft[k]===c.fit[k]));
+ $('fit-look-name').textContent=c?c.name:'나만의 믹스 앤 매치';
+ $('fit-look-desc').textContent=c?c.desc:'마음에 드는 아이템을 하나씩 더해 나만의 코트 스타일을 완성하세요.';
+ const labels=[FIT_TOPS.find(x=>x[0]===fitDraft.top)?.[1],FIT_BOTS.find(x=>x[0]===fitDraft.bot)?.[1],...FIT_SLOTS.map(k=>FIT_ACC.find(x=>x[0]===fitDraft[k]&&x[2]===k)?.[1])].filter(Boolean);
+ const box=$('fit-equipped');box.textContent='';for(const label of labels){const li=document.createElement('li');li.textContent=label;box.append(li);}
+ const changed=JSON.stringify(fitClean(fitDraft))!==JSON.stringify(fitClean(myFit));
+ $('fit-status').textContent=changed?'미리보기 중 · 저장하면 경기에 적용돼요':'현재 저장된 코디 · 모든 캐릭터 공통';
+}
+function renderFit(){
+ document.querySelectorAll('.fit-tabs button').forEach(b=>{const active=b.dataset.ft===fitTab;b.classList.toggle('active',active);b.setAttribute('role','tab');b.setAttribute('aria-selected',String(active));b.setAttribute('aria-controls','fit-panel');b.id='fit-tab-'+b.dataset.ft;b.tabIndex=active?0:-1;});
+ $('fit-panel').setAttribute('aria-labelledby','fit-tab-'+fitTab);
+ const box=$('fit-items');box.textContent='';box.dataset.collections=String(fitTab==='collection');$('fit-category').textContent=FIT_LABELS[fitTab];
+ const list=fitTab==='collection'?FIT_COLLECTIONS.map(c=>({id:c.id,name:c.name,collection:c,fit:c.fit})):
+  fitTab==='top'?FIT_TOPS.map(t=>({id:t[0],name:t[1],req:t[3]})):
+  fitTab==='bot'?FIT_BOTS.map(t=>({id:t[0],name:t[1],req:t[3]})):
+  [{id:'',name:'착용 안 함'},...FIT_ACC.filter(a=>a[2]===fitTab).map(a=>({id:a[0],name:a[1],req:a[5]}))];
+ $('fit-count').textContent=fitTab==='collection'?'6 LOOKS · 한 번에 입기':list.length+' ITEMS';
+ if(fitTab!=='collection')list.sort((a,b)=>Number(b.id.startsWith('studio_'))-Number(a.id.startsWith('studio_')));
+ for(const item of list){
+  const {id,name,req,collection}=item,lock=!fitOk(req),selected=collection?['top','bot',...FIT_SLOTS].every(k=>(fitDraft[k]||'')===(item.fit[k]||'')):(fitDraft[fitTab]||'')===id;
+  const b=document.createElement('button'),v=document.createElement('canvas'),title=document.createElement('span');
+  b.type='button';b.dataset.fitId=id;b.setAttribute('role','radio');b.setAttribute('aria-checked',String(selected));b.setAttribute('aria-label',name+(lock?' · 잠김 · 미리보기 가능':''));
+  b.tabIndex=selected?0:-1;v.setAttribute('aria-hidden','true');title.className='fit-item-name';title.textContent=name;
+  if(collection){b.style.setProperty('--fit-tone',collection.colors[1]);const label=document.createElement('span');label.className='fit-item-label';label.textContent=collection.label;b.append(v,label,title);const colors=document.createElement('span');colors.className='fit-colors';colors.setAttribute('aria-hidden','true');for(const color of collection.colors){const sw=document.createElement('i');sw.style.setProperty('--swatch',color);colors.append(sw);}b.append(colors);}
+  else b.append(v,title);
+  if(req){b.classList.add('vet');b.classList.toggle('lock',lock);const sm=document.createElement('small');sm.textContent=(lock?'🔒 ':'✓ ')+fitReqText(req);b.append(sm);}
+  const preview=collection?item.fit:{...fitDraft,[fitTab]:id};
+  fitDrawModel(v,preview,false,collection?'full':fitTab);
+  b.onclick=()=>{const scroll=box.scrollTop;if(collection)fitApplyCollection(id);else{if(id)fitDraft[fitTab]=id;else delete fitDraft[fitTab];renderFit();fitPreview();}box.scrollTop=scroll;box.querySelectorAll('button').forEach(n=>{if(n.dataset.fitId===id)n.focus({preventScroll:true});});if(lock)$('fit-status').textContent='🔒 '+fitReqText(req)+' 달성 시 착용 가능 · 지금은 미리보기만 돼요';};
+  box.append(b);
+ }
+ if(!box.querySelector('[aria-checked="true"]'))box.querySelector('button')?.setAttribute('tabindex','0');
+ fitSummary();
+}
+
 function renderTitles(){const ul=$('t-list'),eq=prog.q?._t;ul.textContent='';for(const [id,name,cond,ok] of TITLES){const has=ok(),li=document.createElement('li'),t=document.createElement('span'),b=document.createElement('button'),sm=document.createElement('small');li.className=has?(eq===id?'on':''):'off';t.textContent=`〔${name}〕`;sm.textContent=cond;t.append(sm);b.type='button';b.disabled=!has;b.textContent=!has?'잠김':eq===id?'장착 중':'장착';b.onclick=()=>{prog.q._t=eq===id?'':id;saveProg();renderTitles();};li.append(t,b);ul.append(li);}}
 function renderQuests(){const ul=$('q-list');ul.textContent='';let any=false;for(const [k,label] of QUESTS){const q=qOf(k),T=qTarget(k),done=q.n>=T;any||=done;
 const li=document.createElement('li'),t=document.createElement('span'),bar=document.createElement('i'),b=document.createElement('button');t.textContent=`${label} ${T}번 · 보상 ${qReward(k)} XP`;const sm=document.createElement('small');sm.textContent=`${Math.min(q.n,T)} / ${T}`;t.append(sm);
@@ -916,6 +1041,96 @@ if(live&&['loop','drive','crescent','lightning','smash','chiquita'].includes(str
 // (performance.now) so they move in the menu preview too. Inspired by what game players collect most - animal ears, crowns,
 // halos, wings, auras and pets (MapleStory-style coordi) - all drawn here from scratch, no game assets.
 const FOL='rgba(12,8,24,.5)';
+// Tailoring in a 36 × 64 garment frame, shared by the court and fitting-room canvases.
+function studioTorso(look,ux,top,th,s,isBack,at,q){
+ ctx.translate(ux,top);ctx.scale(s,th/64);ctx.lineCap='round';ctx.lineJoin='round';
+ const fill=(x,y,w,h,c,r=0)=>{ctx.fillStyle=c;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();};
+ const seam=(points,c,w=1)=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();};
+ const poly=(points,c)=>{ctx.fillStyle=c;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();};
+ const dot=(x,y,r,c)=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();};
+ const rib=(y,c)=>{fill(-18,y,36,6,c);for(let x=-17;x<18;x+=2.6)seam([[x,y+1],[x,y+5]],'#ffffff28',.55);};
+ const crest=(x,y,c)=>{poly([[x-3,y-3],[x+3,y-3],[x+3,y+1],[x,y+4],[x-3,y+1]],c);ctx.fillStyle=look.shirt;pStar(x,y,.9,.4);ctx.fill();};
+ if(q.k==='studio_club'){
+  fill(-18,0,36,64,'#f2eddb');
+  for(let x=-14;x<=14;x+=7){seam([[x,12],[x+1.5,18],[x-1.5,24],[x+1.5,30],[x-1.5,36],[x+1.5,42],[x,49]],'#d8cfb7',.8);seam([[x+2,13],[x+2,50]],'#fff9ec',.6);}
+  rib(57,q.a);fill(-18,59,36,1,q.b);
+  if(isBack){seam([[-10,2],[-6,7],[6,7],[10,2]],q.a,3);crest(0,22,q.a);}
+  else{poly([[-10,0],[0,22],[10,0]],'#fcfaf3');seam([[-11,0],[0,24],[11,0]],q.a,3.4);seam([[-11,0],[0,24],[11,0]],q.b,.7);crest(-9,31,q.a);}
+ }else if(q.k==='studio_cloud'){
+  rib(57,q.b);fill(-18,58,36,1.4,q.a);
+  ctx.fillStyle='#cbc0e0';ctx.beginPath();ctx.ellipse(0,7,15,10,0,0,Math.PI*2);ctx.fill();seam([[-12,4],[-8,12],[0,15],[8,12],[12,4]],'#8c7ba9',1.2);
+  if(isBack){ctx.fillStyle=q.a;for(const [x,y,r] of [[-5,30,4],[0,27,5],[5,30,4]])dot(x,y,r,q.a);fill(-7,30,14,5,q.a,2);seam([[-5,40],[5,40]],'#e3d9f0',1);}
+  else{poly([[-8,0],[0,16],[8,0]],q.b);seam([[0,17],[0,57]],q.a,1.3);fill(-1,21,2,4,'#d7c8e9',.5);for(const k of [-1,1]){seam([[k*5,10],[k*5,26]],q.a,.85);dot(k*5,26,1,q.a);fill(k<0?-14:3,38,11,12,'#a292c2',2);seam([[k*13,39],[k*5,42]],'#ded5ee',1);}dot(-9,31,2.2,q.a);}
+ }else if(q.k==='studio_arcade'){
+  poly([[-18,0],[-8,0],[-5,20],[-18,27]],'#344650');poly([[18,0],[9,0],[5,20],[18,27]],'#344650');
+  seam([[-18,17],[-8,22],[-6,30]],q.a,1.4);seam([[18,17],[8,22],[6,30]],q.a,1.4);
+  fill(-18,59,36,5,'#17242c');fill(-18,60,8,1,q.a);fill(10,60,8,1,q.a);
+  if(isBack){poly([[0,25],[9,34],[0,43],[-9,34]],q.a);poly([[0,29],[5,34],[0,39],[-5,34]],look.shirt);seam([[-10,48],[10,48]],q.b,1);for(let i=0;i<3;i++)fill(-5+i*4,51,2,1,q.a);}
+  else{fill(-4,0,8,11,'#15232d');seam([[0,12],[0,58]],q.b,1);fill(-1,16,2,5,q.a,1);for(const k of [-1,1]){fill(k<0?-15:5,32,10,14,'#192731',1.5);seam([[k*6,35],[k*13,35]],q.a,.7);}fill(-13,20,7,4,q.a,1);fill(6,24,7,1,q.b);}
+ }else if(q.k==='studio_rose'){
+  rib(59,q.a);
+  if(isBack){fill(-15,0,30,22,q.a,2);seam([[-12,0],[-12,18],[12,18],[12,0]],'#f8eee8',1.1);ctx.fillStyle=q.b;pHeart(0,33,3);ctx.fill();}
+  else{poly([[-18,0],[0,25],[18,0]],q.a);seam([[-15,0],[0,21],[15,0]],'#fff7ee',1.2);poly([[-6,0],[0,14],[6,0]],'#fffaf0');
+   for(const k of [-1,1]){poly([[0,23],[k*9,19],[k*8,29]],q.b);poly([[k*1,25],[k*7,39],[k*3,37]],q.a);}dot(0,24,2,q.b);
+   for(let y=42;y<58;y+=6)dot(0,y,.8,q.b);for(const k of [-1,1])seam([[k*6,48],[k*14,48]],q.a,1.2);}
+ }else if(q.k==='studio_midnight'){
+  fill(-18,0,36,64,'#252e50');poly([[-18,0],[-8,0],[-5,64],[-18,64]],'#303b62');poly([[18,0],[8,0],[5,64],[18,64]],'#303b62');
+  for(const k of [-1,1])seam([[k*8,0],[k*6,32],[k*6,64]],q.a,1.2);
+  fill(-18,60,36,1.6,q.a);
+  if(isBack){seam([[-9,21],[4,27],[-3,39],[10,46]],q.b,.6);for(const [x,y] of [[-9,21],[4,27],[-3,39],[10,46]]){ctx.fillStyle=q.a;pStar(x,y,2.1,.8);ctx.fill();}ctx.strokeStyle=q.a;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,15,4,.3,Math.PI*1.65);ctx.stroke();}
+  else{poly([[-9,0],[-1,26],[-12,13]],q.b);poly([[9,0],[1,26],[12,13]],q.b);for(const k of [-1,1]){seam([[k*9,1],[k*3,22]],q.a,.7);for(let y=32;y<53;y+=9)dot(k*3,y,1,q.a);}seam([[-12,40],[-7,38]],q.a,1);ctx.fillStyle=q.a;pStar(-10,26,2.3,1);ctx.fill();}
+ }else if(q.k==='studio_varsity'){
+  rib(56,q.a);fill(-18,58,36,1.2,look.shirt);fill(-18,61,36,.8,look.shirt);
+  if(isBack){ctx.fillStyle=q.a;ctx.font='bold 8px Georgia';ctx.textAlign='center';ctx.fillText('SPIN',0,26);ctx.font='bold 19px Georgia';ctx.fillText('01',0,45);seam([[-10,13],[0,10],[10,13]],q.b,1);}
+  else{seam([[0,0],[0,55]],'#a3646f',1.6);for(let y=12;y<53;y+=9)dot(0,y,1,q.a);for(const k of [-1,1])seam([[k*8,40],[k*14,36]],q.a,1.8);
+   ctx.font='bold 12px Georgia';ctx.textAlign='center';ctx.strokeStyle=q.b;ctx.lineWidth=1.5;ctx.strokeText('S',-9,29);ctx.fillStyle=q.a;ctx.fillText('S',-9,29);crest(10,19,q.b);}
+ }
+}
+for(const id of ['club','cloud','arcade','rose','midnight','varsity'])FIT_EXT.top['studio_'+id]=studioTorso;
+function studioHead(look,hx,hd,s,ph,isBack,at,{ht,hw}){
+ ctx.translate(hx,ht);ctx.scale(s,s);const w=hw/s,c=look.hatC;
+ const oval=(x,y,rx,ry,color)=>{ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);olFill(color,1,.6);};
+ const seam=(points,color,width=1)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();};
+ if(look.hat==='studio_club'){
+  ctx.beginPath();ctx.roundRect(-w,1,w*2,6,2);olFill('#244f42',1,.6);seam([[-w+1,2],[w-1,2]],'#c8a967',.8);
+  oval(isBack?0:5,8,w+(isBack?0:5),3,LG(-w,0,w,0,['#c9c6af',c,'#fff9e9']));if(!isBack){ctx.fillStyle='#244f42';pStar(1,3,1.8,.7);ctx.fill();}
+ }else if(look.hat==='studio_cloud'||look.hat==='studio_rose'){
+  oval(-2,-2,w+2,9,LG(-w,-9,w,7,[tint(c,.2),c,tint(c,-.18)]));
+  seam([[-w+2,4],[w-2,4]],look.hat==='studio_rose'?'#784e69':'#756389',2.4);
+  seam([[-3,-10],[-2,-7]],tint(c,-.3),2);for(const x of [-10,-4,3,10])seam([[x,-7],[x+3,1]],'#ffffff24',.6);
+  if(look.hat==='studio_rose'){ctx.fillStyle='#f6eee6';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(w-3,2);ctx.lineTo(w-3+k*5,-2);ctx.lineTo(w-3+k*5,5);ctx.closePath();ctx.fill();}oval(w-3,2,1.5,1.7,'#784e69');}
+  else{ctx.fillStyle='#eeeaf5';pSpark(-w+6,1,2.5);ctx.fill();}
+ }else if(look.hat==='studio_arcade'){
+  ctx.strokeStyle='#18232e';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(0,12,w+3,19,0,Math.PI,Math.PI*2);ctx.stroke();ctx.strokeStyle=c;ctx.lineWidth=1;ctx.stroke();
+  for(const k of [-1,1]){ctx.beginPath();ctx.roundRect(k*(w+1)-4,10,8,14,3);olFill('#273b47',1,.8);ctx.fillStyle=c;ctx.fillRect(k*(w+1)-1,13,2,8);}
+ }else if(look.hat==='studio_midnight'){
+  oval(0,5,w+7,4,LG(-w,0,w,0,['#17213e','#45517c',c]));
+  ctx.beginPath();ctx.moveTo(-w+2,4);ctx.quadraticCurveTo(-11,-14,4,-32);ctx.quadraticCurveTo(4,-18,w-2,4);ctx.closePath();olFill(LG(-w,0,w,0,[c,'#475382',c]),1,.8);
+  seam([[-w+5,-1],[w-5,-1]],'#d6bb75',3);ctx.fillStyle='#d6bb75';pStar(0,-14,3,1.2);ctx.fill();oval(0,-1,2.5,2.8,'#818bb9');
+ }else{
+  ctx.beginPath();ctx.moveTo(-w,5);ctx.bezierCurveTo(-w,-17,w,-17,w,5);ctx.closePath();olFill(LG(-w,0,w,0,[tint(c,-.2),c,tint(c,.2)]),1,.6);
+  seam([[0,-9],[0,3]],'#b57d82',.7);oval(isBack?-5:5,6,w+4,3,'#eee1c5');
+  if(!isBack){ctx.fillStyle='#eee1c5';ctx.font='bold 8px Georgia';ctx.textAlign='center';ctx.fillText('S',0,1);}
+ }
+}
+for(const id of ['club','cloud','arcade','rose','midnight','varsity'])FIT_EXT.head['studio_'+id]=studioHead;
+for(const id of ['cloud','arcade'])FIT_EXT.bot['studio_'+id]=(look,cx,hy,leg,s)=>{
+ for(const k of [-1,1]){
+  const x=cx+k*11*s,y=hy+leg*.3;
+  if(id==='arcade'){ctx.fillStyle='#192731';ctx.beginPath();ctx.roundRect(x-3.4*s,y,6.8*s,8*s,1*s);ctx.fill();line({x:x-3*s,y:y+2*s},{x:x+3*s,y:y+2*s},'#67d8d0',.7*s);}
+  if(id==='cloud')line({x:x-2*s,y:hy+4*s},{x:x+2*s,y:hy+7*s},'#eeeaf5',.8*s);
+ }
+};
+function fitBodyPath(look,ux,top,th,s){
+ ctx.beginPath();
+ if(!look.pat?.k?.startsWith('studio_')){ctx.roundRect(ux-18*s,top,36*s,th,12*s);return;}
+ const loose=['studio_cloud','studio_arcade'].includes(look.pat.k),hem=(loose?19:16)*s;
+ ctx.moveTo(ux-9*s,top);ctx.quadraticCurveTo(ux-18*s,top,ux-18*s,top+10*s);
+ ctx.lineTo(ux-hem,top+th-3*s);ctx.quadraticCurveTo(ux-hem,top+th,ux-hem+3*s,top+th);
+ ctx.lineTo(ux+hem-3*s,top+th);ctx.quadraticCurveTo(ux+hem,top+th,ux+hem,top+th-3*s);
+ ctx.lineTo(ux+18*s,top+10*s);ctx.quadraticCurveTo(ux+18*s,top,ux+9*s,top);ctx.closePath();
+}
+
 
 function hex2(c){const n=parseInt(c.slice(1),16);return [n>>16,n>>8&255,n&255];}
 function tint(c,k){const [r,g,b]=hex2(c),f=v=>Math.round(k<0?v*(1+k):v+(255-v)*k);return `rgb(${f(r)},${f(g)},${f(b)})`;}   // k<0 darker, k>0 lighter
@@ -997,19 +1212,6 @@ case 'santa':{const by=fh;ctx.beginPath();ctx.moveTo(hx-hw*.98,by);ctx.quadratic
 default:if(FIT_EXT.head[look.hat]){ctx.save();FIT_EXT.head[look.hat](look,hx,hd,s,ph,isBack,at,{ht,hw,fh});ctx.restore();}break;
 case 'headset':{ctx.lineWidth=3*s;ctx.strokeStyle='#1f2230';ctx.beginPath();ctx.ellipse(hx,fh+1*s,hw*1.08,(ph?17:12)*s,0,Math.PI*1.02,Math.PI*1.98);ctx.stroke();for(const k of [-1,1]){ctx.beginPath();ctx.roundRect(hx+k*hw*1.05-4*s,fh+(ph?6:3)*s,8*s,11*s,4*s);olFill(LG(0,fh+3*s,0,fh+16*s,['#2d3142','#111320']),s,.7);ctx.fillStyle=`rgba(0,255,200,${.6+.4*Math.sin(at*5)})`;ctx.shadowColor='#00ffc8';ctx.shadowBlur=6*s;ctx.beginPath();ctx.ellipse(hx+k*hw*1.05,fh+(ph?11.5:8.5)*s,2.4*s,4*s,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}if(!isBack){ctx.strokeStyle='#1f2230';ctx.lineWidth=1.6*s;ctx.beginPath();ctx.moveTo(hx-hw*1.05,fh+(ph?14:11)*s);ctx.quadraticCurveTo(hx-hw*.9,fh+(ph?24:15)*s,hx-hw*.35,fh+(ph?25:16)*s);ctx.stroke();ctx.fillStyle='#00ffc8';ctx.beginPath();ctx.arc(hx-hw*.35,fh+(ph?25:16)*s,1.6*s,0,Math.PI*2);ctx.fill();}break;}}
 ctx.restore();}
-function fitFace(look,hx,hd,s,ph,at){const hw=(ph?17:13.5)*s,ey=hd+(ph?-6:1)*s,my=hd+(ph?10:5)*s,lens=(draw)=>{for(const k of [-1,1])draw(hx+k*hw*.42,ey,k);};ctx.save();
-switch(look.fx){
-case 'sun':lens((x,y)=>{ctx.beginPath();ctx.roundRect(x-hw*.36,y-3.4*s,hw*.72,6.4*s,3*s);olFill(LG(0,y-3*s,0,y+3*s,['#3a3f55','#0b0c12']),s,.9);ctx.fillStyle='rgba(255,255,255,.45)';ctx.beginPath();ctx.ellipse(x-hw*.12,y-1.2*s,hw*.1,1*s,-.4,0,Math.PI*2);ctx.fill();});line({x:hx-hw*.08,y:ey-1.5*s},{x:hx+hw*.08,y:ey-1.5*s},'#0b0c12',1.6*s);break;
-case 'heartglass':lens((x,y)=>{pHeart(x,y,4.4*s);ctx.shadowColor='#ff4fa3';ctx.shadowBlur=5*s;olFill(LG(0,y-4*s,0,y+4*s,['#ff9ac8','#e6007e']),s,.9);ctx.shadowBlur=0;ctx.fillStyle='rgba(255,255,255,.6)';ctx.beginPath();ctx.ellipse(x-1.4*s,y-1.6*s,1.2*s,.7*s,-.5,0,Math.PI*2);ctx.fill();});line({x:hx-hw*.1,y:ey-1*s},{x:hx+hw*.1,y:ey-1*s},'#e6007e',1.4*s);break;
-case 'starglass':lens((x,y)=>{pStar(x,y,5.4*s,2.6*s);olFill(LG(0,y-5*s,0,y+5*s,['#fff3a0','#ffb703']),s,.9);ctx.fillStyle='rgba(60,40,0,.55)';pStar(x,y,3.4*s,1.6*s);ctx.fill();});break;
-case 'roundglass':ctx.lineWidth=1.3*s;ctx.strokeStyle='#c8901a';lens((x,y)=>{ctx.beginPath();ctx.arc(x,y,hw*.3,0,Math.PI*2);ctx.fillStyle='rgba(200,230,255,.2)';ctx.fill();ctx.stroke();});line({x:hx-hw*.12,y:ey},{x:hx+hw*.12,y:ey},'#c8901a',1.2*s);break;
-case 'goggle':lens((x,y)=>{ctx.beginPath();ctx.roundRect(x-hw*.4,y-3.6*s,hw*.8,6.8*s,3.4*s);olFill(LG(x-hw*.4,0,x+hw*.4,0,['#ff9f1c','#ffd166','#ff6b35']),s,1);});line({x:hx-hw,y:ey},{x:hx-hw*.82,y:ey},'#16161a',2*s);line({x:hx+hw*.82,y:ey},{x:hx+hw,y:ey},'#16161a',2*s);break;
-case 'blush':for(const k of [-1,1]){ctx.fillStyle=RG(hx+k*hw*.55,my-4*s,5*s,['rgba(255,110,150,.7)','rgba(255,110,150,0)']);ctx.beginPath();ctx.arc(hx+k*hw*.55,my-4*s,5*s,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(230,60,110,.7)';ctx.lineWidth=.8*s;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(hx+k*hw*.55+i*2*s-1*s,my-5*s);ctx.lineTo(hx+k*hw*.55+i*2*s+1*s,my-3*s);ctx.stroke();}}break;
-case 'whisker':ctx.strokeStyle='#3a2a20';ctx.lineWidth=.9*s;for(const k of [-1,1])for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(hx+k*hw*.25,my-4*s+i*1.6*s);ctx.lineTo(hx+k*hw*.85,my-4*s+i*3*s);ctx.stroke();}ctx.fillStyle='#ff8fab';ctx.beginPath();ctx.moveTo(hx-1.6*s,my-6.5*s);ctx.lineTo(hx+1.6*s,my-6.5*s);ctx.lineTo(hx,my-4.6*s);ctx.fill();break;
-case 'mask':ctx.beginPath();ctx.roundRect(hx-hw*.62,my-(ph?9:3)*s,hw*1.24,(ph?14:8)*s,4*s);olFill(LG(0,my-9*s,0,my+5*s,['#ffffff','#e3e8ee']),s,.7);ctx.strokeStyle='rgba(0,0,0,.12)';ctx.lineWidth=.7*s;for(const j of [.35,.65]){ctx.beginPath();ctx.moveTo(hx-hw*.55,my-(ph?9:3)*s+(ph?14:8)*s*j);ctx.lineTo(hx+hw*.55,my-(ph?9:3)*s+(ph?14:8)*s*j);ctx.stroke();}break;
-default:if(FIT_EXT.face[look.fx]){ctx.save();FIT_EXT.face[look.fx](look,hx,hd,s,ph,at,{hw,ey,my});ctx.restore();}break;
-case 'bandaid':ctx.save();ctx.translate(hx+hw*.5,my-3*s);ctx.rotate(-.5);ctx.beginPath();ctx.roundRect(-5.5*s,-1.8*s,11*s,3.6*s,1.8*s);olFill('#f2c38b',s,.5);ctx.fillStyle='#e8a96a';ctx.fillRect(-1.8*s,-1.8*s,3.6*s,3.6*s);ctx.restore();break;}
-ctx.restore();}
 function fitNeck(look,ux,top,th,s,isBack,side,at){ctx.save();
 switch(look.neck){
 case 'medal':if(!isBack){ctx.lineWidth=2.4*s;ctx.strokeStyle='#1d4fb8';ctx.beginPath();ctx.moveTo(ux-6*s,top+1*s);ctx.lineTo(ux,top+th*.42);ctx.stroke();ctx.strokeStyle='#c8102e';ctx.beginPath();ctx.moveTo(ux+6*s,top+1*s);ctx.lineTo(ux,top+th*.42);ctx.stroke();ctx.shadowColor='#ffd43b';ctx.shadowBlur=6*s;ctx.beginPath();ctx.arc(ux,top+th*.47,5*s,0,Math.PI*2);olFill(RG(ux-1.5*s,top+th*.45,6*s,['#fff6c2','#f6c945','#b8860b']),s,.8);ctx.shadowBlur=0;ctx.fillStyle='#b8860b';pStar(ux,top+th*.47,2.6*s,1.1*s);ctx.fill();}break;
@@ -1051,6 +1253,7 @@ function fitSkirt(look,cx,hy,leg,s){const long=look.skirt==='long',y1=hy+leg*(lo
 ctx.fillStyle=LG(cx-w1,0,cx+w1,0,[tint(c,-.25),c,tint(c,.15),c,tint(c,-.25)]);ctx.fill();ctx.lineWidth=.8*s;ctx.strokeStyle=FOL;ctx.stroke();ctx.save();ctx.clip();
 if(look.skirt==='plaid'){ctx.globalAlpha=.45;ctx.fillStyle='#1b1b2f';for(let i=-30;i<30;i+=7)ctx.fillRect(cx+i*s,hy-3*s,2.4*s,leg);for(let j=0;j<leg;j+=7*s)ctx.fillRect(cx-w1,hy+j,w1*2,2.4*s);ctx.globalAlpha=1;}
 ctx.strokeStyle='rgba(0,0,0,.28)';ctx.lineWidth=.9*s;for(let i=-3;i<=3;i++){ctx.beginPath();ctx.moveTo(cx+i*w0/3.5,hy);ctx.lineTo(cx+i*w1/3.5,y1+2*s);ctx.stroke();}
+if(look.skirtTrim){ctx.fillStyle=look.skirtTrim;ctx.fillRect(cx-w1,y1-4*s,w1*2,1.4*s);ctx.fillRect(cx-w1,y1-1.5*s,w1*2,.6*s);}
 if(long){ctx.fillStyle='rgba(255,255,255,.55)';ctx.fillRect(cx-w1,y1-4*s,w1*2,1.4*s);}ctx.restore();ctx.fillStyle=tint(c,-.3);ctx.fillRect(cx-w0,hy-3.5*s,w0*2,3*s);ctx.restore();}
 
 function person(st,hipY,target,angle,look,s,type,face,side,stroke,since,prep=null){
@@ -1100,18 +1303,18 @@ const bq=ball&&!(ball.held&&!ball.tossed)?project(ball.x,ball.y,ball.z):null,ca=
 const isBack=hipY>H*.5,armBehind=isBack&&side*(look.lefty?-1:1)<0&&!sad;   // my player is seen from behind
 if(armBehind){ctx.globalAlpha=ca;line(shoulder,elbow,look.sleeve,8*s);line(elbow,hand,look.armSleeve||(look.longSleeve?look.sleeve:skin),7*s);band();ctx.globalAlpha=1;}
 const top=hy-60*s*T,th=64*s*T;
-ctx.globalAlpha=ca;ctx.beginPath();ctx.roundRect(ux-18*s,top,36*s,th,12*s);ctx.fillStyle=look.shirt;ctx.fill();
+ctx.globalAlpha=ca;fitBodyPath(look,ux,top,th,s);ctx.fillStyle=look.shirt;ctx.fill();
 if(look.camo){ctx.save();ctx.clip();const q=4*s;for(let i=-5;i<5;i++)for(let j=0;j*q<th;j++){const h=(i*73856093^j*19349663)>>>0,c=look.camo[h%5];if(c){ctx.fillStyle=c;ctx.fillRect(ux+i*q,top+j*q,q*(1+(h>>3)%2),q);}}ctx.restore();}
 if(look.stripes){ctx.save();ctx.clip();const gr=ctx.createLinearGradient(0,top,0,top+th);gr.addColorStop(0,look.stripes[0]);gr.addColorStop(1,look.stripes[1]);ctx.fillStyle=gr;
 for(const i of [-2,-1,0,1,2])ctx.fillRect(ux+(i*8-2)*s,top,(i%2?3:4.5)*s,th);ctx.fillStyle=look.collar;ctx.fillRect(ux-7*s,top,14*s,2.6*s);ctx.restore();}
-if(look.fitted){ctx.save();ctx.clip();fitTorso(look,ux,top,th,s,isBack,performance.now()/1000);ctx.restore();ctx.beginPath();ctx.roundRect(ux-18*s,top,36*s,th,12*s);ctx.lineWidth=1*s;ctx.strokeStyle='rgba(0,0,0,.35)';ctx.stroke();}
+if(look.fitted){ctx.save();ctx.clip();fitTorso(look,ux,top,th,s,isBack,performance.now()/1000);ctx.restore();fitBodyPath(look,ux,top,th,s);ctx.lineWidth=1*s;ctx.strokeStyle='rgba(0,0,0,.35)';ctx.stroke();}
 if(look.tie&&!isBack){ctx.save();ctx.fillStyle=look.tie;ctx.beginPath();ctx.moveTo(ux-3*s,top+3*s);ctx.lineTo(ux+3*s,top+3*s);ctx.lineTo(ux+6*s,top+th*.55);ctx.lineTo(ux+1*s,top+th*.62);ctx.lineTo(ux-1*s,top+th*.5);ctx.closePath();ctx.fill();ctx.restore();}   // loosened tie, hanging askew
 if(look.backpack){ctx.save();if(isBack){ctx.fillStyle='#17171b';ctx.beginPath();ctx.roundRect(ux-15*s,top+th*.24,30*s,th*.62,7*s);ctx.fill();ctx.fillStyle='#26262c';ctx.fillRect(ux-10*s,top+th*.52,20*s,th*.2);ctx.strokeStyle='#3a3a42';ctx.lineWidth=1*s;ctx.strokeRect(ux-10*s,top+th*.52,20*s,th*.2);}   // backpack
 else{ctx.strokeStyle='#121214';ctx.lineWidth=4*s;for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(ux+k*11*s,top+1*s);ctx.lineTo(ux+k*13*s,top+th*.62);ctx.stroke();}}ctx.restore();}   // straps over the shoulders
 if(look.tee){ctx.save();ctx.clip();ctx.strokeStyle=look.collar;ctx.lineWidth=2.4*s;ctx.beginPath();ctx.ellipse(ux,top,9*s,isBack?3*s:6*s,0,0,Math.PI);ctx.stroke();ctx.fillStyle='#00000014';ctx.fillRect(ux-18*s,top+th*.82,36*s,th*.18);ctx.restore();}   // crew neck, a shade at the hem
 if(look.hoodie){ctx.save();ctx.clip();if(isBack){ctx.fillStyle='#86888d';ctx.beginPath();ctx.ellipse(ux,top+4*s,14*s,10*s,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#6f7176';ctx.lineWidth=1.2*s;ctx.stroke();}
 else{ctx.fillStyle=look.collar;ctx.beginPath();ctx.moveTo(ux-8*s,top);ctx.lineTo(ux+8*s,top);ctx.lineTo(ux,top+16*s*T);ctx.fill();ctx.strokeStyle='#c8c9cc';ctx.lineWidth=1.1*s;ctx.beginPath();ctx.moveTo(ux,top+16*s*T);ctx.lineTo(ux,top+th);ctx.stroke();ctx.strokeStyle='#808287';ctx.beginPath();ctx.moveTo(ux-14*s,top+th*.62);ctx.lineTo(ux+14*s,top+th*.62);ctx.stroke();}ctx.restore();}   // grey zip hoodie
-{const kit=look.kit||{name:'SPIN'};
+if(!look.pat?.k?.startsWith('studio_')){const kit=look.kit||{name:'SPIN'};
 if(isBack){const sq=1-Math.min(.45,Math.abs(pose.twist)*.4),cxp=ux+pose.twist*side*9*s+st.lean*5*s;   // print turns with the torso
 ctx.save();ctx.translate(cxp,top+th*.5);ctx.scale(sq,1);ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
 ctx.font=`900 ${10.5*s}px Arial`;{const fit=Math.min(1,32*s/ctx.measureText(kit.name).width);if(fit<1)ctx.font=`900 ${10.5*s*fit}px Arial`;}ctx.lineWidth=3.4*s;ctx.strokeStyle='#14121c';ctx.strokeText(kit.name,0,look.backpack?-th*.36:-th*.04);ctx.fillStyle="#ffffff";ctx.fillText(kit.name,0,look.backpack?-th*.36:-th*.04);ctx.restore();}
@@ -1144,7 +1347,7 @@ if(hipY<H*.5){ctx.fillStyle='#1a1530';for(const k of [-1,1]){ctx.beginPath();ctx
 if(look.boss){ctx.fillStyle='#ece3cf';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(hx+k*5*s,hd-11*s);ctx.quadraticCurveTo(hx+k*20*s,hd-14*s,hx+k*19*s,hd-32*s);ctx.quadraticCurveTo(hx+k*15*s,hd-19*s,hx+k*11*s,hd-8*s);ctx.fill();}   // horns
 if(hipY<H*.5){ctx.fillStyle='#ff2a2a';ctx.shadowColor='#ff0000';ctx.shadowBlur=8*s;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(hx+k*4.5*s,hd+1*s,2.6*s,1.5*s,k*.35,0,Math.PI*2);ctx.fill();}ctx.shadowBlur=0;}}   // glowing eyes
 ctx.restore();
-if(look.hat||look.hb)fitHead(look,hx,hd,s,!!fimg,isBack,performance.now()/1000);if(look.fx&&!isBack)fitFace(look,hx,hd,s,!!fimg,performance.now()/1000);
+if(look.hat||look.hb)fitHead(look,hx,hd,s,!!fimg,isBack,performance.now()/1000);
 if(sad){ctx.fillStyle='#8fd3ff';for(const k of [-1,1])for(let i=0;i<3;i++){const ph=(sadT*1.4+i/3)%1;ctx.globalAlpha=1-ph;ctx.beginPath();ctx.arc(hx+k*8*s,hd+4*s+ph*26*s,2.3*s,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;}   // tears
 if(!armBehind){ctx.globalAlpha=ca;line(shoulder,elbow,look.sleeve,8*s);line(elbow,hand,look.armSleeve||(look.longSleeve?look.sleeve:skin),7*s);band();ctx.globalAlpha=1;}
 racket(tgt.x,tgt.y,ang,type,face,racketScale,skin);
@@ -1679,8 +1882,12 @@ el(57.6,66.5,1.6,4.2,'#dcae8870');g.strokeStyle='#c99676';g.lineWidth=1.2;g.begi
 g.strokeStyle='#a46b5a';g.lineWidth=1.8;g.beginPath();g.moveTo(50.5,80);g.quadraticCurveTo(56,81,61.5,80);g.stroke();g.fillStyle='#cf9a87';g.beginPath();g.ellipse(56,82.3,4.2,1.2,0,0,P2);g.fill();}
 function renderCharPick(){document.querySelectorAll('#char-pick button').forEach(b=>{const lock=!charUnlocked(b.dataset.char),available=characterAvailable(b.dataset.char)&&!lock;b.classList.toggle('locked',lock);drawFace(b.querySelector('canvas'),LOOKS[b.dataset.char]);b.disabled=!available;b.setAttribute('aria-checked',available&&b.dataset.char===charType);b.setAttribute('aria-disabled',String(!available));b.title=lock?'🔒 레벨업하면 해금 후보로 나와요':available?'':'현재 임시 비활성화된 캐릭터입니다';});}
 function setCharacter(v){if(!characterAvailable(v)||!charUnlocked(v))v='jersey';charType=v;for(const o of $('character').options)o.disabled=!characterAvailable(o.value)||!charUnlocked(o.value);$('character').value=v;renderCharPick();drawFace($('you-face'),LOOKS[v]);drawFace($('char-face'),LOOKS[v]);$('char-name').textContent=LOOKS[v].nick||LOOKS[v].name;$('mychar-sel').textContent='· '+(LOOKS[v].nick||LOOKS[v].name);$('you-name').textContent=LOOKS[v].nick||'YOU';store.set('character',v);const lh=!!LOOKS[v].lefty;document.querySelector('.court-label.left').textContent=lh?'◀ 포핸드':'◀ 백핸드';document.querySelector('.court-label.right').textContent=lh?'백핸드 ▶':'포핸드 ▶';}
-setCharacter(store.get('character')||'jersey');renderLevel();$('q-open').onclick=()=>{renderQuests();$('quests').showModal();};$('fit-open').onclick=()=>{fitDraft={...myFit};fitTab='top';$('fit').showModal();renderFit();fitPreview();clearInterval(fitAnim);fitAnim=setInterval(()=>{if($('fit').open)fitPreview();else clearInterval(fitAnim);},90);};
+setCharacter(store.get('character')||'jersey');renderLevel();$('q-open').onclick=()=>{renderQuests();$('quests').showModal();};$('fit-open').onclick=()=>{fitDraft={...myFit};fitTab='collection';fitBack=false;document.querySelectorAll('[data-fit-back]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.fitBack==='false')));$('fit').showModal();renderFit();fitPreview();clearInterval(fitAnim);fitAnim=setInterval(()=>{if($('fit').open)fitPreview();else clearInterval(fitAnim);},90);};
 document.querySelectorAll('.fit-tabs button').forEach(b=>b.onclick=()=>{fitTab=b.dataset.ft;renderFit();});
+document.querySelector('.fit-tabs').onkeydown=e=>{const tabs=[...document.querySelectorAll('.fit-tabs button')],i=tabs.indexOf(e.target);if(i<0)return;const next=e.key==='ArrowRight'?(i+1)%tabs.length:e.key==='ArrowLeft'?(i+tabs.length-1)%tabs.length:e.key==='Home'?0:e.key==='End'?tabs.length-1:-1;if(next>=0){e.preventDefault();tabs[next].click();tabs[next].focus();}};
+$('fit-items').onkeydown=e=>{const buttons=[...$('fit-items').querySelectorAll('button')],i=buttons.indexOf(e.target);if(i<0)return;const step=e.key==='ArrowRight'||e.key==='ArrowDown'?1:e.key==='ArrowLeft'||e.key==='ArrowUp'?-1:0;if(step){e.preventDefault();buttons[(i+step+buttons.length)%buttons.length].click();}};
+document.querySelectorAll('[data-fit-back]').forEach(b=>b.onclick=()=>{fitBack=b.dataset.fitBack==='true';document.querySelectorAll('[data-fit-back]').forEach(n=>n.setAttribute('aria-pressed',String(n===b)));fitPreview();});
+$('fit').addEventListener('close',()=>clearInterval(fitAnim));
 $('fit-reset').onclick=()=>{fitDraft={top:'def',bot:'def'};renderFit();fitPreview();};$('fit-close').onclick=()=>$('fit').close();
 $('fit-save').onclick=()=>{myFit=fitClean(fitDraft,true);const dropped=['top','bot',...FIT_SLOTS].some(k=>(fitDraft[k]||'def')!==(myFit[k]||'def')&&!(k!=='top'&&k!=='bot'&&!fitDraft[k]));if(dropped)setTimeout(()=>toast('🔒 아직 잠긴 고인물 아이템은 빼고 저장했어요',2.2),1700);try{localStorage.setItem('fit',JSON.stringify(myFit));}catch{}prog.q??={};prog.q._fit=myFit;saveProg();$('fit').close();toast('👕 코디를 저장했어요!',1.6);};
 $('t-open').onclick=()=>{titleCheck();renderTitles();$('titles').showModal();};$('t-close').onclick=()=>$('titles').close();$('rn-open').onclick=()=>{runeChar=charType;renderRunes();$('runes').showModal();};$('rn-close').onclick=()=>$('runes').close();$('rn-rec').onclick=()=>{const ch=runeChar;if(!runePoints())return toast('레벨 2부터 스킬포인트가 생겨요',1.6);if(runeSpent(null,ch)&&!confirm(`${LOOKS[ch].nick} 스킬트리를 추천대로 다시 찍을까요? (지금 찍은 건 초기화돼요)`))return;prog.runeSets??={};prog.runeSets[ch]=runeRecommend(ch);saveProg();renderRunes();toast(`✨ ${LOOKS[ch].nick} 추천 스킬트리 · ${runePoints()}포인트 적용`,2);};
