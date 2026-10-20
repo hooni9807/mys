@@ -394,29 +394,30 @@ else if(!net.dbl)S[net.trio?'trio':'online']=net.trio?1:(S.online||0)+1;if(maxDe
 // arm(look,w,s,at,which) at each wrist · neck(look,ux,top,th,s,isBack,side,at) over the torso
 // back(look,ux,top,th,ground,s,at,isBack) behind the body · wing(k,s,at) in the wing frame of one side · aura(ux,cy,s,at) · pet(x,y,s,at,dir)
 const FIT_EXT={top:{},bot:{},head:{},arm:{},neck:{},back:{},wing:{},aura:{},pet:{}};
-// Community-inspired silhouettes, redrawn for these characters; every item is available immediately.
+// Community-inspired silhouettes, redrawn for these characters and unlocked through veteran milestones.
+const VET_REQ={solo:{lv:10},sauna:{t:'hard'},giant:{t:'boss'},party:{t:'online'}};
 const VET_TOP=[
- ['vet_solo','낡은 수련 탱크톱',{shirt:'#eee2c7',sleeve:'#eee2c7',collar:'#b8a384',bareArms:true,pat:{k:'vet_solo'}}],
- ['vet_sauna','파란 사우나 가운',{shirt:'#76b5d4',sleeve:'#76b5d4',collar:'#d9edf2',longSleeve:true,pat:{k:'vet_sauna'}}],
- ['vet_giant','녹슨 황동 흉갑',{shirt:'#b79556',sleeve:'#8c7449',collar:'#e2cb92',longSleeve:true,pat:{k:'vet_giant'}}],
- ['vet_party','숙련자의 청록 튜닉',{shirt:'#254e50',sleeve:'#254e50',collar:'#d9ba71',longSleeve:true,pat:{k:'vet_party'}}]
+ ['vet_solo','낡은 수련 탱크톱',{shirt:'#eee2c7',sleeve:'#eee2c7',collar:'#b8a384',bareArms:true,pat:{k:'vet_solo'}},VET_REQ.solo],
+ ['vet_sauna','파란 사우나 가운',{shirt:'#76b5d4',sleeve:'#76b5d4',collar:'#d9edf2',longSleeve:true,pat:{k:'vet_sauna'}},VET_REQ.sauna],
+ ['vet_giant','녹슨 황동 흉갑',{shirt:'#b79556',sleeve:'#8c7449',collar:'#e2cb92',longSleeve:true,pat:{k:'vet_giant'}},VET_REQ.giant],
+ ['vet_party','숙련자의 청록 튜닉',{shirt:'#254e50',sleeve:'#254e50',collar:'#d9ba71',longSleeve:true,pat:{k:'vet_party'}},VET_REQ.party]
 ],VET_BOT=[
- ['vet_solo','빛바랜 린넨 쇼츠',{pants:'#b6a58a',shorts:true,shortsLen:.85,legx:'vet_solo'}],
- ['vet_sauna','겹쳐 여민 가운 자락',{pants:'#76b5d4',shorts:true,shortsLen:.04,legx:'vet_sauna'}],
- ['vet_giant','황동 판금 하의',{pants:'#736345',shorts:false,pstripe:'#c6aa6b',legx:'vet_giant'}],
- ['vet_party','청록 골드라인 바지',{pants:'#203c40',shorts:false,pstripe:'#d9ba71',legx:'vet_party'}]
+ ['vet_solo','빛바랜 린넨 쇼츠',{pants:'#b6a58a',shorts:true,shortsLen:.85,legx:'vet_solo'},VET_REQ.solo],
+ ['vet_sauna','겹쳐 여민 가운 자락',{pants:'#76b5d4',shorts:true,shortsLen:.04,legx:'vet_sauna'},VET_REQ.sauna],
+ ['vet_giant','황동 판금 하의',{pants:'#736345',shorts:false,pstripe:'#c6aa6b',legx:'vet_giant'},VET_REQ.giant],
+ ['vet_party','청록 골드라인 바지',{pants:'#203c40',shorts:false,pstripe:'#d9ba71',legx:'vet_party'},VET_REQ.party]
 ],VET_HEAD=[
- ['vet_solo','작은 항아리 모자','head','',{hat:'vet_solo',hatC:'#c17e50',hb:null}],
- ['vet_sauna','대나무 삿갓','head','',{hat:'vet_sauna',hatC:'#cfa665',hb:null}],
- ['vet_giant','흠집 난 황동 서클릿','head','',{hat:'vet_giant',hatC:'#b79556',hb:null}],
- ['vet_party','보라 종이 왕관','head','',{hat:'vet_party',hatC:'#b291d8',hb:null}]
+ ['vet_solo','작은 항아리 모자','head','',{hat:'vet_solo',hatC:'#c17e50',hb:null},VET_REQ.solo],
+ ['vet_sauna','대나무 삿갓','head','',{hat:'vet_sauna',hatC:'#cfa665',hb:null},VET_REQ.sauna],
+ ['vet_giant','흠집 난 황동 서클릿','head','',{hat:'vet_giant',hatC:'#b79556',hb:null},VET_REQ.giant],
+ ['vet_party','보라 종이 왕관','head','',{hat:'vet_party',hatC:'#b291d8',hb:null},VET_REQ.party]
 ],VET_ARM=[
- ['vet_wraps','수련 손목 붕대','arm','',{armx:'vet_wraps',wristband:null,wb2:null,watch:false,bracelet:null,armSleeve:null}],
- ['vet_workgloves','작업장갑 손목띠','arm','',{armx:'vet_workgloves',wristband:null,wb2:null,watch:false,bracelet:null,armSleeve:null}]
+ ['vet_wraps','수련 손목 붕대','arm','',{armx:'vet_wraps',wristband:null,wb2:null,watch:false,bracelet:null,armSleeve:null},VET_REQ.solo],
+ ['vet_workgloves','작업장갑 손목띠','arm','',{armx:'vet_workgloves',wristband:null,wb2:null,watch:false,bracelet:null,armSleeve:null},VET_REQ.sauna]
 ],VET_BODY=[
- ['vet_ragcape','오래된 자주색 망토','body','',{back:'vet_ragcape',neck:'vet_ragcape',cape:null,backpack:false}],
- ['vet_grassshield','초록 잎새 등방패','body','',{back:'vet_grassshield',neck:'vet_grassshield',cape:null,backpack:false}],
- ['vet_mastercape','금테 숙련자 망토','body','',{back:'vet_mastercape',neck:'vet_mastercape',cape:null,backpack:false}]
+ ['vet_ragcape','오래된 자주색 망토','body','',{back:'vet_ragcape',neck:'vet_ragcape',cape:null,backpack:false},VET_REQ.sauna],
+ ['vet_grassshield','초록 잎새 등방패','body','',{back:'vet_grassshield',neck:'vet_grassshield',cape:null,backpack:false},VET_REQ.giant],
+ ['vet_mastercape','금테 숙련자 망토','body','',{back:'vet_mastercape',neck:'vet_mastercape',cape:null,backpack:false},VET_REQ.party]
 ];
 const NOPAT={stripes:null,camo:null,tee:false,hoodie:false,tie:null,frontName:false,longSleeve:false,pat:null,pipe:null,fitted:true};
 const FIT_TOPS=[['def','캐릭터 기본',null],
@@ -489,7 +490,7 @@ const FIT_SLOTS=['head','arm','body','wing','aura','pet'];
 FIT_TOPS.push(...VET_TOP);FIT_BOTS.push(...VET_BOT);FIT_ACC.push(...VET_HEAD,...VET_ARM,...VET_BODY);
 const fitOk=r=>!r||(!r.lv||progLevel()>=r.lv)&&(!r.t||!!TITLES.find(t=>t[0]===r.t)?.[3]()),fitReqText=r=>[r.lv?`Lv${r.lv}`:'',r.t?`〔${titleName(r.t)}〕`:''].filter(Boolean).join(' · ');
 const fitClean=(f,gate=false)=>{const o={top:'def',bot:'def'};if(f&&typeof f==='object'){const t=FIT_TOPS.find(t=>t[0]===f.top),b=FIT_BOTS.find(t=>t[0]===f.bot);if(t&&(!gate||fitOk(t[3])))o.top=f.top;if(b&&(!gate||fitOk(b[3])))o.bot=f.bot;for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]&&x[2]===k);if(a&&(!gate||fitOk(a[5])))o[k]=a[0];}}return o;};
-let fitAnim=0,myFit=fitClean((()=>{try{return JSON.parse(localStorage.getItem('fit'));}catch{return null;}})()),fitDraft=null,fitTab='top';
+let fitAnim=0,myFit=fitClean((()=>{try{return JSON.parse(localStorage.getItem('fit'));}catch{return null;}})(),true),fitDraft=null,fitTab='top';
 function withFit(look,f){if(!f||!look)return look;f=fitClean(f);let L=look;const t=FIT_TOPS.find(x=>x[0]===f.top),b=FIT_BOTS.find(x=>x[0]===f.bot);
 if(t&&t[2]){L={...L,...NOPAT,...t[2]};if(t[2].bareArms)L.sleeve=L.skin||'#f2cda8';}if(b&&b[2])L={...L,socks:false,pstripe:null,skirt:null,skirtTrim:null,legx:null,...b[2]};for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]);if(a)L={...L,...a[4]};}return L;}
 const fitLook=look=>withFit(look,myFit);
@@ -502,10 +503,10 @@ const FIT_COLLECTIONS=[
  {id:'varsity',name:'버건디 바시티',label:'CAMPUS LEAGUE',desc:'버건디 재킷과 크림 쇼츠. 레터 패치로 완성한 캠퍼스 팀 스타일.',colors:['#743c4b','#eee1c5','#c8a86a']}
 ].map(c=>({...c,fit:{top:'studio_'+c.id,bot:'studio_'+c.id,head:'studio_'+c.id}}));
 FIT_COLLECTIONS.push(
- {id:'vet_solo',group:'veteran',name:'혼자서도 충분해',label:'SOLO LEGEND',desc:'토기 모자와 낡은 수련복. 장비는 가볍게, 랠리는 끝까지.',colors:['#c17e50','#eee2c7','#806950'],fit:{top:'vet_solo',bot:'vet_solo',head:'vet_solo',arm:'vet_wraps'}},
- {id:'vet_sauna',group:'veteran',name:'사우나에서 온 고수',label:'OLD SCHOOL',desc:'파란 가운, 삿갓, 해진 망토. 오래 입은 장비에 담긴 수천 번의 랠리.',colors:['#76b5d4','#cfa665','#816378'],fit:{top:'vet_sauna',bot:'vet_sauna',head:'vet_sauna',arm:'vet_workgloves',body:'vet_ragcape'}},
- {id:'vet_giant',group:'veteran',name:'전설은 녹슬지 않아',label:'BRASS LEGEND',desc:'흠집 난 황동 갑옷과 초록 방패. 묵직한 존재감으로 코트에 등장.',colors:['#b79556','#4a6655','#514636'],fit:{top:'vet_giant',bot:'vet_giant',head:'vet_giant',body:'vet_grassshield'}},
- {id:'vet_party',group:'veteran',name:'만렙의 종이 왕관',label:'PARTY VETERAN',desc:'접어 만든 보라 왕관과 금테 망토. 소박한 모자 하나로 완성하는 고수의 여유.',colors:['#b291d8','#254e50','#d9ba71'],fit:{top:'vet_party',bot:'vet_party',head:'vet_party',body:'vet_mastercape'}}
+ {id:'vet_solo',group:'veteran',name:'혼자서도 충분해',label:'SOLO LEGEND',desc:'토기 모자와 낡은 수련복. 장비는 가볍게, 랠리는 끝까지.',colors:['#c17e50','#eee2c7','#806950'],req:VET_REQ.solo,fit:{top:'vet_solo',bot:'vet_solo',head:'vet_solo',arm:'vet_wraps'}},
+ {id:'vet_sauna',group:'veteran',name:'사우나에서 온 고수',label:'OLD SCHOOL',desc:'파란 가운, 삿갓, 해진 망토. 오래 입은 장비에 담긴 수천 번의 랠리.',colors:['#76b5d4','#cfa665','#816378'],req:VET_REQ.sauna,fit:{top:'vet_sauna',bot:'vet_sauna',head:'vet_sauna',arm:'vet_workgloves',body:'vet_ragcape'}},
+ {id:'vet_giant',group:'veteran',name:'전설은 녹슬지 않아',label:'BRASS LEGEND',desc:'흠집 난 황동 갑옷과 초록 방패. 묵직한 존재감으로 코트에 등장.',colors:['#b79556','#4a6655','#514636'],req:VET_REQ.giant,fit:{top:'vet_giant',bot:'vet_giant',head:'vet_giant',body:'vet_grassshield'}},
+ {id:'vet_party',group:'veteran',name:'만렙의 종이 왕관',label:'PARTY VETERAN',desc:'접어 만든 보라 왕관과 금테 망토. 소박한 모자 하나로 완성하는 고수의 여유.',colors:['#b291d8','#254e50','#d9ba71'],req:VET_REQ.party,fit:{top:'vet_party',bot:'vet_party',head:'vet_party',body:'vet_mastercape'}}
 );
 const FIT_LABELS={collection:'스튜디오 컬렉션',veteran:'고인물 아카이브',top:'상의',bot:'하의',head:'머리',arm:'손목',body:'목 · 몸',wing:'날개',aura:'이펙트',pet:'펫'};
 let fitBack=false;
@@ -538,7 +539,7 @@ function renderFit(){
  document.querySelectorAll('.fit-tabs button').forEach(b=>{const active=b.dataset.ft===fitTab;b.classList.toggle('active',active);b.setAttribute('role','tab');b.setAttribute('aria-selected',String(active));b.setAttribute('aria-controls','fit-panel');b.id='fit-tab-'+b.dataset.ft;b.tabIndex=active?0:-1;});
  $('fit-panel').setAttribute('aria-labelledby','fit-tab-'+fitTab);
  const collections=fitTab==='collection'||fitTab==='veteran',box=$('fit-items');box.textContent='';box.dataset.collections=String(collections);box.dataset.group=fitTab;$('fit-category').textContent=FIT_LABELS[fitTab];
- const list=collections?FIT_COLLECTIONS.filter(c=>(c.group==='veteran')===(fitTab==='veteran')).map(c=>({id:c.id,name:c.name,collection:c,fit:c.fit})):
+ const list=collections?FIT_COLLECTIONS.filter(c=>(c.group==='veteran')===(fitTab==='veteran')).map(c=>({id:c.id,name:c.name,collection:c,fit:c.fit,req:c.req})):
   fitTab==='top'?FIT_TOPS.map(t=>({id:t[0],name:t[1],req:t[3]})):
   fitTab==='bot'?FIT_BOTS.map(t=>({id:t[0],name:t[1],req:t[3]})):
   [{id:'',name:'착용 안 함'},...FIT_ACC.filter(a=>a[2]===fitTab).map(a=>({id:a[0],name:a[1],req:a[5]}))];
@@ -618,8 +619,8 @@ const full=rk>=RUNE_MAX;if(full)d.textContent+=' · 다시 누르면 0으로 초
 prog.runeSets[ch]={...runeSet(ch),[n[0]]:full?0:rk+1};saveProg();renderRunes();};row.append(b);}c.append(row);}box.append(c);}
 $('rn-badge').hidden=runePoints()-runeSpent()<=0;}
 async function loadProgress(){try{const db=await pvpRemote();if(!db)return;const snap=await rankFs.getDoc(rankFs.doc(db,'progress',rankUid));const d=snap.exists()?snap.data():null;
-if(d&&d.q&&d.q._fit){myFit=fitClean(d.q._fit);try{localStorage.setItem('fit',JSON.stringify(myFit));}catch{}}if(d&&d.xp>prog.xp)prog={...prog,xp:d.xp,q:d.q||prog.q,runes:d.runes||prog.runes,runeSets:d.runeSets||prog.runeSets,unlocked:[...new Set([...START_CHARS,...d.unlocked.filter(k=>LOOKS[k])])]};let up=false;if(d&&d.q){prog.q??={};for(const [k,v] of Object.entries(d.q)){if(k==='_fit')continue;if(k==='_t'){if(v&&!prog.q._t)prog.q._t=v;continue;}if(k==='_s'){const S=prog.q._s??={};for(const [a,b] of Object.entries(v||{})){if(typeof b==='number'&&b>(S[a]||0)){S[a]=b;up=true;}else if(typeof b==='string'&&a!=='seen'&&!S[a]){S[a]=b;up=true;}}continue;}const L=prog.q[k];if(v&&typeof v.n==='number'&&(!L||qTot(k,v)>qTot(k,L))){prog.q[k]={n:v.n,t:v.t|0};up=true;}}}   // quest counters / title stats: the bigger total wins either way
-saveProg(!d||d.xp<prog.xp||up);offerUnlock();titleCheck();}catch{}}   // the device copy is pushed up when it is ahead
+if(d&&d.xp>prog.xp)prog={...prog,xp:d.xp,q:d.q||prog.q,runes:d.runes||prog.runes,runeSets:d.runeSets||prog.runeSets,unlocked:[...new Set([...START_CHARS,...d.unlocked.filter(k=>LOOKS[k])])]};let up=false;if(d&&d.q){prog.q??={};for(const [k,v] of Object.entries(d.q)){if(k==='_fit')continue;if(k==='_t'){if(v&&!prog.q._t)prog.q._t=v;continue;}if(k==='_s'){const S=prog.q._s??={};for(const [a,b] of Object.entries(v||{})){if(typeof b==='number'&&b>(S[a]||0)){S[a]=b;up=true;}else if(typeof b==='string'&&a!=='seen'&&!S[a]){S[a]=b;up=true;}}continue;}const L=prog.q[k];if(v&&typeof v.n==='number'&&(!L||qTot(k,v)>qTot(k,L))){prog.q[k]={n:v.n,t:v.t|0};up=true;}}}   // quest counters / title stats: the bigger total wins either way
+if(d?.q?._fit){myFit=fitClean(d.q._fit,true);prog.q._fit=myFit;try{localStorage.setItem('fit',JSON.stringify(myFit));}catch{}}saveProg(!d||d.xp<prog.xp||up);offerUnlock();titleCheck();}catch{}}   // the device copy is pushed up when it is ahead
 
 const AI_CHARS=['jersey','leesin','percival','drunk','ajae','minhee','yunhwan','seohyun','jongryeong','kumho','chungdae','songstar','ttalgak','jiseong','sleepy'].filter(characterAvailable),pickAi=()=>AI_CHARS[Math.floor(Math.random()*AI_CHARS.length)];
 let aiLefty=false;   // AI handedness, rolled every game: mirrors its stance and which side is its forehand
@@ -705,7 +706,7 @@ if(freq===951)freq=950;const osc=audio.createOscillator(),gain=audio.createGain(
 function toast(message,duration=1.5){$('toast').textContent=message;toastUntil=time+duration;}
 function reset(){cancelVictoryCeremony();for(const st of [me,foe]){delete st.ceremT;delete st.taunt;delete st.cheerT;}you=cpu=rally=driveBonus=maxDef=0;try{trioT.next=0;}catch{}matchBest=0;$('rank-submit').hidden=true;ball=null;wait=.65;trail=[];fx=[];lastHit=lastAIHit=-10;charge=0;lastTap=null;smashUntil=-1;swingMemory=null;release();updateSpecial();$('shot').firstChild.textContent='READY';$('shot-sub').textContent='첫 스윙을 기다리는 중';$('timing').textContent='—';$('spin').textContent='—';updateScore();}
 function updateScore(){maxDef=Math.max(maxDef,(mode==='trio'?0:cpu-you));matchBest=mode==='cutman'||clickPrac()?0:Math.max(matchBest,rally);keepPending();$('you').textContent=String(you).padStart(2,'0');$('cpu').textContent=String(cpu).padStart(2,'0');$('rally').textContent=rally;$('best').textContent=best;store.set('best',best);}
-function begin(){if(ceremonyActive()||net?.role==='guest')return;setScoreVisibility();if(!net&&!loginGate())return;if(playing&&!net&&matchBest>0)offerRank(true);reset();matchId=Date.now().toString(36)+Math.random().toString(36).slice(2,8);qMatch={};runeLostLast=false;charge=Math.min(100,Math.round(R_('utCharge')*100));updateSpecial();ajaeUsed.me=ajaeUsed.foe=0;if(net){net.round++;net.matchId=matchId;net.seq=net.expect=0;net.ignoreUntil=0;net.sentHit=-10;}rollGear();me.mood=foe.mood=0;me.conf=foe.conf=0;aiCharge=0;me.sadT=foe.sadT=null;if(!net){aiChar=mode==='boss'?bossChoice:mode==='infdrive'?'infibot':mode==='cutman'||clickPrac()?'plain':pickAi();$('cpu-name').textContent=mode==='infdrive'?'AI 무한 리턴 봇':mode==='cutman'?'AI 커트맨':mode==='fourclick'?'AI 포터치 봇':mode==='threeclick'?'AI 쓰리터치 봇':clickPrac()?'AI 투클릭 봇':bossMin()?'AI 민희쌤 (보스)':'AI '+LOOKS[aiChar].nick+(tierNow()!=='easy'?' · '+TIERS[aiTier].name:'');aiLefty=!!LOOKS[aiChar].lefty||Math.random()<.5;$('cpu-name').textContent+=aiLefty?' · 왼손':' · 오른손';if(mode==='trio'){const o=AI_CHARS.filter(k=>k!==aiChar);foe2Char=o[Math.random()*o.length|0];trioT.score=[0,0,0];trioT.next=0;$('cpu-name').textContent=`${trioName(1)} 0 · ${trioName(2)} 0`;}if(mode==='doubles'){const other=c=>AI_CHARS.filter(k=>k!==c);mateChar=other(charType)[Math.random()*2|0]||'plain';const f2=other(aiChar);foe2Char=f2.find(k=>k!==mateChar&&k!==charType)||f2[Math.random()*2|0];$('cpu-name').textContent='AI '+LOOKS[aiChar].nick+' · '+LOOKS[foe2Char].nick;}}if(bossSj()){cpu=4;updateScore();}mate.x=foe2.x=null;clearSave();$('resume').hidden=true;$('home').hidden=false;playing=true;paused=false;down=false;updateSpecial();$('overlay').classList.add('hidden');$('pause').disabled=!!net;$('pause').textContent='일시정지 Ⅱ';if(!net)setTimeout(()=>{if(playing)napTick();},1800);toast(mode==='infdrive'&&!net?'♾️ 무한 드라이브 · 포핸드/백핸드 드라이브만! 봇은 100% 리턴해요 — 랠리가 몇 번 이어지는지 랭킹에 기록돼요':mode==='fourclick'&&!net?'🥁 포터치 공 연습 · 터치 – 터치 – 터치 – 스윙! 원 네 개를 같은 박자로':mode==='threeclick'&&!net?'🎵 쓰리터치 공 연습 · 터치 – 터치 – 스윙! 원 세 개를 같은 박자로':clickPrac()&&!net?'🎯 투클릭 공 연습 · ① 원을 누르면 잠시 뒤 ② 원이 떠요! 차례로 두 번 쳐서 넘기세요':mode==='match'&&!net&&aiTier==='hard'?'🔥 하드 · 상대가 모든 공을 받아내고 필살기를 써요':mode==='match'&&!net&&aiTier==='extreme'?'💀 익스트림 · 하드 + 투클릭 공 (터치 위치 ①②) 주의!':mode==='match'&&!net&&aiTier==='uext'?'🌋 울트라 익스트림 · 포터치 공! 터치 – 터치 – 터치 – 스윙, 박자원에 맞춰 이어서':mode==='match'&&!net&&aiTier==='uhard'?'👹 울트라 하드 · 리턴률 최고 · 투클릭 + 쓰리터치 공(① 터치 · ② 터치 · ③ 스윙)!':mode==='match'&&!net&&aiTier==='ultra'?'☠️ 울트라 · 모든 공이 투클릭 공! ① ② 두 번 눌러야 넘어가요':mode==='cutman'&&!net?'✂️ 커트맨 봇전 · 서브는 항상 두 번 튀는 짧은 커트! 두 번째 바운드 전에 테이블 위에서 쳐요':bossSj()?'👵 세종 9부 아줌마 등장! 핸디 4점 먼저 받고 시작 · 포핸드 쪽 공은 전부 스매싱 ×1.6 · 포핸드로 드라이브 주면 50% 맞스매싱':bossMin()?'👑 보스 민희쌤 등장! 어떤 공도 95% 받아내요 · 포핸드/백핸드 모두 재끼기 · 라켓 파손':mode==='boss'&&!net?`😈 탁구 마왕 등장! 내가 ${BOSS.rage}점을 따면 분노해요`:'링이 라켓 크기 원에 딱 맞는 순간 스윙하세요!',3);lockPage(true);}
+function begin(){if(ceremonyActive()||net?.role==='guest')return;setScoreVisibility();if(!net&&!loginGate())return;if(playing&&!net&&matchBest>0)offerRank(true);reset();matchId=Date.now().toString(36)+Math.random().toString(36).slice(2,8);qMatch={};runeLostLast=false;charge=Math.min(100,Math.round(R_('utCharge')*100));updateSpecial();ajaeUsed.me=ajaeUsed.foe=0;if(net){const tn=titleName(prog.q?._t);$('you-name').textContent=(tn?`〔${tn}〕 `:'')+(myName()||LOOKS[charType].nick);net.round++;net.matchId=matchId;net.seq=net.expect=0;net.ignoreUntil=0;net.sentHit=-10;}rollGear();me.mood=foe.mood=0;me.conf=foe.conf=0;aiCharge=0;me.sadT=foe.sadT=null;if(!net){aiChar=mode==='boss'?bossChoice:mode==='infdrive'?'infibot':mode==='cutman'||clickPrac()?'plain':pickAi();$('cpu-name').textContent=mode==='infdrive'?'AI 무한 리턴 봇':mode==='cutman'?'AI 커트맨':mode==='fourclick'?'AI 포터치 봇':mode==='threeclick'?'AI 쓰리터치 봇':clickPrac()?'AI 투클릭 봇':bossMin()?'AI 민희쌤 (보스)':'AI '+LOOKS[aiChar].nick+(tierNow()!=='easy'?' · '+TIERS[aiTier].name:'');aiLefty=!!LOOKS[aiChar].lefty||Math.random()<.5;$('cpu-name').textContent+=aiLefty?' · 왼손':' · 오른손';if(mode==='trio'){const o=AI_CHARS.filter(k=>k!==aiChar);foe2Char=o[Math.random()*o.length|0];trioT.score=[0,0,0];trioT.next=0;$('cpu-name').textContent=`${trioName(1)} 0 · ${trioName(2)} 0`;}if(mode==='doubles'){const other=c=>AI_CHARS.filter(k=>k!==c);mateChar=other(charType)[Math.random()*2|0]||'plain';const f2=other(aiChar);foe2Char=f2.find(k=>k!==mateChar&&k!==charType)||f2[Math.random()*2|0];$('cpu-name').textContent='AI '+LOOKS[aiChar].nick+' · '+LOOKS[foe2Char].nick;}}if(bossSj()){cpu=4;updateScore();}mate.x=foe2.x=null;clearSave();$('resume').hidden=true;$('home').hidden=false;playing=true;paused=false;down=false;updateSpecial();$('overlay').classList.add('hidden');$('pause').disabled=!!net;$('pause').textContent='일시정지 Ⅱ';if(!net)setTimeout(()=>{if(playing)napTick();},1800);toast(mode==='infdrive'&&!net?'♾️ 무한 드라이브 · 포핸드/백핸드 드라이브만! 봇은 100% 리턴해요 — 랠리가 몇 번 이어지는지 랭킹에 기록돼요':mode==='fourclick'&&!net?'🥁 포터치 공 연습 · 터치 – 터치 – 터치 – 스윙! 원 네 개를 같은 박자로':mode==='threeclick'&&!net?'🎵 쓰리터치 공 연습 · 터치 – 터치 – 스윙! 원 세 개를 같은 박자로':clickPrac()&&!net?'🎯 투클릭 공 연습 · ① 원을 누르면 잠시 뒤 ② 원이 떠요! 차례로 두 번 쳐서 넘기세요':mode==='match'&&!net&&aiTier==='hard'?'🔥 하드 · 상대가 모든 공을 받아내고 필살기를 써요':mode==='match'&&!net&&aiTier==='extreme'?'💀 익스트림 · 하드 + 투클릭 공 (터치 위치 ①②) 주의!':mode==='match'&&!net&&aiTier==='uext'?'🌋 울트라 익스트림 · 포터치 공! 터치 – 터치 – 터치 – 스윙, 박자원에 맞춰 이어서':mode==='match'&&!net&&aiTier==='uhard'?'👹 울트라 하드 · 리턴률 최고 · 투클릭 + 쓰리터치 공(① 터치 · ② 터치 · ③ 스윙)!':mode==='match'&&!net&&aiTier==='ultra'?'☠️ 울트라 · 모든 공이 투클릭 공! ① ② 두 번 눌러야 넘어가요':mode==='cutman'&&!net?'✂️ 커트맨 봇전 · 서브는 항상 두 번 튀는 짧은 커트! 두 번째 바운드 전에 테이블 위에서 쳐요':bossSj()?'👵 세종 9부 아줌마 등장! 핸디 4점 먼저 받고 시작 · 포핸드 쪽 공은 전부 스매싱 ×1.6 · 포핸드로 드라이브 주면 50% 맞스매싱':bossMin()?'👑 보스 민희쌤 등장! 어떤 공도 95% 받아내요 · 포핸드/백핸드 모두 재끼기 · 라켓 파손':mode==='boss'&&!net?`😈 탁구 마왕 등장! 내가 ${BOSS.rage}점을 따면 분노해요`:'링이 라켓 크기 원에 딱 맞는 순간 스윙하세요!',3);lockPage(true);}
 // Doubles (복식) vs AI: me + AI partner against two AIs. Each side's players must hit in turn; every serve goes
 // diagonally from the server's right half to the receiver's right half; within each team the server (and my team's
 // receiver) changes every time the serve comes round.
@@ -2167,7 +2168,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){tickVicto
 function slowForDual(b){const m=mir(b),k=Math.min(1,1.6/Math.abs(m.vy||1));m.vx*=k;m.vy*=k;fitReturn(m);const back=mir(m);Object.assign(b,{vx:back.vx,vy:back.vy,vz:back.vz});}
 const mir=b=>b&&{...b,x:-b.x,y:2.74-b.y,vx:-b.vx,vy:-b.vy,side:-(b.side||0),owner:b.owner==='you'?'ai':'you'};
 const wire=b=>b&&{x:b.x,y:b.y,z:b.z,vx:b.vx,vy:b.vy,vz:b.vz,spin:b.spin,side:b.side,bounces:b.bounces,owner:b.owner,type:b.type,held:b.held,tossed:b.tossed,serving:b.serving,shortServe:b.shortServe,kill:!!b.kill,shortCut:!!b.shortCut,unreturn:!!b.unreturn,pf:!!b.pf,power:!!b.power};
-function me4net(){const base=project(0,-.15);return {rn:runeNet(),fit:myFit,ttl:prog.q?._t||'',nick:store.get('nick')||'',x:(paddle.x-base.x)/(W*.43*base.scale),side:playerSide,rk:racketType,ch:charType,shot:lastShot,h:lastHit,c:me.ceremT};}
+function me4net(){const base=project(0,-.15);return {rn:runeNet(),fit:myFit,ttl:myTtl().ttl||'',nick:store.get('nick')||'',x:(paddle.x-base.x)/(W*.43*base.scale),side:playerSide,rk:racketType,ch:charType,shot:lastShot,h:lastHit,c:me.ceremT};}
 function snapshot(){return {t:'S',round:net.round,matchId:net.matchId,packet:++net.snapshotNo,clock:performance.now(),ceremony:ceremonyWire(),b:wire(ball),you,cpu,rally,best:matchBest,playing,reason:lastReason,seq:net.seq,...me4net()};}
 function oppServe(){ball={x:0,y:2.89,z:-.3,vx:0,vy:0,vz:0,spin:0,side:0,bounces:0,owner:'ai',held:true,tossed:false};trail=[];toast('상대 서브',1.5);}
 function takeOpp(m){const o=net.opp;if(m.fit)o.fit=fitClean(m.fit);if(m.rn&&typeof m.rn==='object')o.rn=m.rn;o.ch=characterAvailable(m.ch)?m.ch:'jersey';o.nick=cleanName(m.nick||'');{const tn=titleName(m.ttl);$('cpu-name').textContent=(tn?`〔${tn}〕 `:'')+(o.nick||LOOKS[o.ch].nick||'상대');}o.x=m.x;o.side=m.side;o.rk=RACKETS[m.rk]?m.rk:'shake';if(m.h!==o.h){if(o.h!==undefined){o.hitT=time;o.shot=m.shot;}o.h=m.h;}if(Number.isFinite(m.c)&&m.c!==o.c){o.c=m.c;perfectCeremony(foe,LOOKS[o.ch]);}}
@@ -2247,7 +2248,7 @@ if(ball.held){if(ball.owner!=='you'||net.dbl&&net.d.server!==net.d.slot)return;i
 P.step(ball,dt);if(ball.z<0&&ball.vz<0&&(mode==='trio'?trioIn(ball.x,ball.y):Math.abs(ball.x)<.76&&ball.y>0&&ball.y<2.74)){ball.z=0;ball.vz=-ball.vz*.8;}   // smooth between snapshots
 trail.push({x:ball.x,y:ball.y,z:ball.z});if(trail.length>(SPECIALS[ball.type]?28:14))trail.shift();
 hit();}
-function guestStart(){reset();runeLostLast=false;charge=Math.min(100,Math.round(R_('utCharge')*100));setMode(net&&net.trio?'trio':'match');$('mode-label').textContent=net&&net.trio?'온라인 3인':net&&net.dbl?'온라인 복식':'온라인 1:1';playing=true;paused=false;lockPage(true);$('overlay').classList.add('hidden');$('pause').disabled=true;$('resume').hidden=true;$('home').hidden=false;$('restart').hidden=true;me.sadT=foe.sadT=null;toast('연결됐어요! 첫 서브는 내 차례',2.5);}
+function guestStart(){reset();runeLostLast=false;charge=Math.min(100,Math.round(R_('utCharge')*100));setMode(net&&net.trio?'trio':'match');$('mode-label').textContent=net&&net.trio?'온라인 3인':net&&net.dbl?'온라인 복식':'온라인 1:1';{const tn=titleName(prog.q?._t);$('you-name').textContent=(tn?`〔${tn}〕 `:'')+(myName()||LOOKS[charType].nick);}playing=true;paused=false;lockPage(true);$('overlay').classList.add('hidden');$('pause').disabled=true;$('resume').hidden=true;$('home').hidden=false;$('restart').hidden=true;me.sadT=foe.sadT=null;toast('연결됐어요! 첫 서브는 내 차례',2.5);}
 function netStatus(t){$('net-status').textContent=t;}
 function loadPeer(){return window.Peer?Promise.resolve():new Promise((ok,fail)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';sc.onload=ok;sc.onerror=()=>fail(new Error('load'));document.head.appendChild(sc);});}
 function netOpen(role,peer,conn,dbl=null){const trio=!!dbl?.trio;netStatus(trio?'연결됐어요! 3인 대전 중':dbl?'연결됐어요! 복식 대전 중':'연결됐어요! 1:1 대전 중');net={role,peer,conn,trio,t:trio?{slot:role==='host'?0:dbl.slot,server:0,pl:{},names:{}}:null,dbl:!!dbl&&!trio,d:dbl&&!trio?{turn:{A:0,B:0},server:1,slot:role==='host'?1:dbl.slot,pl:{},lastHit}:null,opp:{x:0,side:1,rk:'shake',shot:'drive',hitT:-10},round:0,matchId:null,snapshotNo:0,lastSnapshot:0,clockOffset:null,clockRtt:null,clockPing:null,clockPingAt:-Infinity,seq:0,expect:0,ignoreUntil:0,sent:0,sentHit:lastHit};if(dbl&&role==='host'){net.conns=dbl.conns;net.conn={open:true,send:trio?trioSend:dblSend};for(const [k,c] of Object.entries(dbl.conns)){c.on('data',m=>(trio?trioOnNet:dblOnNet)(+k,m));c.on('close',()=>{if(net?.conns===dbl.conns)netClosed();});c.on('error',()=>{if(net?.conns===dbl.conns)netClosed();});}}else{conn.on('data',onNet);conn.on('close',()=>{if(net?.conn===conn)netClosed();});conn.on('error',()=>{if(net?.conn===conn)netClosed();});}
@@ -2439,7 +2440,7 @@ try{const db=await remote();if(db){const q=rankFs.query(rankFs.collection(db,'le
 $('rank-src').textContent=src;const ol=$('rank-list');ol.textContent='';
 rows.forEach((r,i)=>{const li=document.createElement('li'),no=document.createElement('span'),nm=document.createElement('span'),sub=document.createElement('span'),val=document.createElement('span');const xp=+r.xp||0;
 no.className='no';no.textContent=i+1;nm.className='nm';nameTtl(nm,r);sub.className='sub';sub.textContent=`경험치 ${xp} XP · 캐릭터 ${r.chars||1}명`;val.className='val';val.textContent='Lv '+(1+Math.floor(xp/XP_LEVEL));li.append(no,nm,sub,val);ol.append(li);});return;}
-if(k==='pvp'){let rows=[],src='내 기기 기록';const me=pvpLocal();if(me.wins+me.losses)rows=[{name:store.get('nick')||'나',...me}];
+if(k==='pvp'){let rows=[],src='내 기기 기록';const me=pvpLocal();if(me.wins+me.losses)rows=[{name:store.get('nick')||'나',...me,...myTtl()}];
 try{const db=await remote();if(db){const q=rankFs.query(rankFs.collection(db,'players'),rankFs.orderBy('rating','desc'),rankFs.limit(20));rows=(await rankFs.getDocs(q)).docs.map(d=>d.data());src='전체 PvP 랭킹 · 상위 20';}}catch{src='전체 랭킹을 불러오지 못해 내 기기 기록을 보여줘요';}
 $('rank-src').textContent=src;const ol=$('rank-list');ol.textContent='';
 if(!rows.length){const li=document.createElement('li');li.className='empty';li.textContent='아직 기록이 없어요. 온라인 1:1 대전을 끝내면 레이팅이 생겨요!';ol.append(li);return;}
@@ -2498,7 +2499,7 @@ $('google-login').hidden=!!g;$('naver-login').hidden=!!g||!NAVER.worker;$('googl
 async function applyRated(won,ceremonyId=null){questMatchEnd(won);gainXp(won?XP.pvp*(1+R_('utWinXp')):XP.pvp/2*(1+R_('utLose')),won?'1대1 승리':'1대1 패배 (절반)');const name=cleanName(store.get('nick')||'')||'익명';let before=pvpLocal(),next=P.nextRating(before,won),where='내 기기';
 try{const db=await pvpRemote();if(db){const ref=rankFs.doc(db,'players',rankUid),snap=await rankFs.getDoc(ref);if(snap.exists())before={...before,...snap.data()};next=P.nextRating(before,won);
 await rankFs.setDoc(ref,{name,...myTtl(),rating:next.rating,wins:next.wins,losses:next.losses,streak:next.streak,at:rankFs.serverTimestamp()});where='전체 랭킹';}}catch(e){where='내 기기 (전체 반영 실패)';}
-store.set('pvp',JSON.stringify({rating:next.rating,wins:next.wins,losses:next.losses,streak:next.streak}));updatePvpMe();
+store.set('pvp',JSON.stringify({rating:next.rating,wins:next.wins,losses:next.losses,streak:next.streak,...myTtl()}));updatePvpMe();
 const line=`랭킹전 ${won?'승리':'패배'} · 레이팅 ${before.rating} → ${next.rating} (${next.delta>0?'+':''}${next.delta}${streakText(next.streak)}) · ${where}`;
 const c=victoryCeremony;if(ceremonyId&&c?.id===ceremonyId)c.ratingLine=line;if(!ceremonyId||c?.id===ceremonyId&&c.phase==='finished'){const p=document.querySelector('.start-card p');p.textContent=p.textContent+' · '+line;toast(line,3);}if(board==='pvp')showBoard('pvp');}
 $('net-nick').value=store.get('nick')||'';updatePvpMe();
