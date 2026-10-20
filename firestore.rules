@@ -107,6 +107,19 @@ service cloud.firestore {
         && request.resource.data.chars is int && request.resource.data.chars >= 1 && request.resource.data.chars <= 40
         && request.resource.data.at == request.time;
     }
+    // 🎖️ 랭크전 (AI): one row per signed-in player, only the owner writes; anyone may read the board.
+    match /arank/{uid} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom']
+        && request.resource.data.keys().hasOnly(['name', 'ttl', 'mmr', 'w', 'l', 'at'])
+        && request.resource.data.keys().hasAll(['name', 'mmr', 'w', 'l', 'at'])
+        && (!('ttl' in request.resource.data) || request.resource.data.ttl is string && request.resource.data.ttl.size() <= 12)
+        && request.resource.data.name is string && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 12
+        && request.resource.data.mmr is int && request.resource.data.mmr >= 0 && request.resource.data.mmr <= 5000
+        && request.resource.data.w is int && request.resource.data.w >= 0 && request.resource.data.l is int && request.resource.data.l >= 0
+        && request.resource.data.at == request.time;
+    }
     match /players/{uid} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == uid && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom'] && pvpShape(request.resource.data)
