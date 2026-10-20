@@ -6,7 +6,8 @@ service cloud.firestore {
     function valid(maxValue) {
       let d = request.resource.data;
       return request.auth != null && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom']
-        && d.keys().hasOnly(['name', 'value', 'level', 'character', 'racket', 'detail', 'at'])
+        && d.keys().hasOnly(['name', 'ttl', 'value', 'level', 'character', 'racket', 'detail', 'at'])
+        && (!('ttl' in d) || d.ttl is string && d.ttl.size() <= 12)
         && d.keys().hasAll(['name', 'value', 'level', 'character', 'racket', 'detail', 'at'])
         && d.name is string && d.name.size() >= 1 && d.name.size() <= 12
         && d.value is int && d.value >= 1 && d.value <= maxValue
@@ -34,7 +35,8 @@ service cloud.firestore {
     // PvP rating. Google-signed-in players only; each may only write its own doc, one result at a time,
     // with the exact rating step: win +9+streak (10, 11, 12 ...), loss -9+streak (-10, -11, -12 ...).
     function pvpShape(d) {
-      return d.keys().hasOnly(['name', 'rating', 'wins', 'losses', 'streak', 'at'])
+      return d.keys().hasOnly(['name', 'ttl', 'rating', 'wins', 'losses', 'streak', 'at'])
+        && (!('ttl' in d) || d.ttl is string && d.ttl.size() <= 12)
         && d.keys().hasAll(['name', 'rating', 'wins', 'losses', 'streak', 'at'])
         && d.name is string && d.name.size() >= 1 && d.name.size() <= 12
         && d.rating is int && d.wins is int && d.losses is int && d.streak is int
@@ -67,12 +69,14 @@ service cloud.firestore {
         && request.resource.data.at == request.time;
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
+    // 칭호 (ttl): optional title id on ranking rows, PvP, presence and level rows.
     // 친구창: who is online. Each signed-in player writes only its own presence doc.
     match /presence/{uid} {
       allow read: if true;
       allow create, update: if request.auth != null && request.auth.uid == uid
         && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom']
-        && request.resource.data.keys().hasOnly(['name', 'status', 'at'])
+        && request.resource.data.keys().hasOnly(['name', 'ttl', 'status', 'at'])
+        && (!('ttl' in request.resource.data) || request.resource.data.ttl is string && request.resource.data.ttl.size() <= 12)
         && request.resource.data.keys().hasAll(['name', 'status', 'at'])
         && request.resource.data.name is string && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 12
         && request.resource.data.status is string && request.resource.data.status.size() <= 12
@@ -95,7 +99,8 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == uid
         && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom']
-        && request.resource.data.keys().hasOnly(['name', 'xp', 'chars', 'at'])
+        && request.resource.data.keys().hasOnly(['name', 'ttl', 'xp', 'chars', 'at'])
+        && (!('ttl' in request.resource.data) || request.resource.data.ttl is string && request.resource.data.ttl.size() <= 12)
         && request.resource.data.keys().hasAll(['name', 'xp', 'chars', 'at'])
         && request.resource.data.name is string && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 12
         && request.resource.data.xp is int && request.resource.data.xp >= 0
