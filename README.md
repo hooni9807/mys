@@ -404,10 +404,10 @@ node --test tests/*.test.cjs
 
 | 고인물 룩 | 구성 | 참고 사례 |
 |---|---|---|
-| 혼자서도 충분해 | 항아리 모자 · 낡은 수련 탱크톱 · 린넨 쇼츠 · 손목 붕대 · **Lv 10** | [Let Me Solo Her 본인 소개](https://www.reddit.com/r/Eldenring/comments/u2g6gd/let_me_solo_her/) 및 글에 연결된 [원본 영상](https://www.youtube.com/watch?v=IqN2phpMWno) |
-| 사우나에서 온 고수 | 파란 사우나 가운 · 삿갓 · 해진 자주색 망토 · 작업장갑 손목띠 · **〔하드 정복자〕** | [메이플 유저의 가운·삿갓·낡은 망토 조합 회고](https://www.reddit.com/r/Maplestory/comments/gqwg83/) |
-| 전설은 녹슬지 않아 | 낡은 황동 갑옷 · 황동 하의 · 작은 서클릿 · 초록 등방패 · **〔마왕 슬레이어〕** | [Giantdad 제작 영상의 장비 목록](https://www.youtube.com/watch?v=EQD_QoZt-AY) |
-| 만렙의 종이 왕관 | 보라 종이 왕관 · 청록 튜닉과 바지 · 금테 숙련자 망토 · **〔온라인 강자〕** | [RuneScape 공식 Party Hat 소개](https://secure.runescape.com/m=news/golden-party-hat-hunt) |
+| 혼자서도 충분해 | 항아리 모자 · 낡은 수련 탱크톱 · 린넨 쇼츠 · 손목 붕대 · **레벨 30 달성** | [Let Me Solo Her 본인 소개](https://www.reddit.com/r/Eldenring/comments/u2g6gd/let_me_solo_her/) 및 글에 연결된 [원본 영상](https://www.youtube.com/watch?v=IqN2phpMWno) |
+| 사우나에서 온 고수 | 파란 사우나 가운 · 삿갓 · 해진 자주색 망토 · 작업장갑 손목띠 · **울트라 하드 모드 이상 승리** | [메이플 유저의 가운·삿갓·낡은 망토 조합 회고](https://www.reddit.com/r/Maplestory/comments/gqwg83/) |
+| 전설은 녹슬지 않아 | 낡은 황동 갑옷 · 황동 하의 · 작은 서클릿 · 초록 등방패 · **모든 보스전 승리** | [Giantdad 제작 영상의 장비 목록](https://www.youtube.com/watch?v=EQD_QoZt-AY) |
+| 만렙의 종이 왕관 | 보라 종이 왕관 · 청록 튜닉과 바지 · 금테 숙련자 망토 · **온라인 대전 10승** | [RuneScape 공식 Party Hat 소개](https://secure.runescape.com/m=news/golden-party-hat-hunt) |
 
 참고 자료의 실루엣과 배색을 바탕으로 새로 그린 Canvas 의상입니다. 항아리는 얼굴을 가리지 않도록 머리 위 모자로 바꿨고, Giantdad의 가면은 제외했어요. 튜닉·서클릿·망토 문양 등은 SPIN LAB용으로 재구성했습니다. 얼굴 장식은 다시 추가하지 않습니다. 영상은 검색 설명·장비 목록과 연결된 게시글을 참고했으며, 영상 전체를 시청한 것은 아닙니다.
 
@@ -582,6 +582,12 @@ node --test tests/*.test.cjs
 ## 패치 내역
 
 최신 순. 버전 옆 코드를 누르면 해당 변경 내용을 볼 수 있습니다.
+
+### v3.68 — 고인물 룩 해금 조건 조정 · 2026-10-20
+- 혼자서도 충분해: 레벨 30 달성
+- 사우나에서 온 고수: 울트라 하드 또는 울트라 익스트림 승리
+- 전설은 녹슬지 않아: 민희쌤·탁구 마왕·세종 9부 아줌마 보스전 모두 승리
+- 만렙의 종이 왕관: 온라인 1:1 대전 10승
 
 ### v3.67 — 로그인 랜딩 화면 · 2026-10-20
 - 사이트 첫 방문 시 게임 화면보다 Google 로그인 화면을 먼저 표시

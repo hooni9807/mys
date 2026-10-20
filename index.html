@@ -396,7 +396,7 @@ else if(!net.dbl)S[net.trio?'trio':'online']=net.trio?1:(S.online||0)+1;if(maxDe
 // back(look,ux,top,th,ground,s,at,isBack) behind the body · wing(k,s,at) in the wing frame of one side · aura(ux,cy,s,at) · pet(x,y,s,at,dir)
 const FIT_EXT={top:{},bot:{},head:{},arm:{},neck:{},back:{},wing:{},aura:{},pet:{}};
 // Community-inspired silhouettes, redrawn for these characters and unlocked through veteran milestones.
-const VET_REQ={solo:{lv:10},sauna:{t:'hard'},giant:{t:'boss'},party:{t:'online'}};
+const VET_REQ={solo:{lv:30},sauna:{tier:'uhard'},giant:{bosses:true},party:{online:10}};
 const VET_TOP=[
  ['vet_solo','낡은 수련 탱크톱',{shirt:'#eee2c7',sleeve:'#eee2c7',collar:'#b8a384',bareArms:true,pat:{k:'vet_solo'}},VET_REQ.solo],
  ['vet_sauna','파란 사우나 가운',{shirt:'#76b5d4',sleeve:'#76b5d4',collar:'#d9edf2',longSleeve:true,pat:{k:'vet_sauna'}},VET_REQ.sauna],
@@ -489,7 +489,7 @@ FIT_ACC.push(
 
 const FIT_SLOTS=['head','arm','body','wing','aura','pet'];
 FIT_TOPS.push(...VET_TOP);FIT_BOTS.push(...VET_BOT);FIT_ACC.push(...VET_HEAD,...VET_ARM,...VET_BODY);
-const fitOk=r=>!r||(!r.lv||progLevel()>=r.lv)&&(!r.t||!!TITLES.find(t=>t[0]===r.t)?.[3]()),fitReqText=r=>[r.lv?`Lv${r.lv}`:'',r.t?`〔${titleName(r.t)}〕`:''].filter(Boolean).join(' · ');
+const fitOk=r=>!r||(!r.lv||progLevel()>=r.lv)&&(!r.tier||!!tS()[r.tier])&&(!r.bosses||['minhee','maou','sejong'].every(k=>tS()[k]))&&(!r.online||(tS().online||0)>=r.online),fitReqText=r=>[r.lv?`Lv${r.lv}`:'',r.tier==='uhard'?'울트라 하드 이상 승리':'',r.bosses?'모든 보스전 승리':'',r.online?`온라인 대전 ${r.online}승`:''].filter(Boolean).join(' · ');
 const fitClean=(f,gate=false)=>{const o={top:'def',bot:'def'};if(f&&typeof f==='object'){const t=FIT_TOPS.find(t=>t[0]===f.top),b=FIT_BOTS.find(t=>t[0]===f.bot);if(t&&(!gate||fitOk(t[3])))o.top=f.top;if(b&&(!gate||fitOk(b[3])))o.bot=f.bot;for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]&&x[2]===k);if(a&&(!gate||fitOk(a[5])))o[k]=a[0];}}return o;};
 let fitAnim=0,myFit=fitClean((()=>{try{return JSON.parse(localStorage.getItem('fit'));}catch{return null;}})(),true),fitDraft=null,fitTab='top';
 function withFit(look,f){if(!f||!look)return look;f=fitClean(f);let L=look;const t=FIT_TOPS.find(x=>x[0]===f.top),b=FIT_BOTS.find(x=>x[0]===f.bot);
@@ -504,10 +504,10 @@ const FIT_COLLECTIONS=[
  {id:'varsity',name:'버건디 바시티',label:'CAMPUS LEAGUE',desc:'버건디 재킷과 크림 쇼츠. 레터 패치로 완성한 캠퍼스 팀 스타일.',colors:['#743c4b','#eee1c5','#c8a86a']}
 ].map(c=>({...c,fit:{top:'studio_'+c.id,bot:'studio_'+c.id,head:'studio_'+c.id}}));
 FIT_COLLECTIONS.push(
- {id:'vet_solo',group:'veteran',name:'혼자서도 충분해',label:'SOLO LEGEND',desc:'토기 모자와 낡은 수련복. 장비는 가볍게, 랠리는 끝까지.',colors:['#c17e50','#eee2c7','#806950'],req:VET_REQ.solo,fit:{top:'vet_solo',bot:'vet_solo',head:'vet_solo',arm:'vet_wraps'}},
- {id:'vet_sauna',group:'veteran',name:'사우나에서 온 고수',label:'OLD SCHOOL',desc:'파란 가운, 삿갓, 해진 망토. 오래 입은 장비에 담긴 수천 번의 랠리.',colors:['#76b5d4','#cfa665','#816378'],req:VET_REQ.sauna,fit:{top:'vet_sauna',bot:'vet_sauna',head:'vet_sauna',arm:'vet_workgloves',body:'vet_ragcape'}},
- {id:'vet_giant',group:'veteran',name:'전설은 녹슬지 않아',label:'BRASS LEGEND',desc:'흠집 난 황동 갑옷과 초록 방패. 묵직한 존재감으로 코트에 등장.',colors:['#b79556','#4a6655','#514636'],req:VET_REQ.giant,fit:{top:'vet_giant',bot:'vet_giant',head:'vet_giant',body:'vet_grassshield'}},
- {id:'vet_party',group:'veteran',name:'만렙의 종이 왕관',label:'PARTY VETERAN',desc:'접어 만든 보라 왕관과 금테 망토. 소박한 모자 하나로 완성하는 고수의 여유.',colors:['#b291d8','#254e50','#d9ba71'],req:VET_REQ.party,fit:{top:'vet_party',bot:'vet_party',head:'vet_party',body:'vet_mastercape'}}
+ {id:'vet_solo',group:'veteran',name:'혼자서도 충분해',label:'SOLO LEGEND',desc:'Lv 30의 노련함으로 입는 토기 모자와 낡은 수련복. 장비는 가볍게, 랠리는 끝까지.',colors:['#c17e50','#eee2c7','#806950'],req:VET_REQ.solo,fit:{top:'vet_solo',bot:'vet_solo',head:'vet_solo',arm:'vet_wraps'}},
+ {id:'vet_sauna',group:'veteran',name:'사우나에서 온 고수',label:'OLD SCHOOL',desc:'울트라 하드 이상을 정복한 선수의 파란 가운, 삿갓, 해진 망토.',colors:['#76b5d4','#cfa665','#816378'],req:VET_REQ.sauna,fit:{top:'vet_sauna',bot:'vet_sauna',head:'vet_sauna',arm:'vet_workgloves',body:'vet_ragcape'}},
+ {id:'vet_giant',group:'veteran',name:'전설은 녹슬지 않아',label:'BRASS LEGEND',desc:'모든 보스를 쓰러뜨린 증표. 흠집 난 황동 갑옷과 초록 방패의 묵직한 존재감.',colors:['#b79556','#4a6655','#514636'],req:VET_REQ.giant,fit:{top:'vet_giant',bot:'vet_giant',head:'vet_giant',body:'vet_grassshield'}},
+ {id:'vet_party',group:'veteran',name:'만렙의 종이 왕관',label:'PARTY VETERAN',desc:'온라인 10승으로 증명한 고수의 보라 왕관과 금테 망토.',colors:['#b291d8','#254e50','#d9ba71'],req:VET_REQ.party,fit:{top:'vet_party',bot:'vet_party',head:'vet_party',body:'vet_mastercape'}}
 );
 const FIT_LABELS={collection:'스튜디오 컬렉션',veteran:'고인물 아카이브',top:'상의',bot:'하의',head:'머리',arm:'손목',body:'목 · 몸',wing:'날개',aura:'이펙트',pet:'펫'};
 let fitBack=false;
