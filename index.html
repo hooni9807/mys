@@ -623,6 +623,8 @@ const ULTS=[
 ['typhoon','','태풍의 눈','TYPHOON EYE','any','loop',{pw:1.15,cv:1.2},'drill','120,220,255','태풍처럼 휘몰아치는 드라이브'],
 ['heaven','','천상의 일섬','HEAVEN SLASH','any','lightning',{pw:1.3,dm:0.05},'slash','255,245,200','하늘에서 내려온 한 줄기 빛 · 속도 ×1.3']
 ].map(([id,icon,name,en,trig,base,m,fx,rgb,desc])=>({id,icon,name,en,trig,base,m,fx,rgb,glow:`rgb(${rgb})`,desc,coach:`${name}! ${desc}`})).map((u,k)=>({...u,ci:['band','rays','vortex','shatter','frame','split'][k%6]}));
+/* 기 모으기 에너지 색: 발동 상황마다 다르게 (언제든은 무지개) */
+const TRIG_RGB={cut:'96,165,250',drive:'251,146,60',short:'74,222,128',lob:'250,204,21',serve:'34,211,238',smash:'244,63,94',any:null},RAINBOW=['248,113,113','251,146,60','250,204,21','74,222,128','96,165,250','192,132,252'];
 const ULT_BY=Object.fromEntries(ULTS.map(u=>[u.id,u]));
 const ultSlots=()=>1+(progLevel()>=10)+(progLevel()>=20);   // 슬롯: Lv1 1칸 · Lv10 2칸 · Lv20 3칸
 const ultSet=(ch=charType)=>((prog.q??={})._u??={})[ch]??[];
@@ -636,8 +638,8 @@ function fireUlt(u,x,y){ultFx.push({u,x,y,t:time});if(ultFx.length>3)ultFx.shift
 /* 필살 슛 연출(애니 스포츠 만화풍): 하얀 섬광 → 화면 어둡게 + 집중선 → 사선 컷인(내 캐릭터 얼굴 + 기술 이름) → 잠깐 슬로모션 · 화면 흔들림 */
 let ultCut=null,slowUntil=0;
 function drawUltCutin(f=ultCut,elapsed=null,preview=false){if(!f)return;let T=elapsed??(performance.now()/1000-f.t);if(T>(preview?1.35:1.8)){if(elapsed===null)ultCut=null;return;}const u=f.u,c=u.rgb;ctx.save();
-if(!preview){if(T<.45){const k=T/.45;for(let i=0;i<36;i++){const e={c:i%3?`rgb(${c})`:'#fff'},a=i/36*Math.PI*2+i*.7,R0=Math.max(W,H)*.45*(.6+(i*37%10)/25),R=R0*(1-k*k);ctx.globalAlpha=Math.min(1,k*3);ctx.strokeStyle=ctx.fillStyle=e.c;ctx.shadowColor=e.c;ctx.shadowBlur=12;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(f.x+Math.cos(a)*R,f.y+Math.sin(a)*R);ctx.lineTo(f.x+Math.cos(a)*(R+26),f.y+Math.sin(a)*(R+26));ctx.stroke();}
-const g0=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,30+k*30);g0.addColorStop(0,'#fff');g0.addColorStop(.4,`rgba(${c},.9)`);g0.addColorStop(1,`rgba(${c},0)`);ctx.globalAlpha=k;ctx.fillStyle=g0;ctx.beginPath();ctx.arc(f.x,f.y,30+k*30,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.restore();return;}}
+if(!preview){if(T<.45){const k=T/.45;for(let i=0;i<36;i++){const tc=TRIG_RGB[u.trig]||RAINBOW[i%6],e={c:i%4?`rgb(${tc})`:'#fff'},a=i/36*Math.PI*2+i*.7,R0=Math.max(W,H)*.45*(.6+(i*37%10)/25),R=R0*(1-k*k);ctx.globalAlpha=Math.min(1,k*3);ctx.strokeStyle=ctx.fillStyle=e.c;ctx.shadowColor=e.c;ctx.shadowBlur=12;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(f.x+Math.cos(a)*R,f.y+Math.sin(a)*R);ctx.lineTo(f.x+Math.cos(a)*(R+26),f.y+Math.sin(a)*(R+26));ctx.stroke();}
+const g0=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,30+k*30);g0.addColorStop(0,'#fff');g0.addColorStop(.4,`rgba(${TRIG_RGB[u.trig]||RAINBOW[(T*20|0)%6]},.9)`);g0.addColorStop(1,`rgba(${TRIG_RGB[u.trig]||c},0)`);ctx.globalAlpha=k;ctx.fillStyle=g0;ctx.beginPath();ctx.arc(f.x,f.y,30+k*30,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.restore();return;}}
 if(!preview)T-=.45;
 const dim=(T<.95?.5:.5*(1-(T-.95)/.4))*(preview?.55:1);ctx.fillStyle=`rgba(8,4,20,${dim})`;ctx.fillRect(0,0,W,H);const fade=T<.95?1:1-(T-.95)/.4;
 if(u.ci==='rays'){ctx.save();ctx.globalAlpha=.35*fade;ctx.translate(W/2,H/2);ctx.rotate(T*1.5);for(let i=0;i<16;i++){ctx.rotate(Math.PI/8);ctx.fillStyle=i%2?`rgb(${c})`:'#fff';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.hypot(W,H),-60);ctx.lineTo(Math.hypot(W,H),60);ctx.fill();}ctx.restore();}
