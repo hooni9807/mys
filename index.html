@@ -262,7 +262,7 @@ const spin=kind==='drive'?.7:kind==='cut'?-.8:0,side=kind==='side'?(Math.random(
 const tn=(y-1.37)/vy,clear=(.22-z+.5*g*tn*tn)/tn;   // never lower than what clears the net
 return {vx:(aimX-x)/f-.15*side*f,vy:-vy,vz:Math.max(clear,clamp((.5*g*f*f-z)/f,kind==='smash'?-1:.35,3.7)),spin,side,type:kind};}
 // 투클릭 balls (b.dual) float: lighter gravity so there is time for two touches
-function step(b,dt){b.vx+=b.side*dt*.3;b.vz-=(6+b.spin*EQUIP.spin*.55)*dt*(b.dual?.4:1);b.x+=b.vx*dt;b.y+=b.vy*dt;b.z+=b.vz*dt;}
+function step(b,dt){b.vx+=b.side*dt*.3;b.vz-=(6+b.spin*EQUIP.spin*.55)*dt*(b.dual?.75:1);b.x+=b.vx*dt;b.y+=b.vy*dt;b.z+=b.vz*dt;}
 // PvP rating: start 1000, win +10 / loss -10, each extra game in a streak adds 1 more (+11, +12 ... / -11, -12 ...).
 function nextRating(o,won){const streak=won?(o.streak>0?o.streak+1:1):(o.streak<0?o.streak-1:-1),delta=won?9+streak:-9+streak;
 return {rating:o.rating+delta,wins:o.wins+(won?1:0),losses:o.losses+(won?0:1),streak,delta};}
@@ -1914,7 +1914,7 @@ function pace(){return (ball&&ball.owner==='ai'?1-R_('defSlow'):net&&ball?1-oppR
 function update(dt){if(ball&&!ball.held)dt*=P.EQUIP.speed*pace();time+=dt;statusToast();if(!ball){wait-=dt;if(wait<=0)startServe();return;}if(mode==='trio'){trioUpdate(dt);return;}if(net&&net.dbl&&lastHit!==net.d.lastHit){net.d.lastHit=lastHit;if(!ball||!ball.held)net.d.turn.A^=1;}
 if(ball.held&&(ball.owner!=='you'||net&&net.dbl&&net.d.server!==1))return;
 if(ball.held){if(!ball.tossed)ballToHand();else{ball.vz-=6*dt;ball.z+=ball.vz*dt;if(ball.vz<0&&ball.z<ball.tossZ){ball.tossed=false;toast('놓쳤어요 · 다시 토스하세요',1.5);}}hit();return;}mateCheck();if(ball&&ball.owner==='you'&&!ball.held&&ball.quadNext==null&&!net&&mode!=='doubles')ball.quadNext=Math.random()<dualRate()*quadRate();hit();if(!ball)return;const prevY=ball.y,prevZ=ball.z;if(dualHold()&&ball.dualX!=null)ball.x+=(ball.dualX-ball.x)*Math.min(1,dt*9);   // after ① the ball glides over to ②
-P.step(ball,dualHold()?dt*.6:dt);if((prevY-1.37)*(ball.y-1.37)<0){const z=prevZ+(ball.z-prevZ)*(1.37-prevY)/(ball.y-prevY);if(z<.1525){point(ball.owner==='ai','네트에 걸렸어요');return;}}
+P.step(ball,dualHold()?dt*.5:dt);if((prevY-1.37)*(ball.y-1.37)<0){const z=prevZ+(ball.z-prevZ)*(1.37-prevY)/(ball.y-prevY);if(z<.1525){point(ball.owner==='ai','네트에 걸렸어요');return;}}
 if(ball.serving&&ball.z<=0&&ball.vz<0){ball.x=P.clamp(ball.x,-.7,.7);ball.y=ball.owner==='you'?P.clamp(ball.y,.1,1.25):P.clamp(ball.y,1.49,2.64);   // no serve faults: it always lands in
 ball.serving=false;ball.z=0;ball.vz=-ball.vz*.8;ball.vy*=1.03;beep(270);}
 else if(ball.z<=0&&ball.vz<0&&!(ball.bounces===1&&(ball.y<0||ball.y>2.74))){if(Math.abs(ball.x)>.76||ball.y<0||ball.y>2.74){point(ball.owner==='ai','테이블 밖으로 나갔어요');return;}const valid=ball.owner==='ai'?ball.y<1.37:ball.y>1.37;if(!valid){point(ball.owner==='ai','자기 코트에 떨어졌어요');return;}ball.bounces++;if(ball.bounces>1){point(ball.owner==='you','두 번 바운드');return;}ball.z=0;ball.vz=-ball.vz*(ball.spin<0?.68:.8);ball.vy*=ball.spin<0?.78:1.03;ball.side=(ball.side||0)*.1;{const g=6+(ball.spin||0)*.55,clear=g*((ball.owner==='ai'?ball.y+.3:3.04-ball.y)/Math.max(Math.abs(ball.vy),.5))/2;ball.vz=Math.min(ball.vz,Math.max(Math.sqrt(2*g*(ball.chance?BOUNCE_CHANCE:BOUNCE_MAX)),clear));
@@ -1928,7 +1928,7 @@ if((bossMin()||infd()||Math.abs(ball.x)<.87&&ball.z<(ball.chance?1.5:.8+.6*deep)
 const myType=ball.type,myShort=!!ball.shortCut;
 // spk: 하드 / 익스트림 AI fires a 필살기 once its gauge is full · dualNow: 투클릭 공 (two touch points, so it comes in slower), chosen up front so its share matches the table
 const preN=!dualNow?0:quadNow?2:Math.random()<triRate()?1:0;   // 포터치 is decided while my ball flies over, so its ① ring can close on the AI's hit
-Object.assign(ball,P.aiReturn(spk?spk[1]:kind,ball.x,ball.y,sjF?Math.max(ball.z,.26):ball.z,(dualNow?(preN===2?1.5:1.9):speed)*(spk?spk[2]:1),(Math.random()-.5)*(infd()?.4:pracLike()?.5:L.aim)),{bounces:0,owner:'ai',chance:kind==='block',kill:wasChance&&kind==='smash'&&ball.z>=.25,power:false,shadow:false,hellfire:false,lob:false,shortCut:false,defMiss:0,skill:null,dual:dualNow,pre:preN,preHit:earlyPre,pcv:false,easy:false,quadNext:null,earlyPre:0,dualHit:false,aiSpecial:!!spk});
+Object.assign(ball,P.aiReturn(spk?spk[1]:kind,ball.x,ball.y,sjF?Math.max(ball.z,.26):ball.z,(dualNow?(preN===2?1.5:2.4):speed)*(spk?spk[2]:1),(Math.random()-.5)*(infd()?.4:pracLike()?.5:L.aim)),{bounces:0,owner:'ai',chance:kind==='block',kill:wasChance&&kind==='smash'&&ball.z>=.25,power:false,shadow:false,hellfire:false,lob:false,shortCut:false,defMiss:0,skill:null,dual:dualNow,pre:preN,preHit:earlyPre,pcv:false,easy:false,quadNext:null,earlyPre:0,dualHit:false,aiSpecial:!!spk});
 if(infd()||dualNow)fitReturn(ball);
 if(!dualNow&&!infd()&&!LOOKS[aiChar].lobber){const top=b=>{const g=6+b.spin*P.EQUIP.spin*.55;return b.vz>0?b.z+b.vz*b.vz/(2*g):b.z;};for(let i=0;i<5&&top(ball)>(ball.chance?.72:.52);i++){const q=P.power(ball,ball.y,ball.z,1.1);if(q===ball)break;Object.assign(ball,q,{power:false});}}   // AI returns stay low: a faster ball on the same landing spot has a flatter arc
 if(myShort&&kind==='drive'&&!spk&&Math.random()<SHORT_CUT_DRIVE_MISS+R_('utShort')){ball.vz+=2.2;ball.skill='상대가 짧은 커트를 드라이브하다 실수! ✂️ (30%)';}
