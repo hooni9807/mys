@@ -7,7 +7,8 @@
 ## Firebase 컬렉션 (Firestore)
 | 컬렉션 | 내용 |
 |---|---|
-| `rally_ai` · `rally_rank` · `rally_inf` · `rally_boss` · `rally_doubles` · `rally_trio` | 모드별 최고 랠리 기록 (v4.04부터) |
+| `rally_ai_e` · `rally_ai_h` · `rally_ai_ex` · `rally_ai_u` · `rally_ai_uh` · `rally_ai_uex` | AI 대전 최고 랠리 · 난이도별 (이지 · 하드 · 익스트림 · 울트라 · 울트라 하드 · 울트라 익스트림) |
+| `rally_rank` · `rally_inf` · `rally_boss` · `rally_doubles` · `rally_trio` | 랭크전 · 무한 드라이브 · 보스전 · 복식 · 3인 대전 최고 랠리 |
 | `rally` | v4.04 이전의 최고 랠리 기록 (모든 모드가 섞여 있음, 그대로 읽어요) |
 | `wins` | AI전 승리 점수 · `boss` 보스 클리어 · `players` PvP 레이팅 · `arank` 랭크전 |
 | `levels` | 레벨 랭킹 · `progress` 진행도(본인만) · `settings` 설정(본인만) |
