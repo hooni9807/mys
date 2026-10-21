@@ -2710,13 +2710,14 @@ function needNick(){if(!loginGate())return false;const n=cleanName(store.get('ni
 // so that rating follows the Google account to any device. The session is remembered by the browser. Only the uid and the
 // nickname are stored in the ranking - never the e-mail.
 let authLib=null,authObj=null,authReadyPromise=null,googleLoginBusy=false,googleLoginReady=false;
-function syncGoogleLoginButtons(){for(const id of ['google-login','auth-google-login']){const b=$(id);b.disabled=!googleLoginReady||googleLoginBusy||!!googleUser;b.hidden=!!googleUser||!FIREBASE_CONFIG||id==='google-login';}const en=$('auth-enter');if(en)en.hidden=!(googleUser||!FIREBASE_CONFIG||TEST_HOST);}   /* sign-in happens in the prologue only */
+function syncGoogleLoginButtons(){for(const id of ['google-login','auth-google-login']){const b=$(id);b.disabled=googleLoginBusy||!!googleUser;   /* clickable from the first second of the prologue; googleLogin waits for auth itself */
+b.hidden=!!googleUser||!FIREBASE_CONFIG||id==='google-login';}const en=$('auth-enter');if(en)en.hidden=!(googleUser||!FIREBASE_CONFIG||TEST_HOST);}   /* sign-in happens in the prologue only */
 async function authReady(){if(authObj){await authObj.authStateReady();googleLoginReady=true;return authObj;}return authReadyPromise??=(async()=>{const db=await remote();if(!db)return null;authLib=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');authObj=authLib.getAuth(rankApp);await authObj.authStateReady();googleLoginReady=true;return authObj;})().catch(e=>{authReadyPromise=null;throw e;});}
 async function pvpRemote(){const db=await remote();if(!db)return null;const au=await authReady();if(!au.currentUser||au.currentUser.isAnonymous)return null;rankUid=au.currentUser.uid;return db;}   // Google accounts only - no guest accounts are created
 const IN_APP=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER|Line\/|DaumApps|everytimeApp/i.test(navigator.userAgent);   // Google blocks sign-in inside app web views
 async function googleLogin(){
 if(IN_APP){if(/KAKAOTALK/i.test(navigator.userAgent)){location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(location.href);return;}loginStatus('구글 로그인은 앱 안 브라우저에서 막혀 있어요. 오른쪽 위 ⋮ → 다른 브라우저로 열기 (크롬 · 사파리)');return;}
-if(googleLoginBusy||!googleLoginReady)return;googleLoginBusy=true;syncGoogleLoginButtons();loginStatus('로그인 중…');try{const au=authObj||await authReady();if(!au){loginStatus('로그인을 사용할 수 없어요');return;}const prov=new authLib.GoogleAuthProvider();
+if(googleLoginBusy)return;googleLoginBusy=true;syncGoogleLoginButtons();loginStatus(googleLoginReady?'로그인 중…':'로그인 준비 중… 잠시만요');try{const au=authObj||await authReady();if(!au){loginStatus('로그인을 사용할 수 없어요');return;}const prov=new authLib.GoogleAuthProvider();
 if(au.currentUser&&au.currentUser.isAnonymous){try{await authLib.linkWithPopup(au.currentUser,prov);}   // keep this device's rating
 catch(e){if(e.code==='auth/credential-already-in-use'||e.code==='auth/email-already-in-use')await authLib.signInWithCredential(au,authLib.GoogleAuthProvider.credentialFromError(e));else throw e;}}
 else await authLib.signInWithPopup(au,prov);
