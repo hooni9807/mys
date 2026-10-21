@@ -1307,9 +1307,9 @@ function faceBounds(im){
 }
 function photoFrame(look,key,s,hx,hd){
  const im=(key&&look.faces&&FACES[look.faces[key]])||faceImg(look);if(!(im&&im.complete&&im.naturalWidth))return null;
- const fit=(key&&look.faceFits&&look.faceFits[key])||look.faceFit,hh=(fit?.h||58)*s*.85,hw=hh*im.naturalWidth/im.naturalHeight;
- // Leave the collar visible; the photo's chin/neck meets the drawn neck instead of covering the shirt.
- return {im,x:hx-hw*(fit?.cx??.5),y:hd+Math.min(fit?.b??20,13)*s-hh,w:hw,h:hh};
+ const fit=(key&&look.faceFits&&look.faceFits[key])||look.faceFit,hh=(fit?fit.h:58)*s,hw=hh*im.naturalWidth/im.naturalHeight;
+ // Preserve the original per-character photo size, chin anchor and neck alignment.
+ return {im,x:hx-hw*(fit?.cx??.5),y:fit?hd+fit.b*s-hh:hd-9*s-hh/2,w:hw,h:hh};
 }
 function headPhoto(look,st,key,s,hx,hd){const draw=(k,al)=>{const f=photoFrame(look,k,s,hx,hd);if(!f)return;ctx.save();ctx.globalAlpha*=al;ctx.drawImage(f.im,f.x,f.y,f.w,f.h);ctx.restore();};
 if(st.fk===undefined){st.fk=key;st.ft=time-.12;}if(st.fk!==key){st.fp=st.fk;st.fk=key;st.ft=time;}draw(key,1);}
