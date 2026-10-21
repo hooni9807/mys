@@ -140,7 +140,7 @@ html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-a
 @media(max-width:440px){.ceremony-media{flex-wrap:wrap}.ceremony-media-copy{flex:1 1 100%;max-width:none;text-align:center}.arena:fullscreen>.ceremony-media{height:auto}}
 </style>
 <style>
-html.prologue-pending{background:#0c1917}
+html.prologue-pending{background:#0b0b15}
 html.prologue-pending body{visibility:hidden}
 html.prologue-pending::before{content:'SPP';position:fixed;inset:0;display:grid;place-items:center;color:#f3efe3;font:900 36px Arial,sans-serif;letter-spacing:-2px}
 html.prologue-pending #auth-gate[open]{visibility:visible}
@@ -168,96 +168,36 @@ html.prologue-pending #auth-gate[open]{visibility:visible}
   }
 })();
 </script>
-<link rel="stylesheet" href="prologue.css?v=3" onerror="window.mysPrologueBoot?.fail()"></head>
+<link rel="stylesheet" href="prologue.css?v=4" onerror="window.mysPrologueBoot?.fail()"></head>
 <body>
 <dialog id="auth-gate" aria-labelledby="auth-title" data-scene="serve">
   <div class="pl-shell">
     <div class="pl-top">
-      <div class="pl-brand"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 16h28a14 14 0 0 1-28 0" fill="currentColor"/></svg>SPP</div>
-      <span class="pl-edition">A SMALL COURT. AN ENDLESS GAME.</span>
+      <div class="pl-brand"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 16h28a14 14 0 0 1-28 0" fill="currentColor"/></svg>SPP <small>Snap Ping Pong</small></div>
+      <span class="pl-edition">YOUR NEXT RALLY STARTS HERE.</span>
     </div>
     <div class="pl-hero">
       <section class="pl-copy" aria-label="프롤로그">
-        <p class="pl-kicker"><i aria-hidden="true"></i>PROLOGUE / THE FIRST RALLY</p>
-        <h1 id="auth-title" class="pl-heading" aria-label="Snap Ping Pong. 탁구의 순간을 즐기세요."><span><b>SNAP</b></span><span><b>PING</b></span><span><b class="pl-outline">PONG<em>.</em></b></span></h1>
-        <div class="pl-story"><strong id="prologue-story-title">두 사람. 하나의 공. 첫 번째 서브.</strong><p id="prologue-story-copy">공을 띄우고, 호흡을 맞추고. 우리의 랠리가 시작됩니다.</p></div>
+        <p class="pl-kicker"><i aria-hidden="true"></i>SPP / SNAP PING PONG</p>
+        <h1 id="auth-title" class="pl-heading" aria-label="SPP Snap Ping Pong"><span><b>SPP<em>.</em></b></span></h1>
+        <p class="pl-wordmark">Snap Ping Pong</p>
+        <div class="pl-story"><strong id="prologue-story-title">탁구의 순간을, 내 손끝으로.</strong><p id="prologue-story-copy">카사노바 윤 vs 빽종령. SPP의 코트에서 첫 번째 랠리가 시작됩니다.</p></div>
         <div class="pl-actions">
           <button id="auth-google-login" class="pl-google" type="button" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.5 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Google로 나의 랠리 시작</button>
           <button id="auth-enter" class="pl-enter" type="button" data-prologue-close hidden>▶ 메인으로 시작하기 <span aria-hidden="true">→</span></button>
           <span id="auth-status" role="status" aria-live="polite">로그인 상태 확인 중…</span>
         </div>
       </section>
-      <div class="pl-art" aria-hidden="true">
-        <div class="pl-orbit"></div>
-        <div class="pl-art-label">SERVE. SPIN. REPEAT.<b id="prologue-scene-number">01 / 03</b></div>
-        <svg class="pl-court" viewBox="0 0 900 600" fill="none">
-          <defs>
-            <linearGradient id="pl-table-top" x1="230" y1="354" x2="650" y2="390" gradientUnits="userSpaceOnUse"><stop stop-color="#36785d"/><stop offset="1" stop-color="#214d41"/></linearGradient>
-            <radialGradient id="pl-ball-light" cx=".3" cy=".25" r=".8"><stop stop-color="#fffdf5"/><stop offset="1" stop-color="#dfdaca"/></radialGradient>
-            <pattern id="pl-net" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 0h8v8" stroke="#d7e5ce" stroke-width=".7" opacity=".5"/></pattern>
-            <g id="pl-athlete-body">
-              <path d="m-11-10-7 35 28 9 9-31 6 31 28-9-17-42" fill="var(--shorts)"/>
-              <path d="M-13-109Q7-128 29-111L43-17Q12-5-20-17Z" fill="var(--jersey)"/>
-              <path d="M-11-109 1-57-16-21M28-103 34-32" stroke="var(--stripe)" stroke-width="7"/>
-              <path d="m3-116 3-25 21 2-2 30q-11 8-22-7" fill="var(--skin)"/>
-              <path d="M-1-163Q-4-191 22-192 47-191 43-167l7 15-9 3q-1 20-18 21-22-5-24-35" fill="var(--skin)"/>
-              <path d="M0-147q-18-7-15-30 3-25 30-27 18-1 31 18l-6 16-15-11-18 3-3 27z" fill="#1a252b"/>
-              <path d="m-11-179 49-6" stroke="var(--stripe)" stroke-width="6"/>
-              <ellipse cx="9" cy="-153" rx="6" ry="8" fill="var(--skin)"/>
-              <path d="m32-163 5 1m-7 18 8 1" stroke="#29312c" stroke-width="2.8" stroke-linecap="round"/>
-              <path d="m-7-110 13 11 17-11" stroke="#edf4df" stroke-width="3"/>
-              <path d="m4-67 6-15 7 10 6-12 7 15" stroke="var(--stripe)" stroke-width="3" stroke-linejoin="round"/>
-            </g>
-            <g id="pl-racket">
-              <path d="m-12 15-13 20" stroke="#dcb98a" stroke-width="9" stroke-linecap="round"/>
-              <ellipse rx="18" ry="23" transform="rotate(32)" fill="var(--rubber)" stroke="#f0d8b1" stroke-width="3"/>
-              <path d="m-8-12 8-4" stroke="#fff" opacity=".35" stroke-width="2" stroke-linecap="round"/>
-            </g>
-          </defs>
-          <path d="M38 526h824M82 563h736M238 488 182 581M663 488l55 93" stroke="#a7c9ac" stroke-opacity=".12"/>
-          <ellipse cx="450" cy="518" rx="306" ry="28" fill="#05110e" opacity=".5"/>
-          <path d="M82 170h100M718 170h100M450 98v38" stroke="#a7c9ac" stroke-opacity=".2"/>
-          <text x="450" y="173" text-anchor="middle" fill="#b4d5bc" opacity=".08" font-family="Arial" font-style="italic" font-weight="900" font-size="116" letter-spacing="-8">SPP</text>
-          <g class="pl-player pl-player-left" transform="translate(143 389)">
-            <ellipse cx="0" cy="137" rx="83" ry="10" fill="#04110c" opacity=".5"/>
-            <path data-leg="back" d="M-7 20-35 75-54 124" class="pl-leg pl-limb-back"/>
-            <path data-leg="front" d="M25 20 51 70 55 124" class="pl-leg"/>
-            <path data-shoe="back" d="m-59 127 25 1" class="pl-shoe"/>
-            <path data-shoe="front" d="m50 127 27 1" class="pl-shoe"/>
-            <g data-body><path data-arm="back" d="M-4-99-30-64 8-45" class="pl-arm pl-limb-back"/><use href="#pl-athlete-body"/></g>
-            <path data-arm="front" d="M24-99 41-57 56-52" class="pl-arm"/>
-            <g data-paddle transform="translate(81 -78)"><use href="#pl-racket"/></g>
-            <circle data-hand cx="56" cy="-43" r="8" fill="var(--skin)"/>
-          </g>
-          <g class="pl-player pl-player-right" transform="translate(757 389) scale(-1 1)">
-            <ellipse cx="0" cy="137" rx="83" ry="10" fill="#04110c" opacity=".5"/>
-            <path data-leg="back" d="M-7 20-35 75-54 124" class="pl-leg pl-limb-back"/>
-            <path data-leg="front" d="M25 20 51 70 55 124" class="pl-leg"/>
-            <path data-shoe="back" d="m-59 127 25 1" class="pl-shoe"/>
-            <path data-shoe="front" d="m50 127 27 1" class="pl-shoe"/>
-            <g data-body><path d="M-9-181q-34-2-27 28l-20 27q47-4 36-35" fill="#1a252b"/><path data-arm="back" d="M-4-99-30-64 8-45" class="pl-arm pl-limb-back"/><use href="#pl-athlete-body"/></g>
-            <path data-arm="front" d="M24-99 41-57 56-52" class="pl-arm"/>
-            <g data-paddle transform="translate(81 -78)"><use href="#pl-racket"/></g>
-            <circle data-hand cx="56" cy="-43" r="8" fill="var(--skin)"/>
-          </g>
-          <g class="pl-table">
-            <path d="m292 400-22 112m340-112 26 112M330 401l-13 111m254-112 12 112M274 481h359" stroke="#436551" stroke-width="10"/>
-            <path d="m230 356 402 0 55 32H285Z" fill="url(#pl-table-top)" stroke="#e1ead4" stroke-width="3"/>
-            <path d="M285 388h402v16H285l-55-32v-16" fill="#14352b" stroke="#8ba58b" stroke-width="1.5"/>
-            <path class="pl-line" d="m238 358 395 0 44 27H287ZM263 371h394" stroke="#dbe7ce" stroke-width="1.5"/>
-            <path d="m445 355 39 32v-45l-39-32z" fill="#0a211b"/>
-            <path d="m445 355 39 32v-45l-39-32z" fill="url(#pl-net)"/>
-            <path d="M444 359v-51l41 32v51" stroke="#e5ebd7" stroke-width="3"/>
-            <text x="486" y="401" fill="#bed1b9" font-family="Arial" font-weight="700" font-size="9" letter-spacing="4">SNAP PING PONG</text>
-          </g>
-          <ellipse id="pl-ball-shadow" cx="370" cy="370" rx="11" ry="3" fill="#02150c" opacity=".35"/>
-          <path id="pl-ball-trail" d="M310 285 370 265" stroke="#ffd7a2" stroke-width="4" stroke-linecap="round" opacity=".4"/>
-          <g id="pl-rally-ball" transform="translate(370 265)"><circle r="7" fill="url(#pl-ball-light)"/><path d="M-3-4q7 0 7 6" stroke="#fff" stroke-width="1.5"/></g>
-          <g id="pl-impact" transform="translate(224 311)" stroke="#ffb47a" stroke-width="2" opacity="0"><circle r="19"/><path d="M-29 0h-9M29 0h9M0-29v-9M0 29v9"/></g>
-          <g font-family="monospace" font-size="10" letter-spacing="2"><text x="140" y="566" text-anchor="middle" fill="#ff9367">01 / YOUR SPIN</text><text x="760" y="566" text-anchor="middle" fill="#b6dfc6">02 / YOUR RIVAL</text></g>
-        </svg>
-        <span class="pl-coordinate">40 MM / INFINITE POSSIBILITIES</span>
-      </div>
+      <section class="pl-art" aria-label="카사노바 윤과 빽종령의 게임 플레이 미리보기">
+        <div class="pl-preview-top"><span><i></i> PLAY PREVIEW</span><b>SPP / EXHIBITION MATCH</b></div>
+        <div class="pl-match">
+          <div class="pl-match-hud"><span>카사노바 윤 <b>08</b></span><i>VS</i><span><b>08</b> 빽종령</span></div>
+          <canvas id="prologue-court" width="960" height="640" aria-label="실제 게임 캐릭터와 코디로 재생하는 탁구 랠리 데모"></canvas>
+          <div id="prologue-loading">코트에 입장하는 중<span>SPP · Snap Ping Pong</span></div>
+          <div class="pl-match-caption"><span id="prologue-shot">SERVICE</span><b>RALLY <span id="prologue-rally">00</span></b></div>
+        </div>
+        <div class="pl-match-bottom"><span>실제 캐릭터 · 실제 코디 · 끝없는 랠리</span><b id="prologue-scene-number">01 / 03</b></div>
+      </section>
     </div>
     <div class="pl-bottom">
       <nav class="pl-chapters" aria-label="프롤로그 장면 선택">
@@ -268,7 +208,7 @@ html.prologue-pending #auth-gate[open]{visibility:visible}
       <div class="pl-controls"><button id="prologue-motion" class="pl-control" type="button" aria-pressed="false">Ⅱ 움직임 멈추기</button><button id="prologue-replay" class="pl-control" type="button">↻ 다시 보기</button></div>
     </div>
     <div class="pl-progress" aria-hidden="true"><i></i></div>
-    <div class="pl-footer-note"><span>INTERACTIVE TABLE TENNIS / SPP</span><span>DRAG. SWING. MAKE YOUR OWN STORY.</span></div>
+    <div class="pl-footer-note"><span>SPP — SNAP PING PONG</span><span>SNAP. PING. PONG.</span></div>
   </div>
 </dialog>
 <header><a class="brand" href="./"><span class="brandmark">◒</span> SPP<span class="edition">SNAP PING PONG</span></a><div class="header-right"><span class="input-label"><span class="status-dot"></span> 마우스 · 터치 플레이</span> <button id="sound" aria-pressed="false">사운드 OFF</button></div></header>
@@ -1891,7 +1831,7 @@ const t=time%1.6;ctx.fillStyle='#bfe9ff';ctx.globalAlpha=1-t/1.6;for(const k of[
 }
 const u=time%2.4;if(u<1.6){ctx.globalAlpha=Math.sin(u/1.6*Math.PI);ctx.font=`900 ${Math.round(11*s)}px Arial`;ctx.fillStyle='#111';ctx.strokeStyle='#fff';ctx.lineWidth=2.5*s;ctx.textAlign='center';const k=(time/2.4|0)%2?1:-1,tx=hx+k*30*s,ty=hd-18*s-u*6*s;ctx.save();ctx.translate(tx,ty);ctx.rotate(k*.25);ctx.strokeText('두근…',0,0);ctx.fillText('두근…',0,0);ctx.restore();}
 ctx.restore();}
-function person(st,hipY,target,angle,look,s,type,face,side,stroke,since,prep=null){
+function person(st,hipY,target,angle,look,s,type,face,side,stroke,since,prep=null,measureOnly=false){
 if(look.glass)return drawCannon(st,hipY,target,s,side,since);
 const arm=look.lefty?(hipY>H*.5?-1:1):side,T=st.tall||1,R=RACKETS[type],skin=look.skin||'#f2cda8',pants=look.pants,x=st.x,moving=P.clamp(Math.abs(st.vx)/160,0,1),dir=Math.sign(st.vx)||1;
 const pose=strokePose(stroke,since,side,s,{x:x+arm*15*s,y:hipY-50*s*T+st.crouch*18*s},target,angle,st.crouch,look,st.amp??1,st.dirX||0,prep,T);
@@ -1911,6 +1851,7 @@ const lean=P.clamp((pose.target.x-cx-side*40*s)/(70*s),-1,1);st.lean=lerp(st.lea
 const shoulder={x:ux+arm*15*s,y:hy-50*s*T},ang=pose.angle,racketScale=s*.78,d=(R.h+R.hl*.55)*racketScale,L=ARM_LEN*s*T;
 const want={x:pose.target.x-Math.sin(ang)*d,y:pose.target.y+Math.cos(ang)*d},adx=want.x-shoulder.x,ady=want.y-shoulder.y,alen=Math.hypot(adx,ady)||1,reach=Math.min(alen,L);
 const hand={x:shoulder.x+adx/alen*reach,y:shoulder.y+ady/alen*reach},tgt={x:hand.x+Math.sin(ang)*d,y:hand.y-Math.cos(ang)*d};
+if(measureOnly)return tgt; // Preview trajectories meet the same clamped racket position as gameplay.
 const bend=Math.sqrt(Math.max(0,(L/2)**2-(reach/2)**2)),px=-ady/alen,py=adx/alen,flip=py<0?-1:1;   // elbow bends downward
 const elbow={x:(shoulder.x+hand.x)/2+px*bend*flip,y:(shoulder.y+hand.y)/2+py*bend*flip};
 const swingSleeve=()=>{line(shoulder,elbow,look.longSleeve?look.sleeve:skin,7*s);line(elbow,hand,look.armSleeve||(look.longSleeve?look.sleeve:skin),7*s);if(!look.bareArms)fitSleeve(shoulder,{x:lerp(shoulder.x,elbow.x,look.longSleeve?1:.48),y:lerp(shoulder.y,elbow.y,look.longSleeve?1:.48)},look.sleeve,s);if(look.longSleeve)fitSleeve(elbow,hand,look.sleeve,s,7.8);ctx.beginPath();ctx.arc(hand.x,hand.y,3.6*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();};
@@ -3051,5 +2992,6 @@ for(const ev of ['gesturestart','gesturechange','gestureend'])document.addEventL
 // While a rally is live nothing on the page may scroll, wherever the finger lands.
 document.addEventListener('touchmove',e=>{if(e.touches.length>1||e.target===canvas||(playing&&!paused))e.preventDefault();},{passive:false});
 let lastTouchEnd=0;document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouchEnd<350&&e.target===canvas)e.preventDefault();lastTouchEnd=now;},{passive:false});   // double tap on the court = smash, never zoom
-function frame(t){tickVictoryCeremony();if(net&&net.dbl)dblView();if(net?.role==='guest'&&performance.now()-net.clockPingAt>5000)pingNetClock();const elapsed=Math.min((t-last)/1000||0,.1)*(performance.now()<slowUntil?.3:1);last=t;for(let left=elapsed;left>1e-6&&playing&&!paused;left-=1/60)(net&&net.role==='guest'?guestUpdate:update)(Math.min(left,1/60));if(net&&net.conn.open&&t-net.sent>33){net.sent=t;net.conn.send(net.role==='host'?snapshot():{t:'P',...me4net()});}if(samples.length&&t-samples.at(-1).t>120){paddle.vx=paddle.vy=0;}$('speed').innerHTML=Math.round(Math.hypot(paddle.vx,paddle.vy))+' <small>px/s</small>';$('meter').style.width=Math.min(100,Math.hypot(paddle.vx,paddle.vy)/18)+'%';render();requestAnimationFrame(frame);}requestAnimationFrame(frame);
-</script><script src="prologue.js?v=3" onerror="window.mysPrologueBoot?.fail()"></script><script src="ceremony-media.js?v=synth2"></script></body></html>
+function frame(t){tickVictoryCeremony();if(net&&net.dbl)dblView();if(net?.role==='guest'&&performance.now()-net.clockPingAt>5000)pingNetClock();const elapsed=Math.min((t-last)/1000||0,.1)*(performance.now()<slowUntil?.3:1);last=t;for(let left=elapsed;left>1e-6&&playing&&!paused;left-=1/60)(net&&net.role==='guest'?guestUpdate:update)(Math.min(left,1/60));if(net&&net.conn.open&&t-net.sent>33){net.sent=t;net.conn.send(net.role==='host'?snapshot():{t:'P',...me4net()});}if(samples.length&&t-samples.at(-1).t>120){paddle.vx=paddle.vy=0;}$('speed').innerHTML=Math.round(Math.hypot(paddle.vx,paddle.vy))+' <small>px/s</small>';$('meter').style.width=Math.min(100,Math.hypot(paddle.vx,paddle.vy)/18)+'%';if(!$('auth-gate').open)render();requestAnimationFrame(frame);}requestAnimationFrame(frame);
+</script><script src="prologue-match.js?v=1"></script><script src="prologue.js?v=4" onerror="window.mysPrologueBoot?.fail()"></script><script src="ceremony-media.js?v=synth2"></script></body></html>
+
