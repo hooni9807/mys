@@ -134,7 +134,7 @@
       window.mysPrologueBoot?.fail();
     }
   }
-  opener.addEventListener('click', openPrologue);
+  opener?.addEventListener('click', openPrologue);
   dialog.querySelectorAll('[data-prologue-close]').forEach(button => {
     button.addEventListener('click', () => dialog.close());
   });
@@ -144,7 +144,7 @@
     dialog.classList.remove('pl-running');
     document.body.classList.remove('prologue-open');
     try { localStorage.setItem('spin-prologue-seen', '1'); } catch {}
-    opener.focus({ preventScroll: true });
+    opener?.focus({ preventScroll: true });
   });
   document.getElementById('prologue-replay').addEventListener('click', replay);
   motion.addEventListener('click', () => { paused = !paused; syncMotion(); });
