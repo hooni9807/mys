@@ -47,3 +47,9 @@
 치마와 가운은 허벅지·무릎·종아리의 현재 위치에 천 두께 여유를 더한 윤곽으로 그립니다. 천 안쪽은 불투명하게 가리고, 다리를 벌리거나 앉으면 옷의 폭과 주름이 함께 변합니다. 허리 연결 면을 추가해 상의와 하의를 다르게 조합해도 사이가 벌어지지 않도록 했습니다. 경기 중 자세와 승리 동작에 같은 처리를 적용합니다.
 
 참고: [Blender Collision 문서](https://docs.blender.org/manual/en/5.0/physics/collision.html)의 몸과 천 사이 충돌 간격 원칙. 이 게임은 2D Canvas에서 관절 윤곽에 맞춘 보정을 사용하며, 3D 천 물리 시뮬레이션은 아닙니다.
+
+## 의상 재질과 형태
+
+전체 상의에 어깨·허리선, 겨드랑이 주름, 옆 봉제선과 밑단 스티치를 적용했습니다. 니트와 직물은 작은 반복 원단 결을 사용하고 금속 갑옷은 직물 결 없이 반사광을 사용합니다. 소매와 바지는 관절 방향에 맞춘 입체 음영과 끝단으로 표현하며, 경기·피팅룸·승리 동작에서 같은 그리기 함수를 사용합니다.
+
+자료: [CLIP STUDIO 공식 의상 주름 가이드](https://tips.clip-studio.com/en-us/articles/1676), [Adobe 원단 표현](https://blog.adobe.com/en/publish/2018/01/05/3d-materials-fabric), [유튜브 의상 주름 강의 검색 자료](https://www.classcentral.com/course/youtube-how-to-draw-clothing-wrinkles-folds-17-easy-tips-151022). 영상은 검색 설명만 참고했으며 직접 재생 분석하지 않았습니다. 외부 의상 이미지는 복사하지 않고 Canvas 표현을 수정했습니다.
