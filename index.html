@@ -173,6 +173,8 @@ html.prologue-pending #auth-gate[open]{visibility:visible}
   }
 })();
 </script>
+<link rel="preload" as="image" href="minhee-face.png" fetchpriority="high">
+<link rel="preload" as="image" href="gambler-face.png" fetchpriority="high">
 <link rel="stylesheet" href="prologue.css?v=4" onerror="window.mysPrologueBoot?.fail()"></head>
 <body>
 <dialog id="auth-gate" aria-labelledby="auth-title" data-scene="serve">
@@ -1022,7 +1024,7 @@ const DRUNK_NOSCORE=.01;   // 만취범's won point: 1% he is too drunk to turn 
 const TRAIT_POWER=.3,TRAIT_MULT=1.25,TRAIT_ERR=.1,SIDE_NAME={'1':'포핸드','-1':'백핸드'};
 // Head-only cutouts use their own chin anchors; untouched photos keep their original fit.
 const HEAD_FITS={yunhwan:{h:49,b:22,cx:.5},jongryeong:{h:49,b:21.5,cx:.46},ajae:{h:49,b:23.5,cx:.5},sleepy:{h:49,b:20,cx:.5},hyde:{h:49,b:20,cx:.5},percival:{h:45,b:19.5,cx:.45},adam:{h:49,b:24,cx:.5},minheeS:{h:49,b:20.5,cx:.42}};
-const FACES={};for(const [k,f] of [['hugo','hugo-face.png'],['gambler','gambler-face.png'],['leesin','leesin-face.png'],['percival','percival-face.png'],['drunk','drunk-face.png'],['ajae','ajae-face.png'],['sleepy','sleepy-face.png'],['hyde','hyde-face.png'],['jh','jekyll-hyde-face.png'],['minhee','minhee-face.png'],['yunhwan','yunhwan-face.png'],['seohyun','seohyun-face.png'],['jongryeong','jongryeong-face.png'],['songstar','songstar-face.png'],['ttalgak','ttalgak-face.png'],['adam','adam-face.png'],['godyung','godyung-face.png'],['jiseong','jiseong-face.png'],['infibot','infibot-face.png'],['minheeS','minhee-serve.png'],['minheeF','minhee-fh.png']]){const im=new Image();im.photoFit=HEAD_FITS[k];im.src=f;im.onload=()=>{if(typeof setCharacter==='function')setCharacter(charType);};FACES[k]=im;}
+const FACES={};for(const [k,f] of [['hugo','hugo-face.png'],['gambler','gambler-face.png'],['leesin','leesin-face.png'],['percival','percival-face.png'],['drunk','drunk-face.png'],['ajae','ajae-face.png'],['sleepy','sleepy-face.png'],['hyde','hyde-face.png'],['jh','jekyll-hyde-face.png'],['minhee','minhee-face.png'],['yunhwan','yunhwan-face.png'],['seohyun','seohyun-face.png'],['jongryeong','jongryeong-face.png'],['songstar','songstar-face.png'],['ttalgak','ttalgak-face.png'],['adam','adam-face.png'],['godyung','godyung-face.png'],['jiseong','jiseong-face.png'],['infibot','infibot-face.png'],['minheeS','minhee-serve.png'],['minheeF','minhee-fh.png']]){const im=new Image();im.photoFit=HEAD_FITS[k];im.fetchPriority=['minhee','gambler'].includes(k)?'high':'low';im.src=f;im.onload=()=>{if(typeof setCharacter==='function')setCharacter(charType);};FACES[k]=im;}
 const faceImg=look=>{const im=look&&look.face&&FACES[look.jekyll&&jk()<0?'hyde':look.face];return im&&im.complete&&im.naturalWidth?im:null;};
 // Each racket's special: shot type in PingPhysics.shot, trail colour, coach line.
 const SPECIALS={
@@ -1451,8 +1453,8 @@ function faceBounds(im){
  const bounds={top:top/96,band:band/96,cx:(l+r)/192,half:(r-l+1)/192};faceWearBounds.set(im,bounds);return bounds;
 }
 function photoFrame(look,key,s,hx,hd){
- const im=(key&&look.faces&&FACES[look.faces[key]])||faceImg(look);if(!(im&&im.complete&&im.naturalWidth))return null;
- const fit=im.photoFit||(key&&look.faceFits&&look.faceFits[key])||look.faceFit,hh=(fit?fit.h:58)*s,hw=hh*im.naturalWidth/im.naturalHeight;
+ const pose=key&&look.faces&&FACES[look.faces[key]],im=pose?.complete&&pose.naturalWidth?pose:faceImg(look);if(!im)return null;
+ const fit=im.photoFit||(im===pose&&key&&look.faceFits&&look.faceFits[key])||look.faceFit,hh=(fit?fit.h:58)*s,hw=hh*im.naturalWidth/im.naturalHeight;
  // Anchor edited cutouts at the chin so the animated neck joins the jaw once.
  return {im,x:hx-hw*(fit?.cx??.5),y:fit?hd+fit.b*s-hh:hd-9*s-hh/2,w:hw,h:hh};
 }
@@ -3107,5 +3109,5 @@ for(const ev of ['gesturestart','gesturechange','gestureend'])document.addEventL
 document.addEventListener('touchmove',e=>{if(e.touches.length>1||e.target===canvas||(playing&&!paused))e.preventDefault();},{passive:false});
 let lastTouchEnd=0;document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouchEnd<350&&e.target===canvas)e.preventDefault();lastTouchEnd=now;},{passive:false});   // double tap on the court = smash, never zoom
 function frame(t){tickVictoryCeremony();if(net&&net.dbl)dblView();if(net?.role==='guest'&&performance.now()-net.clockPingAt>5000)pingNetClock();const elapsed=Math.min((t-last)/1000||0,.1)*(performance.now()<slowUntil?.3:1);last=t;for(let left=elapsed;left>1e-6&&playing&&!paused;left-=1/60)(net&&net.role==='guest'?guestUpdate:update)(Math.min(left,1/60));if(net&&net.conn.open&&t-net.sent>33){net.sent=t;net.conn.send(net.role==='host'?snapshot():{t:'P',...me4net()});}if(samples.length&&t-samples.at(-1).t>120){paddle.vx=paddle.vy=0;}$('speed').innerHTML=Math.round(Math.hypot(paddle.vx,paddle.vy))+' <small>px/s</small>';$('meter').style.width=Math.min(100,Math.hypot(paddle.vx,paddle.vy)/18)+'%';if(!$('auth-gate').open)render();requestAnimationFrame(frame);}requestAnimationFrame(frame);
-</script><script src="prologue-match.js?v=2"></script><script src="prologue.js?v=5" onerror="window.mysPrologueBoot?.fail()"></script><script src="ceremony-media.js?v=synth2"></script></body></html>
+</script><script src="prologue-match.js?v=3"></script><script src="prologue.js?v=6" onerror="window.mysPrologueBoot?.fail()"></script><script src="ceremony-media.js?v=synth2"></script></body></html>
 

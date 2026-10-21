@@ -23,7 +23,7 @@
     previewReady = !!ready;
     return previewReady;
   }
-  Promise.allSettled(['minhee','minheeS','minheeF','gambler'].map(key => FACES[key].decode())).then(() => {
+  Promise.allSettled(['minhee','gambler'].map(key => FACES[key].decode())).then(() => {
     if (dialog.open && !drawRally(elapsed)) {
       document.getElementById('prologue-loading').textContent = '미리보기를 불러오지 못했어요. 아래에서 게임을 시작할 수 있어요.';
     }

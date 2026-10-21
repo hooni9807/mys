@@ -2,7 +2,8 @@
 (() => {
   const duration = .86, serveAt = 1.6;
   const cast = ['minhee', 'gambler'];
-  const portraits = ['minhee', 'minheeS', 'minheeF', 'gambler'];
+  // Alternate stroke portraits may finish loading after the rally has started.
+  const portraits = ['minhee', 'gambler'];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const previewView = {tw:.25,persp:.18,base:.61,dh:.24,zh:.31};
   let background = null;
