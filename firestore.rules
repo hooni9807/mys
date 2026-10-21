@@ -21,6 +21,32 @@ service cloud.firestore {
       allow read: if true;
       allow create: if valid(300);
     }
+    // 최고 랠리 by mode (new records): rally_ai (AI 대전), rally_rank (랭크전), rally_inf (무한 드라이브), rally_boss (보스전),
+    // rally_doubles (복식), rally_trio (3인 대전). The old mixed /rally collection above stays readable.
+    match /rally_ai/{id} {
+      allow read: if true;
+      allow create: if valid(300);
+    }
+    match /rally_rank/{id} {
+      allow read: if true;
+      allow create: if valid(300);
+    }
+    match /rally_inf/{id} {
+      allow read: if true;
+      allow create: if valid(300);
+    }
+    match /rally_boss/{id} {
+      allow read: if true;
+      allow create: if valid(300);
+    }
+    match /rally_doubles/{id} {
+      allow read: if true;
+      allow create: if valid(300);
+    }
+    match /rally_trio/{id} {
+      allow read: if true;
+      allow create: if valid(300);
+    }
     // AI 대전 승리 점수: ((부수 x 10 + 점수 차 + 맞드라이브 보너스) x 난이도 배율) - 실점 패널티
     match /wins/{id} {
       allow read: if true;
