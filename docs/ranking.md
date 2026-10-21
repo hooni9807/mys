@@ -10,7 +10,7 @@
 | `rally_ai_e` · `rally_ai_h` · `rally_ai_ex` · `rally_ai_u` · `rally_ai_uh` · `rally_ai_uex` | AI 대전 최고 랠리 · 난이도별 (이지 · 하드 · 익스트림 · 울트라 · 울트라 하드 · 울트라 익스트림) |
 | `rally_rank` · `rally_inf` · `rally_boss` · `rally_doubles` · `rally_trio` | 랭크전 · 무한 드라이브 · 보스전 · 복식 · 3인 대전 최고 랠리 |
 | `rally` | v4.04 이전의 최고 랠리 기록 (모든 모드가 섞여 있음, 그대로 읽어요) |
-| `wins` | AI전 승리 점수 · `boss` 보스 클리어 · `players` PvP 레이팅 · `arank` 랭크전 |
+| `wins` | AI전 승리 점수 · `boss` 보스 클리어 (점수 = (내 점수 − 보스가 핸디 위로 딴 점수) × 100 + 랠리, 핸디: 세종 4 · 갓융자 9) · `players` PvP 레이팅 · `arank` 랭크전 |
 | `levels` | 레벨 랭킹 · `progress` 진행도(본인만) · `settings` 설정(본인만) |
 | `presence` | 접속 상태 · `rooms` 대기 방 · `inbox` 쪽지(받는 사람만) |
 
