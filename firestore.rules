@@ -1,5 +1,5 @@
 rules_version = '2';
-// SPIN LAB ranking: anyone may read the boards; only signed-in players (Google, or Naver via the custom-token worker) add a
+// MYS ranking: anyone may read the boards; only signed-in players (Google, or Naver via the custom-token worker) add a
 // well-formed record; nobody may edit or delete. Guest (anonymous) accounts are not accepted.
 service cloud.firestore {
   match /databases/{database}/documents {
