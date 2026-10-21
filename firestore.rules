@@ -19,63 +19,63 @@ service cloud.firestore {
     }
     match /rally/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     // 최고 랠리 by mode (new records): rally_ai_e · _h · _ex · _u · _uh · _uex (AI 대전 난이도별), rally_rank (랭크전), rally_inf (무한 드라이브), rally_boss (보스전),
     // rally_doubles (복식), rally_trio (3인 대전). The old mixed /rally collection above stays readable.
     match /rally_ai_e/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_ai_h/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_ai_ex/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_ai_u/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_ai_uh/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_ai_uex/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_rank/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_inf/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_boss/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_doubles/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     match /rally_trio/{id} {
       allow read: if true;
-      allow create: if valid(300);
+      allow create: if valid(10000);
     }
     // AI 대전 승리 점수: ((부수 x 10 + 점수 차 + 맞드라이브 보너스) x 난이도 배율) - 실점 패널티
     match /wins/{id} {
       allow read: if true;
-      allow create: if valid(500);
+      allow create: if valid(10000);
     }
     // 보스 클리어: point gap x100 + that match's best rally (max 99)
     match /boss/{id} {
       allow read: if true;
-      allow create: if valid(1199);
+      allow create: if valid(10000);
     }
 
     // PvP rating. Google-signed-in players only; each may only write its own doc, one result at a time,
