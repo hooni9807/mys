@@ -740,7 +740,8 @@ const courtWrap=document.querySelector('.court-wrap');let lockedW=0;
 function lockCourt(){const w=courtWrap.getBoundingClientRect().width;if(courtWrap.style.height&&Math.abs(w-lockedW)<2)return;
 courtWrap.style.height='';const h=courtWrap.getBoundingClientRect().height;if(h>0){courtWrap.style.height=Math.round(h)+'px';lockedW=w;}}
 let lockedScrollY=0;
-function lockPage(lock){if(lock){if(document.body.style.position==='fixed')return;courtWrap.scrollIntoView({block:'nearest'});lockedScrollY=scrollY;Object.assign(document.body.style,{position:'fixed',top:-lockedScrollY+'px',left:'0',right:'0',overflow:'hidden'});}else if(document.body.style.position==='fixed'){Object.assign(document.body.style,{position:'',top:'',left:'',right:'',overflow:''});scrollTo(0,lockedScrollY);}}
+function lockPage(lock){if(lock){if(document.body.style.position==='fixed')return;{const a=courtWrap.closest('.arena')||courtWrap;scrollTo({top:Math.max(0,a.getBoundingClientRect().top+scrollY-4),behavior:'instant'});}lockedScrollY=scrollY;   /* start with the scoreboard at the top of the screen */
+Object.assign(document.body.style,{position:'fixed',top:-lockedScrollY+'px',left:'0',right:'0',overflow:'hidden'});}else if(document.body.style.position==='fixed'){Object.assign(document.body.style,{position:'',top:'',left:'',right:'',overflow:''});scrollTo(0,lockedScrollY);}}
 function resize(){lockCourt();
 const r=canvas.getBoundingClientRect();if(r.width<=0||r.height<=0)return;
 const x=paddle.x/W,y=paddle.y/H;
