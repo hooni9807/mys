@@ -1292,7 +1292,7 @@ function drawingPrep(){if(!ball||ball.owner!=='ai'||ball.held||ball.y>1.37||time
 if(down&&gesture&&!gesture.held&&gesture.distance>=(touchInput?18:12)&&liveStroke()){mySwing.type=gesture.stroke;return .35+P.clamp(gesture.distance/90,0,1)*.65;}
 if(down&&gesture&&!gesture.held&&!gesture.dir&&gesture.stance!=='mid'){mySwing.type=gesture.stance==='low'?'lower':'chop';return .35;}   // finger down: show the chosen stance
 mySwing.type=expectStroke();return P.clamp((1.37-ball.y)/1.45,0,1)*.35;}let lastShot='drive',aiShot='short',lastRenderT=performance.now();
-// A look with faces:{serve,fh} swaps its photo face with the move (serve toss / forehand / otherwise the base face) and cross-fades over .12 s.
+// A look with faces:{serve,fh} swaps its photo face with the move (serve toss / forehand / otherwise the base face) without layering two faces; headwear adjusts over .12 s.
 // Measure the opaque head, not the transparent PNG canvas. Cached once per loaded face.
 const faceWearBounds=new WeakMap();
 function faceBounds(im){
@@ -1312,7 +1312,7 @@ function photoFrame(look,key,s,hx,hd){
  return {im,x:hx-hw*(fit?.cx??.5),y:hd+Math.min(fit?.b??20,13)*s-hh,w:hw,h:hh};
 }
 function headPhoto(look,st,key,s,hx,hd){const draw=(k,al)=>{const f=photoFrame(look,k,s,hx,hd);if(!f)return;ctx.save();ctx.globalAlpha*=al;ctx.drawImage(f.im,f.x,f.y,f.w,f.h);ctx.restore();};
-if(st.fk===undefined){st.fk=key;st.ft=time-.12;}if(st.fk!==key){st.fp=st.fk;st.fk=key;st.ft=time;}const a=Math.min(1,(time-(st.ft??-9))/.12);if(a<1&&st.fp!==undefined)draw(st.fp,1);draw(key,a<1?a:1);}
+if(st.fk===undefined){st.fk=key;st.ft=time-.12;}if(st.fk!==key){st.fp=st.fk;st.fk=key;st.ft=time;}draw(key,1);}
 function headWearFrame(look,key,s,hx,hd){
  const f=photoFrame(look,key,s,hx,hd);if(!f)return {x:hx,top:hd-(look.tousled?17:14)*s,band:hd-7*s,half:(look.bob?15:13.5)*s};
  const b=faceBounds(f.im);return {x:f.x+b.cx*f.w,top:f.y+b.top*f.h+1*s,band:f.y+b.band*f.h,half:b.half*f.w};
@@ -1820,20 +1820,20 @@ const ex=ux-side*8*s,ey=top+16*s*T;ctx.beginPath();ctx.arc(ex,ey,4.2*s,0,Math.PI
 fitTailoring(look,ux,top,th,s);
 if(look.cape&&isBack)fitCape(look,ux,top,th,ground,s);if(look.neck)fitNeck(look,ux,top,th,s,isBack,side,performance.now()/1000);if(look.wing&&isBack)fitWing(look,ux,top+th*.3,s,performance.now()/1000);
 ctx.globalAlpha=1;
-ctx.save();ctx.translate(hx,hd);ctx.rotate(look.noTilt?0:st.ho*.2);ctx.scale(look.noTilt?1:1-.12*Math.abs(st.hn),1);ctx.translate(-hx+st.hn*3*s,-hd);ctx.beginPath();ctx.arc(hx,hd,13*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();
-const fimg=faceImg(look);if(fimg)headPhoto(look,st,faceState(look,st,stroke,since,prep),s,hx,hd);   // fit: photo cut with its own neck (cx = where the chin sits across the photo), bottom tucked into the collar   // photo head, slightly big for a playful look
-else if(look.tousled){ // seen from behind: hair covers the back of the head, glasses show only as temples and lens rims at the sides
+ctx.save();ctx.translate(hx,hd);ctx.rotate(look.noTilt?0:st.ho*.2);ctx.scale(look.noTilt?1:1-.12*Math.abs(st.hn),1);ctx.translate(-hx+st.hn*3*s,-hd);
+const fimg=faceImg(look);if(!look.face){ctx.beginPath();ctx.arc(hx,hd,13*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();}if(fimg)headPhoto(look,st,faceState(look,st,stroke,since,prep),s,hx,hd);   // fit: photo cut with its own neck (cx = where the chin sits across the photo), bottom tucked into the collar   // photo head, slightly big for a playful look
+else if(!look.face&&look.tousled){ // seen from behind: hair covers the back of the head, glasses show only as temples and lens rims at the sides
 for(const k of [-1,1]){ctx.beginPath();ctx.arc(hx+k*13*s,hd+1*s,3*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();}
 ctx.beginPath();ctx.ellipse(hx,hd-3*s,13.6*s,11.5*s,0,0,Math.PI*2);ctx.fillStyle=look.hair;ctx.fill();
 for(const [dx,dy,r] of [[-7,-13,3.2],[0,-15,3.4],[7,-13,3]]){ctx.beginPath();ctx.arc(hx+dx*s,hd+dy*s,r*s,0,Math.PI*2);ctx.fill();}
 if(look.glasses)for(const k of [-1,1]){line({x:hx+k*14.5*s,y:hd-2*s},{x:hx+k*10*s,y:hd+1*s},'#111',1.6*s);ctx.fillStyle='#111';ctx.fillRect(hx+k*14.2*s-(k<0?1.6*s:0),hd-5*s,1.6*s,5*s);}}
-else if(look.bob){ctx.fillStyle=look.hair;
+else if(!look.face&&look.bob){ctx.fillStyle=look.hair;
 if(hipY>H*.5){ctx.beginPath();ctx.ellipse(hx,hd-1*s,14.6*s,14*s,0,0,Math.PI*2);ctx.fill();for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(hx+k*11*s,hd+8*s,4.2*s,6*s,k*.2,0,Math.PI*2);ctx.fill();}}
 else{ctx.beginPath();ctx.arc(hx,hd-2*s,14*s,Math.PI,0);ctx.fill();for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(hx+k*11.5*s,hd+4*s,4*s,9*s,k*.12,0,Math.PI*2);ctx.fill();}
 ctx.beginPath();ctx.moveTo(hx-13*s,hd-4*s);ctx.quadraticCurveTo(hx,hd-14*s,hx+13*s,hd-3*s);ctx.lineTo(hx+13*s,hd-12*s);ctx.lineTo(hx-13*s,hd-12*s);ctx.fill();
 ctx.fillStyle='#1a1530';for(const k of [-1,1]){ctx.beginPath();ctx.arc(hx+k*4.5*s,hd+1*s,1.8*s,0,Math.PI*2);ctx.fill();}
 ctx.strokeStyle='#8a3d3d';ctx.lineWidth=1.4*s;ctx.beginPath();ctx.arc(hx,hd+5*s,4*s,.2,Math.PI-.2);ctx.stroke();}}
-else{ctx.beginPath();ctx.arc(hx,hd-2*s,13*s,Math.PI,0);ctx.fillStyle=look.hair;ctx.fill();
+else if(!look.face){ctx.beginPath();ctx.arc(hx,hd-2*s,13*s,Math.PI,0);ctx.fillStyle=look.hair;ctx.fill();
 if(hipY<H*.5){ctx.fillStyle='#1a1530';for(const k of [-1,1]){ctx.beginPath();ctx.arc(hx+k*4.5*s,hd+1*s,1.8*s,0,Math.PI*2);ctx.fill();}ctx.beginPath();ctx.arc(hx,hd+5*s,4*s,.2,Math.PI-.2);ctx.lineWidth=1.4*s;ctx.strokeStyle='#1a1530';ctx.stroke();}}   // the far player faces us
 if(look.boss){ctx.fillStyle='#ece3cf';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(hx+k*5*s,hd-11*s);ctx.quadraticCurveTo(hx+k*20*s,hd-14*s,hx+k*19*s,hd-32*s);ctx.quadraticCurveTo(hx+k*15*s,hd-19*s,hx+k*11*s,hd-8*s);ctx.fill();}   // horns
 if(hipY<H*.5){ctx.fillStyle='#ff2a2a';ctx.shadowColor='#ff0000';ctx.shadowBlur=8*s;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(hx+k*4.5*s,hd+1*s,2.6*s,1.5*s,k*.35,0,Math.PI*2);ctx.fill();}ctx.shadowBlur=0;}}   // glowing eyes
@@ -1899,9 +1899,9 @@ if(look.backpack)for(const k of [-1,1])line({x:k*11,y:-58},{x:k*13,y:-17},'#1112
 fitTailoring(look,0,-60,64,1);
 if(look.neck)fitNeck(look,0,-60,64,1,false,1,clock);
 // The face and headwear share the same pivot while the shoulders turn.
-ctx.save();ctx.translate(0,-78);ctx.rotate(pose.head);ctx.scale(watching?.88:1,1);ctx.fillStyle=skin;ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.fill();
+ctx.save();ctx.translate(0,-78);ctx.rotate(pose.head);ctx.scale(watching?.88:1,1);if(!look.face){ctx.fillStyle=skin;ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.fill();}
 const im=faceImg(look);if(im){const f=photoFrame(look,null,1,0,0);ctx.drawImage(f.im,f.x,f.y,f.w,f.h);}
-else{ctx.fillStyle=look.hair||'#211812';ctx.beginPath();ctx.arc(0,-2,13,Math.PI,0);ctx.fill();ctx.fillStyle='#1a1530';for(const k of [-1,1]){ctx.beginPath();ctx.arc(k*4.5+(watching?-2:0),1,1.8,0,Math.PI*2);ctx.fill();}ctx.strokeStyle='#763f3b';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,5,4,watching?.3:.05,watching?2.8:3.1);ctx.stroke();}
+else if(!look.face){ctx.fillStyle=look.hair||'#211812';ctx.beginPath();ctx.arc(0,-2,13,Math.PI,0);ctx.fill();ctx.fillStyle='#1a1530';for(const k of [-1,1]){ctx.beginPath();ctx.arc(k*4.5+(watching?-2:0),1,1.8,0,Math.PI*2);ctx.fill();}ctx.strokeStyle='#763f3b';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,5,4,watching?.3:.05,watching?2.8:3.1);ctx.stroke();}
 if(look.hat||look.hb)fitHead(look,0,0,1,!!im,false,clock);ctx.restore();
 for(const [i,k] of [[0,-1],[1,1]]){const a=pose.arms[i],sh={x:k*15,y:-52},el={x:a[0],y:a[1]-pose.hipY},ha={x:a[2],y:a[3]-pose.hipY};
 line(sh,el,look.longSleeve?look.sleeve:skin,8);line(el,ha,look.armSleeve||(look.longSleeve?look.sleeve:skin),7);if(!look.bareArms)fitSleeve(sh,{x:lerp(sh.x,el.x,look.longSleeve?1:.44),y:lerp(sh.y,el.y,look.longSleeve?1:.44)},look.sleeve,1);if(look.longSleeve)fitSleeve(el,ha,look.sleeve,1,7.8);
