@@ -479,7 +479,7 @@ jiseong:{name:'김치성',nick:'김치성',kit:{name:'JISEONG',color:'#7ed6df'},
 // drive, backspin against a cut. A floated chance ball + a drive swing = a fake smash that drops short. PERFECT: low and big curve,
 // GREAT normal, GOOD a little higher / less curve, LATE high with no curve.
 adam:{name:'아담 성',nick:'아담 성',kit:{name:'ADAM',color:'#c4b5fd'},face:'adam',faceFit:{h:56,b:25,cx:.5},curver:true,ceremony:'클라스 지리고~',split:true,stanceK:1.1,crouchK:.12,shirt:'#312e81',sleeve:'#312e81',collar:'#c4b5fd',pants:'#18181b',shorts:true,hair:'#2a1d12',skin:'#efc6a6',skinShade:'#d3a283'},
-gambler:{name:'올인 도박사',nick:'올인 도박사',kaiji:true,kit:{name:'ALL-IN',color:'#ffd700'},gamble:true,ceremony:'올인!! 🎰',split:true,stanceK:1.1,crouchK:.1,shirt:'#14532d',sleeve:'#14532d',collar:'#ffd700',pants:'#1a1a1f',shorts:false,hair:'#141010',skin:'#efc6a6',skinShade:'#d3a283',tie:'#b91c1c'},
+gambler:{name:'올인 도박사',nick:'올인 도박사',kaiji:true,face:'gambler',faceFit:{h:56,b:25,cx:.5},kit:{name:'ALL-IN',color:'#ffd700'},gamble:true,ceremony:'올인!! 🎰',split:true,stanceK:1.1,crouchK:.1,shirt:'#14532d',sleeve:'#14532d',collar:'#ffd700',pants:'#1a1a1f',shorts:false,hair:'#141010',skin:'#efc6a6',skinShade:'#d3a283',tie:'#b91c1c'},
 glass:{name:'유리대포',nick:'유리대포',kit:{name:'GLASS',color:'#a5f3fc'},glass:true,ceremony:'쨍그랑~ 💎',split:true,stanceK:1.15,crouchK:.12,shirt:'#7dd3fc',sleeve:'#bae6fd',collar:'#ffffff',pants:'#0c4a6e',shorts:true,hair:'#e5e7eb',skin:'#f1c7a5',skinShade:'#d6a283'},
 smashman:{name:'스매시 광인',nick:'스매시 광인',kit:{name:'SMASH',color:'#ffd166'},face:'smashman',faceFit:{h:56,b:25,cx:.5},smashAll:true,ceremony:'아몰랑~ 스매시!!! 💥',split:true,stanceK:1.2,crouchK:.14,shirt:'#dc2626',sleeve:'#dc2626',collar:'#ffd166',pants:'#111111',shorts:true,hair:'#141010',skin:'#efc6a6',skinShade:'#d3a283'},
 ttalgak:{name:'날먹세',nick:'날먹세',kit:{name:'NALMUK',color:'#ff9f43'},face:'ttalgak',faceFit:{h:56,b:25,cx:.5},serveTrick:true,serveBoost:{spin:1.3,speed:1.35},knee:.3,ceremony:'찬스! 🔥',split:true,stanceK:1.1,crouchK:.1,shirt:'#c0392b',sleeve:'#c0392b',collar:'#ff9f43',pants:'#17171c',shorts:true,hair:'#0e0b09',skin:'#efc2a0',skinShade:'#d39d7e'},
@@ -883,7 +883,7 @@ const DRUNK_FLOAT=.08;let drunkM=1.5,drunkR=1;
 function drunkTier(r){return r<DRUNK_FLOAT?'float':r<.15?2:r<.32?1.5:r<.47?1.2:1;}   // 10% float · 5% x2 · 15% x1.5 · 15% x1.2 · 55% normal
 const DRUNK_NOSCORE=.01;   // 만취범's won point: 1% he is too drunk to turn the scoreboard - no point, replayed
 const TRAIT_POWER=.3,TRAIT_MULT=1.25,TRAIT_ERR=.1,SIDE_NAME={'1':'포핸드','-1':'백핸드'};
-const FACES={};for(const [k,f] of [['hugo','hugo-face.png'],['leesin','leesin-face.png'],['percival','percival-face.png'],['drunk','drunk-face.png'],['ajae','ajae-face.png'],['sleepy','sleepy-face.png'],['hyde','hyde-face.png'],['jh','jekyll-hyde-face.png'],['minhee','minhee-face.png'],['yunhwan','yunhwan-face.png'],['seohyun','seohyun-face.png'],['jongryeong','jongryeong-face.png'],['songstar','songstar-face.png'],['ttalgak','ttalgak-face.png'],['adam','adam-face.png'],['jiseong','jiseong-face.png'],['infibot','infibot-face.png'],['minheeS','minhee-serve.png'],['minheeF','minhee-fh.png']]){const im=new Image();im.src=f;im.onload=()=>{if(typeof setCharacter==='function')setCharacter(charType);};FACES[k]=im;}
+const FACES={};for(const [k,f] of [['hugo','hugo-face.png'],['gambler','gambler-face.png'],['leesin','leesin-face.png'],['percival','percival-face.png'],['drunk','drunk-face.png'],['ajae','ajae-face.png'],['sleepy','sleepy-face.png'],['hyde','hyde-face.png'],['jh','jekyll-hyde-face.png'],['minhee','minhee-face.png'],['yunhwan','yunhwan-face.png'],['seohyun','seohyun-face.png'],['jongryeong','jongryeong-face.png'],['songstar','songstar-face.png'],['ttalgak','ttalgak-face.png'],['adam','adam-face.png'],['jiseong','jiseong-face.png'],['infibot','infibot-face.png'],['minheeS','minhee-serve.png'],['minheeF','minhee-fh.png']]){const im=new Image();im.src=f;im.onload=()=>{if(typeof setCharacter==='function')setCharacter(charType);};FACES[k]=im;}
 const faceImg=look=>{const im=look&&look.face&&FACES[look.jekyll&&jk()<0?'hyde':look.face];return im&&im.complete&&im.naturalWidth?im:null;};
 // Each racket's special: shot type in PingPhysics.shot, trail colour, coach line.
 const SPECIALS={
@@ -1767,9 +1767,9 @@ for(const k of[-1,1]){const wx=x+k*20*s,wy=g-wr;ctx.fillStyle='#cffafe66';ctx.be
 if(st.taunt&&time-st.tauntT<1.6){const fz=Math.max(12,15*s),bx=x,by=ay-50*s;ctx.font=`900 ${fz}px Arial`;const bw=ctx.measureText(st.taunt).width+fz*1.2,bh=fz*1.8;ctx.fillStyle='#ffffff';ctx.beginPath();ctx.roundRect(bx-bw/2,by-bh/2,bw,bh,bh/2);ctx.fill();ctx.fillStyle='#ff345d';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(st.taunt,bx,by+1);}
 ctx.restore();}
 /* 올인 도박사(도박 만화 패러디): 삐죽삐죽 헝클어진 머리 · 겁먹은 흰자 눈 · 식은땀 · 주위에 떠도는 '두근…' */
-function kaijiHead(hx,hd,s,front,hair,st){ctx.save();const shock=st&&((st.taunt&&time-st.tauntT<1.6)||st.sadT!=null);
+function kaijiHead(hx,hd,s,front,hair,st,photo){ctx.save();const shock=st&&((st.taunt&&time-st.tauntT<1.6)||st.sadT!=null);
 if(shock){ctx.strokeStyle='#d8b4fe';ctx.shadowColor='#a855f7';ctx.shadowBlur=14*s;ctx.lineWidth=1.6*s;for(let k=0;k<5;k++){const a=time*9+k*1.26;ctx.beginPath();let x=hx+Math.cos(a)*16*s,y=hd+Math.sin(a)*16*s;ctx.moveTo(x,y);for(let n=0;n<4;n++){x+=Math.cos(a)*6*s+(Math.random()-.5)*7*s;y+=Math.sin(a)*6*s+(Math.random()-.5)*7*s;ctx.lineTo(x,y);}ctx.stroke();}ctx.shadowBlur=0;}   // 보라 전기
-ctx.fillStyle=hair;ctx.beginPath();for(let i=0;i<=12;i++){const a=Math.PI*(1+i*.0833),r=(i%2?13:23+(i*7%5))*s;ctx.lineTo(hx+Math.cos(a)*r*1.08,hd-3*s+Math.sin(a)*r);}ctx.closePath();ctx.fill();
+if(!photo){ctx.fillStyle=hair;ctx.beginPath();for(let i=0;i<=12;i++){const a=Math.PI*(1+i*.0833),r=(i%2?13:23+(i*7%5))*s;ctx.lineTo(hx+Math.cos(a)*r*1.08,hd-3*s+Math.sin(a)*r);}ctx.closePath();ctx.fill();
 for(const k of[-1,1]){ctx.beginPath();ctx.moveTo(hx+k*11*s,hd-8*s);ctx.lineTo(hx+k*21*s,hd+8*s);ctx.lineTo(hx+k*14*s,hd+4*s);ctx.lineTo(hx+k*17*s,hd+14*s);ctx.lineTo(hx+k*12*s,hd+5*s);ctx.fill();}   // 길게 늘어진 옆머리
 if(front){ctx.strokeStyle='#0006';ctx.lineWidth=.9*s;for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(hx-5*s+i*2*s,hd-9*s);ctx.lineTo(hx-5*s+i*2*s,hd-5*s);ctx.stroke();}   // 이마 그늘 빗금
 for(const k of[-1,1]){const ex=hx+k*5*s,ey=hd;ctx.fillStyle='#f8fafc';ctx.strokeStyle='#111';ctx.lineWidth=1.1*s;ctx.beginPath();for(let n=0;n<=12;n++){const a=n/12*Math.PI*2,r=(3.6+Math.sin(a*4+k)*.6)*s;ctx.lineTo(ex+Math.cos(a)*r,ey+Math.sin(a)*r*.85);}ctx.closePath();ctx.fill();ctx.stroke();
@@ -1777,6 +1777,7 @@ ctx.lineWidth=.6*s;ctx.beginPath();ctx.arc(ex,ey,1.4*s,0,Math.PI*2);ctx.stroke()
 ctx.fillStyle='#e0f2fe';ctx.beginPath();ctx.ellipse(ex,ey+4.5*s,1*s,1.8*s,0,0,Math.PI*2);ctx.fill();}   // 눈물
 ctx.fillStyle='#fff';ctx.strokeStyle='#111';ctx.lineWidth=1*s;ctx.beginPath();ctx.ellipse(hx,hd+7.5*s,6*s,3.2*s,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(hx-6*s,hd+7.5*s);ctx.lineTo(hx+6*s,hd+7.5*s);for(let i=-2;i<=2;i++){ctx.moveTo(hx+i*2.2*s,hd+4.6*s);ctx.lineTo(hx+i*2.2*s,hd+10.4*s);}ctx.stroke();}   // 꽉 깨문 이
 const t=time%1.6;ctx.fillStyle='#bfe9ff';ctx.globalAlpha=1-t/1.6;for(const k of[-1,1]){const y=hd-4*s+t*10*s;ctx.beginPath();ctx.moveTo(hx+k*15*s,y-4*s);ctx.quadraticCurveTo(hx+k*18*s,y+2*s,hx+k*15*s,y+3*s);ctx.quadraticCurveTo(hx+k*12*s,y+2*s,hx+k*15*s,y-4*s);ctx.fill();}   // 식은땀
+}
 const u=time%2.4;if(u<1.6){ctx.globalAlpha=Math.sin(u/1.6*Math.PI);ctx.font=`900 ${Math.round(11*s)}px Arial`;ctx.fillStyle='#111';ctx.strokeStyle='#fff';ctx.lineWidth=2.5*s;ctx.textAlign='center';const k=(time/2.4|0)%2?1:-1,tx=hx+k*30*s,ty=hd-18*s-u*6*s;ctx.save();ctx.translate(tx,ty);ctx.rotate(k*.25);ctx.strokeText('두근…',0,0);ctx.fillText('두근…',0,0);ctx.restore();}
 ctx.restore();}
 function person(st,hipY,target,angle,look,s,type,face,side,stroke,since,prep=null){
@@ -1872,7 +1873,7 @@ ctx.fillStyle='#1a1530';for(const k of [-1,1]){ctx.beginPath();ctx.arc(hx+k*4.5*
 ctx.strokeStyle='#8a3d3d';ctx.lineWidth=1.4*s;ctx.beginPath();ctx.arc(hx,hd+5*s,4*s,.2,Math.PI-.2);ctx.stroke();}}
 else if(!look.face){ctx.beginPath();ctx.arc(hx,hd-2*s,13*s,Math.PI,0);ctx.fillStyle=look.hair;ctx.fill();
 if(hipY<H*.5){ctx.fillStyle='#1a1530';for(const k of [-1,1]){ctx.beginPath();ctx.arc(hx+k*4.5*s,hd+1*s,1.8*s,0,Math.PI*2);ctx.fill();}ctx.beginPath();ctx.arc(hx,hd+5*s,4*s,.2,Math.PI-.2);ctx.lineWidth=1.4*s;ctx.strokeStyle='#1a1530';ctx.stroke();}}   // the far player faces us
-if(look.kaiji)kaijiHead(hx,hd,s,hipY<H*.5,look.hair,st);
+if(look.kaiji)kaijiHead(hx,hd,s,hipY<H*.5,look.hair,st,!!fimg);
 if(look.boss){ctx.fillStyle='#ece3cf';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(hx+k*5*s,hd-11*s);ctx.quadraticCurveTo(hx+k*20*s,hd-14*s,hx+k*19*s,hd-32*s);ctx.quadraticCurveTo(hx+k*15*s,hd-19*s,hx+k*11*s,hd-8*s);ctx.fill();}   // horns
 if(hipY<H*.5){ctx.fillStyle='#ff2a2a';ctx.shadowColor='#ff0000';ctx.shadowBlur=8*s;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(hx+k*4.5*s,hd+1*s,2.6*s,1.5*s,k*.35,0,Math.PI*2);ctx.fill();}ctx.shadowBlur=0;}}   // glowing eyes
 if(look.hat||look.hb)fitHead(look,hx,hd,s,!!fimg,isBack,performance.now()/1000,faceState(look,st,stroke,since,prep),st);
