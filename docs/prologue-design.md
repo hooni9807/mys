@@ -10,6 +10,10 @@ The preview has its own canvas and temporary render state, restored in `finally`
 
 SPP, Snap Ping Pong, the headline, score overlay, chapter copy, footer and color palette now use a consistent dark violet / lime treatment. The inline first-paint guard remains in place. Motion can be paused or replayed; hidden tabs stop animation. Reduced-motion users see a static rally frame, including after images finish loading.
 
+## Startup behavior
+
+The preview starts as soon as Minhee's and the Gambler's base portraits are ready. Their base images are preloaded at high priority; Minhee's serve and forehand portraits are optional and replace the base portrait once available. A failed or slow optional portrait never blocks the prologue, its entry button, or the main page. Returning visitors can additionally use their browser image cache.
+
 ## References
 
 - [PingSkills — Forehand & Backhand Counterhit (YouTube)](https://www.youtube.com/watch?v=iYRJ2YV3PGY): alternating rally rhythm and stroke variety, consulted via the video's indexed description.
@@ -26,7 +30,7 @@ Run from the repository root with Playwright installed:
 node tests/prologue-preview.cjs
 ```
 
-`PLAYWRIGHT_MODULE` can point to an existing Playwright installation; `CHROME_PATH` optionally selects an installed browser. The smoke check covers desktop/mobile width, exact rally contact counters, restored game state, no page errors, reduced motion and entering the main screen. It blocks external requests and does not test Google login or multiplayer. Visual captures were also inspected at service, contact and follow-through.
+`PLAYWRIGHT_MODULE` can point to an existing Playwright installation; `CHROME_PATH` optionally selects an installed browser. The smoke check covers desktop/mobile width, exact rally contact counters, restored game state, no page errors, reduced motion and entering the main screen. It also blocks Minhee's optional portraits to confirm that the preview and entry still work. It blocks external requests and does not test Google login or multiplayer. Visual captures were also inspected at service, contact and follow-through.
 
 ## Ultimate showcase
 
