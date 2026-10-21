@@ -298,7 +298,7 @@ b3:{base:.91,serve:2.7,speed:2.85,mix:[.59,.88],aim:1},b2:{base:.94,serve:2.9,sp
 b1:{base:.96,serve:3.1,speed:3.45,mix:[.56,.82],aim:1.1},pro:{base:.975,serve:3.3,speed:3.8,mix:[.52,.76],aim:1.2},
 boss:{base:.98,serve:3.4,speed:3.7,mix:[.5,.74],aim:1.25}};   // 보스전 only
 // tier (하드 / 익스트림): {base:{부수: return chance}, atk: how much of the spin / speed / smash penalty still applies, sp: the same for specials, cap}
-function aiChance(b,difficulty,practice,tier){const base=(tier&&tier.base?tier.base[difficulty]:(LEVELS[difficulty]||LEVELS.b4).base)+(b.chance?.1:0),ka=tier?tier.atk:1,ks=tier?tier.sp:1,spec=({crescent:.48,chiquita:.42,lightning:.45,thunder:.5,phantom:.45})[b.type];
+function aiChance(b,difficulty,practice,tier){const base=(tier&&tier.base?tier.base[difficulty]:(LEVELS[difficulty]||LEVELS.b4).base)+(b.chance?.1:0),ka=tier?tier.atk:1,ks=tier?tier.sp:1,spec=({crescent:.45,chiquita:.39,lightning:.36,thunder:.4,phantom:.42})[b.type];
 const attack=(spinMiss(b)+Math.max(0,Math.abs(b.vy||0)-FAST_REF)*.04+(b.power?.15:0))*ka+(b.kill?.6*ka:spec!==undefined?spec*ks:(b.type==='smash'?.24:b.type==='chop'?.18:0)*ka);return clamp(base+(practice?.1:0)-attack-Math.abs(b.x)*.1*ka-Math.min(Math.abs(b.side||0),1.2)*.03*ka,.1,(tier&&tier.cap)||.985);}
 const CRESCENT_SIDE=18;   // side spin of the 초승달 드라이브 (bigger = wider curve)
 function shot(vx,vy,height,x,y,practice,gesture={},forcedType,boost={}){
