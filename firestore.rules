@@ -120,6 +120,18 @@ service cloud.firestore {
         && request.resource.data.w is int && request.resource.data.w >= 0 && request.resource.data.l is int && request.resource.data.l >= 0
         && request.resource.data.at == request.time;
     }
+    // ✉️ 쪽지 (offline messages): any signed-in player leaves a note for another uid; only the recipient reads and removes it.
+    match /inbox/{id} {
+      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom']
+        && request.resource.data.keys().hasOnly(['to', 'from', 'name', 'text', 'at'])
+        && request.resource.data.keys().hasAll(['to', 'from', 'name', 'text', 'at'])
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to is string && request.resource.data.to.size() >= 1 && request.resource.data.to.size() <= 128
+        && request.resource.data.name is string && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 12
+        && request.resource.data.text is string && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 200
+        && request.resource.data.at == request.time;
+      allow read, delete: if request.auth != null && resource.data.to == request.auth.uid;
+    }
     match /players/{uid} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == uid && request.auth.token.firebase.sign_in_provider in ['google.com', 'custom'] && pvpShape(request.resource.data)
