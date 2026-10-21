@@ -1712,6 +1712,24 @@ function fitSleeve(a,b,color,s,width=9){
  ctx.fillStyle=LG(-r,0,r,0,[tint(color,-.22),tint(color,.12),color,tint(color,-.25)]);ctx.fill();ctx.lineWidth=.5*s;ctx.strokeStyle='#11142545';ctx.stroke();
  ctx.strokeStyle='#ffffff40';ctx.lineWidth=.65*s;ctx.beginPath();ctx.moveTo(-r*.7,len-1.8*s);ctx.lineTo(r*.7,len-1.8*s);ctx.stroke();ctx.restore();
 }
+// One continuous garment across a joint: no false cuff at the elbow or knee.
+function fitBentCloth(a,b,c,color,s,width=9,endWidth=7.8){
+ const normal=(p,q)=>{const dx=q.x-p.x,dy=q.y-p.y,l=Math.hypot(dx,dy)||1;return {x:-dy/l,y:dx/l};};
+ const n0=normal(a,b),n1=normal(b,c),sum={x:n0.x+n1.x,y:n0.y+n1.y},nl=Math.hypot(sum.x,sum.y)||1;
+ const mid={x:sum.x/nl,y:sum.y/nl},r=width*s/2,rr=endWidth*s/2;
+ const joint=Math.min(r*1.35,r/Math.max(.65,mid.x*n0.x+mid.y*n0.y));
+ const edge=(p,n,w,k)=>({x:p.x+n.x*w*k,y:p.y+n.y*w*k});
+ const A=edge(a,n0,r,1),B=edge(b,mid,joint,1),C=edge(c,n1,rr,1),D=edge(c,n1,rr,-1),E=edge(b,mid,joint,-1),F=edge(a,n0,r,-1);
+ ctx.save();ctx.beginPath();ctx.moveTo(A.x,A.y);
+ ctx.lineTo(lerp(A.x,B.x,.8),lerp(A.y,B.y,.8));ctx.quadraticCurveTo(B.x,B.y,lerp(B.x,C.x,.2),lerp(B.y,C.y,.2));ctx.lineTo(C.x,C.y);ctx.lineTo(D.x,D.y);
+ ctx.lineTo(lerp(D.x,E.x,.8),lerp(D.y,E.y,.8));ctx.quadraticCurveTo(E.x,E.y,lerp(E.x,F.x,.2),lerp(E.y,F.y,.2));ctx.lineTo(F.x,F.y);ctx.closePath();
+ ctx.fillStyle=LG(b.x-mid.x*r,b.y-mid.y*r,b.x+mid.x*r,b.y+mid.y*r,[tint(color,-.24),color,tint(color,.13),tint(color,-.2)]);ctx.fill();ctx.strokeStyle='#11142535';ctx.lineWidth=.6*s;ctx.lineJoin='round';ctx.stroke();ctx.clip();
+ const bend=Math.abs(n0.x*n1.y-n0.y*n1.x);
+ ctx.strokeStyle='#13102535';ctx.lineWidth=(.45+bend*.6)*s;
+ for(const offset of [-1.8,1.8]){ctx.beginPath();ctx.moveTo(b.x-mid.x*r*.65+n1.x*offset*s,b.y-mid.y*r*.65+n1.y*offset*s);ctx.quadraticCurveTo(b.x,b.y+offset*s,b.x+mid.x*r*.5,b.y+mid.y*r*.5+offset*s);ctx.stroke();}
+ ctx.strokeStyle='#ffffff35';ctx.lineWidth=.6*s;ctx.beginPath();ctx.moveTo(A.x-n0.x*s,A.y-n0.y*s);ctx.lineTo(B.x-mid.x*s,B.y-mid.y*s);ctx.lineTo(C.x-n1.x*s,C.y-n1.y*s);ctx.stroke();
+ ctx.strokeStyle='#ffffff50';ctx.lineWidth=.7*s;ctx.beginPath();ctx.moveTo(C.x-n1.x*s,C.y-n1.y*s);ctx.lineTo(D.x+n1.x*s,D.y+n1.y*s);ctx.stroke();ctx.restore();
+}
 function hex2(c){const n=parseInt(c.slice(1),16);return [n>>16,n>>8&255,n&255];}
 function tint(c,k){const [r,g,b]=hex2(c),f=v=>Math.round(k<0?v*(1+k):v+(255-v)*k);return `rgb(${f(r)},${f(g)},${f(b)})`;}   // k<0 darker, k>0 lighter
 function LG(x0,y0,x1,y1,st){const g=ctx.createLinearGradient(x0,y0,x1,y1);st.forEach((c,i)=>g.addColorStop(i/(st.length-1),c));return g;}
@@ -1846,7 +1864,7 @@ function fitSkirt(look,cx,hy,leg,s,ground=hy+leg,limbs=[],waistX=cx){
  // Spread each contact over adjacent folds instead of making a sharp knee-shaped notch.
  for(let i=left.length-2;i>=0;i--){left[i].x=Math.min(left[i].x,left[i+1].x+3*s);right[i].x=Math.max(right[i].x,right[i+1].x-3*s);}
  ctx.save();ctx.globalAlpha=1;ctx.beginPath();ctx.moveTo(left[0].x,y0);for(const p of right)ctx.lineTo(p.x,p.y);for(const p of left.slice().reverse())ctx.lineTo(p.x,p.y);ctx.closePath();
- ctx.fillStyle=LG(cx-w1,0,cx+w1,0,[tint(c,-.22),c,tint(c,.12),c,tint(c,-.22)]);ctx.fill();ctx.lineWidth=.8*s;ctx.strokeStyle=FOL;ctx.stroke();ctx.clip();
+ ctx.lineJoin='round';ctx.fillStyle=LG(cx-w1,0,cx+w1,0,[tint(c,-.22),c,tint(c,.12),c,tint(c,-.22)]);ctx.fill();ctx.lineWidth=.8*s;ctx.strokeStyle=FOL;ctx.stroke();ctx.clip();
  const lo=Math.min(...left.map(p=>p.x)),hi=Math.max(...right.map(p=>p.x));
  if(look.skirt==='plaid'){ctx.fillStyle='#1b1b2f66';for(let x=lo;x<hi;x+=7*s)ctx.fillRect(x,y0,2.4*s,y1-y0);for(let y=y0;y<y1;y+=7*s)ctx.fillRect(lo,y,hi-lo,2.4*s);}
  ctx.fillStyle=ctx.createPattern(fitFabric('woven'),'repeat');ctx.fillRect(lo,y0,hi-lo,y1-y0);
@@ -1918,7 +1936,7 @@ const hand={x:shoulder.x+adx/alen*reach,y:shoulder.y+ady/alen*reach},tgt={x:hand
 if(measureOnly)return tgt; // Preview trajectories meet the same clamped racket position as gameplay.
 const bend=Math.sqrt(Math.max(0,(L/2)**2-(reach/2)**2)),px=-ady/alen,py=adx/alen,flip=py<0?-1:1;   // elbow bends downward
 const elbow={x:(shoulder.x+hand.x)/2+px*bend*flip,y:(shoulder.y+hand.y)/2+py*bend*flip};
-const swingSleeve=()=>{line(shoulder,elbow,look.longSleeve?look.sleeve:skin,7*s);line(elbow,hand,look.armSleeve||(look.longSleeve?look.sleeve:skin),7*s);if(!look.bareArms)fitSleeve(shoulder,{x:lerp(shoulder.x,elbow.x,look.longSleeve?1:.48),y:lerp(shoulder.y,elbow.y,look.longSleeve?1:.48)},look.sleeve,s);if(look.longSleeve)fitSleeve(elbow,hand,look.sleeve,s,7.8);ctx.beginPath();ctx.arc(hand.x,hand.y,3.6*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();};
+const swingSleeve=()=>{line(shoulder,elbow,look.longSleeve?look.sleeve:skin,7*s);line(elbow,hand,look.armSleeve||(look.longSleeve?look.sleeve:skin),7*s);if(look.longSleeve)fitBentCloth(shoulder,elbow,hand,look.sleeve,s,10,7.8);else if(!look.bareArms)fitSleeve(shoulder,{x:lerp(shoulder.x,elbow.x,.48),y:lerp(shoulder.y,elbow.y,.48)},look.sleeve,s,10);ctx.beginPath();ctx.arc(hand.x,hand.y,3.6*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();};
 const band=()=>{fitWrist(look,elbow,hand,s,'racket');if(look.wristband)line({x:lerp(elbow.x,hand.x,.7),y:lerp(elbow.y,hand.y,.7)},{x:lerp(elbow.x,hand.x,.88),y:lerp(elbow.y,hand.y,.88)},typeof look.wristband==='string'?look.wristband:'#ffffff',8.4*s);};
 ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
 const aura=st.aura||look.boss&&(bossRage()?'255,110,0':'190,20,70');if(aura){const pulse=.55+.45*Math.sin(time*7),g=ctx.createRadialGradient(cx,hy-38*s*T,6*s,cx,hy-38*s*T,78*s);g.addColorStop(0,`rgba(${aura},${.55*pulse})`);g.addColorStop(1,`rgba(${aura},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,hy-38*s*T,62*s,80*s,0,0,Math.PI*2);ctx.fill();}   // special-ready aura
@@ -1933,12 +1951,12 @@ const f=st.feet?st.feet[k]:{x:x+k*(17+cr*12*(look.deep||1))*s,t:1},lift=f.t<1?Ma
 const foot={x:f.x+k*split*4*s,y:ground-lift-split*5*s},hip={x:cx+k*8*s,y:hy},knee={x:(hip.x+foot.x)/2+k*(2+cr*8)*s,y:(hip.y+foot.y)/2+cr*2*s-lift*.3};
 fitLegs.push({k,hip,knee,foot});
 if(look.shorts){line(hip,knee,skin,7*s);line(knee,foot,skin,6.5*s);const sl=look.shortsLen||.6;fitSleeve(hip,{x:lerp(hip.x,knee.x,sl),y:lerp(hip.y,knee.y,sl)},pants,s,11+(sl-.6)*8);}
-else{fitSleeve(hip,knee,pants,s,9);fitSleeve(knee,foot,pants,s,8);}
+else fitBentCloth(hip,knee,foot,pants,s,10.5,8);
 if(look.pstripe)fitLegStripe(look,hip,knee,foot,k,s);if(look.socks)line({x:lerp(knee.x,foot.x,.78),y:lerp(knee.y,foot.y,.78)},foot,'#f7f7f4',7*s);ctx.beginPath();ctx.ellipse(foot.x+k*3*s,foot.y+1*s,9*s,4*s,0,0,Math.PI*2);ctx.fillStyle='#f4f1e6';ctx.fill();if(look.socks){ctx.strokeStyle='#c9c9c4';ctx.lineWidth=.9*s;ctx.stroke();}}
 fitWaist(look,cx,hy,s,ux);
 if(look.skirt||look.legx==='vet_sauna')fitSkirt(look,cx,hy,st.legLen||30*s*T,s,ground,fitLegs,ux);if(look.legx&&FIT_EXT.bot[look.legx]){ctx.save();FIT_EXT.bot[look.legx](look,cx,hy,st.legLen||30*s*T,s,performance.now()/1000,fitLegs,ground);ctx.restore();}
 const bal=look.balance&&!sad&&cheer<0&&!squat&&(prep!=null||since>=0&&since<.7)?(stroke==='back'?{x:ux-arm*30*s,y:hy-88*s*T}:['loop','drive','crescent','lightning','smash'].includes(stroke)?{x:ux-arm*52*s,y:hy-56*s*T}:null):null;   // free hand: up by the head on the backhand, thrown out on the forehand
-const shout=!sad&&look.shout&&st.shoutT!=null&&time-st.shoutT<.6;const free=bal?bal:sad?{x:ux-arm*4*s,y:hy-72*s*T}:cheer>=0||squat?(squat?{x:ux-arm*34*s,y:hy-112*s*T}:{x:ux-arm*20*s,y:hy-98*s*T}):shout?{x:ux-arm*20*s,y:hy-82*s*T}:st.holding?{x:ux-arm*22*s,y:hy-34*s*T}:look.fist&&!st.tossing?{x:ux-arm*24*s,y:hy-(46+pose.twist*6)*s*T}:st.tossing?{x:ux-arm*20*s,y:hy-78*s*T}:{x:ux-arm*(26-pose.twist*6)*s,y:hy-(24+pose.twist*10)*s*T};st.free=free;const fs={x:ux-arm*15*s,y:hy-50*s*T};line(fs,free,look.armSleeve||(look.longSleeve?look.sleeve:skin),7*s);if(look.longSleeve||look.armSleeve){ctx.beginPath();ctx.arc(free.x,free.y,3.6*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();}if(!look.bareArms)fitSleeve(fs,{x:lerp(fs.x,free.x,look.longSleeve?.92:.3),y:lerp(fs.y,free.y,look.longSleeve?.92:.3)},look.sleeve,s);
+const shout=!sad&&look.shout&&st.shoutT!=null&&time-st.shoutT<.6;const free=bal?bal:sad?{x:ux-arm*4*s,y:hy-72*s*T}:cheer>=0||squat?(squat?{x:ux-arm*34*s,y:hy-112*s*T}:{x:ux-arm*20*s,y:hy-98*s*T}):shout?{x:ux-arm*20*s,y:hy-82*s*T}:st.holding?{x:ux-arm*22*s,y:hy-34*s*T}:look.fist&&!st.tossing?{x:ux-arm*24*s,y:hy-(46+pose.twist*6)*s*T}:st.tossing?{x:ux-arm*20*s,y:hy-78*s*T}:{x:ux-arm*(26-pose.twist*6)*s,y:hy-(24+pose.twist*10)*s*T};st.free=free;const fs={x:ux-arm*15*s,y:hy-50*s*T};line(fs,free,look.armSleeve||(look.longSleeve?look.sleeve:skin),7*s);if(look.longSleeve||look.armSleeve){ctx.beginPath();ctx.arc(free.x,free.y,3.6*s,0,Math.PI*2);ctx.fillStyle=skin;ctx.fill();}if(look.longSleeve){const fe={x:lerp(fs.x,free.x,.5)-arm*4*s,y:lerp(fs.y,free.y,.5)+5*s};fitBentCloth(fs,fe,{x:lerp(fs.x,free.x,.93),y:lerp(fs.y,free.y,.93)},look.sleeve,s,10,7.8);}else if(!look.bareArms)fitSleeve(fs,{x:lerp(fs.x,free.x,.3),y:lerp(fs.y,free.y,.3)},look.sleeve,s,10);
 fitWrist(look,fs,free,s,'free');
 if(look.wb2)line({x:lerp(fs.x,free.x,.78),y:lerp(fs.y,free.y,.78)},{x:lerp(fs.x,free.x,.92),y:lerp(fs.y,free.y,.92)},look.wb2,8*s);
 if(look.watch){const w={x:lerp(fs.x,free.x,.86),y:lerp(fs.y,free.y,.86)};ctx.beginPath();ctx.arc(w.x,w.y,(look.bigWatch?4.4:3.4)*s,0,Math.PI*2);ctx.fillStyle='#111';ctx.fill();}
@@ -2029,7 +2047,7 @@ const limbs=[],clock=performance.now()/1000;
 ctx.save();ctx.translate(hip.x,hip.y);ctx.rotate(pose.lean);ctx.scale(pose.turn,1);if(look.back&&FIT_EXT.back[look.back]){ctx.save();FIT_EXT.back[look.back](look,0,-60,64,-hip.y,1,clock,false);ctx.restore();}if(look.cape)fitCape(look,0,-60,64,-hip.y,1);if(look.wing)fitWing(look,0,-40,1,clock);ctx.restore();
 for(const [i,k] of [[0,-1],[1,1]]){const h={x:hip.x+k*8,y:hip.y},f=foot[i],knee={x:lerp(h.x,f.x,.55)+k*5,y:lerp(h.y,f.y,.5)-f.y*.28};
 limbs.push({k,hip:h,knee,foot:f});
-if(look.shorts){line(h,knee,skin,9);line(knee,f,skin,7);}else{fitSleeve(h,knee,look.pants,1,10);fitSleeve(knee,f,look.pants,1,8);}
+if(look.shorts){line(h,knee,skin,9);line(knee,f,skin,7);}else fitBentCloth(h,knee,f,look.pants,1,10.5,8);
 if(look.shorts)fitSleeve(h,{x:lerp(h.x,knee.x,look.shortsLen||.6),y:lerp(h.y,knee.y,look.shortsLen||.6)},look.pants,1,12);
 if(look.pstripe)fitLegStripe(look,h,knee,f,k,1);
 if(look.socks)line({x:lerp(knee.x,f.x,.73),y:lerp(knee.y,f.y,.73)},f,'#f6f5f2',8);
@@ -2059,7 +2077,7 @@ const im=faceImg(look);if(im){const f=photoFrame(look,null,1,0,0);ctx.drawImage(
 else if(!look.face){ctx.fillStyle=look.hair||'#211812';ctx.beginPath();ctx.arc(0,-2,13,Math.PI,0);ctx.fill();ctx.fillStyle='#1a1530';for(const k of [-1,1]){ctx.beginPath();ctx.arc(k*4.5+(watching?-2:0),1,1.8,0,Math.PI*2);ctx.fill();}ctx.strokeStyle='#763f3b';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,5,4,watching?.3:.05,watching?2.8:3.1);ctx.stroke();}
 if(look.hat||look.hb)fitHead(look,0,0,1,!!im,false,clock);ctx.restore();
 for(const [i,k] of [[0,-1],[1,1]]){const a=pose.arms[i],sh={x:k*15,y:-52},el={x:a[0],y:a[1]-pose.hipY},ha={x:a[2],y:a[3]-pose.hipY};
-line(sh,el,look.longSleeve?look.sleeve:skin,8);line(el,ha,look.armSleeve||(look.longSleeve?look.sleeve:skin),7);if(!look.bareArms)fitSleeve(sh,{x:lerp(sh.x,el.x,look.longSleeve?1:.44),y:lerp(sh.y,el.y,look.longSleeve?1:.44)},look.sleeve,1);if(look.longSleeve)fitSleeve(el,ha,look.sleeve,1,7.8);
+line(sh,el,look.longSleeve?look.sleeve:skin,8);line(el,ha,look.armSleeve||(look.longSleeve?look.sleeve:skin),7);if(look.longSleeve)fitBentCloth(sh,el,ha,look.sleeve,1,10,7.8);else if(!look.bareArms)fitSleeve(sh,{x:lerp(sh.x,el.x,.44),y:lerp(sh.y,el.y,.44)},look.sleeve,1,10);
 fitWrist(look,el,ha,1,i===0?'free':'racket');
 if((look.wristband&&i===1)||(look.wb2&&i===0))line({x:lerp(el.x,ha.x,.75),y:lerp(el.y,ha.y,.75)},{x:lerp(el.x,ha.x,.91),y:lerp(el.y,ha.y,.91)},(i===0?look.wb2:look.wristband)||'#fff',8);
 if(look.watch&&i===0){ctx.fillStyle='#15151c';ctx.beginPath();ctx.roundRect(lerp(el.x,ha.x,.8)-4,lerp(el.y,ha.y,.8)-3,8,6,2);ctx.fill();}
