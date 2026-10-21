@@ -150,7 +150,6 @@ html.prologue-pending #auth-gate[open]{visibility:visible}
     <div class="pl-top">
       <div class="pl-brand"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 16h28a14 14 0 0 1-28 0" fill="currentColor"/></svg>MYS</div>
       <span class="pl-edition">A SMALL COURT. AN ENDLESS GAME.</span>
-      <button class="pl-skip" type="button" data-prologue-close autofocus>건너뛰기 <span aria-hidden="true">↗</span></button>
     </div>
     <div class="pl-hero">
       <section class="pl-copy" aria-label="프롤로그">
@@ -159,7 +158,7 @@ html.prologue-pending #auth-gate[open]{visibility:visible}
         <div class="pl-story"><strong id="prologue-story-title">두 사람. 하나의 공. 첫 번째 서브.</strong><p id="prologue-story-copy">공을 띄우고, 호흡을 맞추고. 우리의 랠리가 시작됩니다.</p></div>
         <div class="pl-actions">
           <button id="auth-google-login" class="pl-google" type="button" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.5 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Google로 나의 랠리 시작</button>
-          <button class="pl-enter" type="button" data-prologue-close>메인 화면 둘러보기 <span aria-hidden="true">→</span></button>
+          <button id="auth-enter" class="pl-enter" type="button" data-prologue-close hidden>▶ 메인으로 시작하기 <span aria-hidden="true">→</span></button>
           <span id="auth-status" role="status" aria-live="polite">로그인 상태 확인 중…</span>
         </div>
       </section>
@@ -393,7 +392,7 @@ const spin=kind==='drive'?.7:kind==='cut'?-.8:0,side=kind==='side'?(Math.random(
 const tn=(y-1.37)/vy,clear=(.22-z+.5*g*tn*tn)/tn;   // never lower than what clears the net
 return {vx:(aimX-x)/f-.15*side*f,vy:-vy,vz:Math.max(clear,clamp((.5*g*f*f-z)/f,kind==='smash'?-1:.35,3.7)),spin,side,type:kind};}
 // 투클릭 balls (b.dual) float: lighter gravity so there is time for two touches
-function step(b,dt){b.vx+=b.side*dt*.3;b.vz-=(6+b.spin*EQUIP.spin*.55)*dt*(b.dual?.75:1);b.x+=b.vx*dt;b.y+=b.vy*dt;b.z+=b.vz*dt;}
+function step(b,dt){b.vx+=b.side*dt*(b.curveK||.3);b.vz-=(6+b.spin*EQUIP.spin*.55)*dt*(b.dual?.75:1);b.x+=b.vx*dt;b.y+=b.vy*dt;b.z+=b.vz*dt;}
 // PvP rating: start 1000, win +10 / loss -10, each extra game in a streak adds 1 more (+11, +12 ... / -11, -12 ...).
 function nextRating(o,won){const streak=won?(o.streak>0?o.streak+1:1):(o.streak<0?o.streak-1:-1),delta=won?9+streak:-9+streak;
 return {rating:o.rating+delta,wins:o.wins+(won?1:0),losses:o.losses+(won?0:1),streak,delta};}
@@ -990,7 +989,7 @@ const BOUNCE_MAX=.3,BOUNCE_CHANCE=.45;
 const AI_BLOCK=.3;   // share of my drives the AI just blocks back (a high, slow ball I can smash)
 function serve(){lastAIHit=time;aiShot='short';const dbl=mode==='doubles'&&!net,L=tierL(P.LEVELS[aiDif()]||P.LEVELS.b4),x0=dbl?-(.38+Math.random()*.15):(Math.random()-.5)*.6,tx=()=>dbl?-(.15+Math.random()*.3):(Math.random()-.5)*.8,srv=dbl&&aiHitter?foe2Char:aiChar;let sp=mode==='cutman'||LOOKS[srv].shortCutServe?-1.4:mode==='infdrive'?.8:LOOKS[srv].topServe?.8:LOOKS[srv].serveEdge||LOOKS[srv].spinServe||LOOKS[srv].serveTrick?(Math.random()<.5?1.4:-1.4)*(LOOKS[srv].serveBoost?.spin||1):0,plan=sp&&(P.planServe(sp,L.serve*(LOOKS[srv].serveBoost?.speed||1),-x0,.3,tx())||P.planServe(sp,L.serve,-x0,.3,tx()));   // 퍼시벌 serves with heavy spin
 if(!plan){sp=0;plan=P.planServe(0,L.serve,-x0,.3,tx())||P.planServe(0,2.4,-x0,.3,dbl?-.3:0);}
-ball={x:x0,y:2.89,z:.3,vx:-plan.vx,vy:-plan.vy,vz:plan.vz,spin:sp,side:0,bounces:0,owner:'ai',serving:true,type:'serve',shortServe:mode==='cutman'||!!LOOKS[srv].shortCutServe};trail=[];if(LOOKS[srv].serveMiss&&!net&&Math.random()<LOOKS[srv].serveMiss){ball.vz=-.4;ball.faultAt=time+.32;ball.faultMine=false;toast('상대 서브 미스! (화잡이 10%)',1.2);return;}if(LOOKS[srv].serveFloat&&!net&&Math.random()<LOOKS[srv].serveFloat/(1-(LOOKS[srv].serveMiss||0))){const f=P.planServe(0,1.7,-x0,.3,tx());if(f){Object.assign(ball,{vx:-f.vx,vy:-f.vy,vz:f.vz,spin:0,chance:true});toast('상대 서브가 붕 떴어요! 찬스볼 · 아무 스윙이나 스매시 ⚡',2);return;}}toast(sp<0?'상대 커트 서브 · 첫 바운드 뒤, 두 번째 바운드 전에 테이블 위에서 쳐요 (아래·위로 긋기 OK, 탭은 네트)':'상대 서브 · 바운드 후 끝선 밖에서 타격!',2.2);}
+ball={x:x0,y:2.89,z:.3,vx:-plan.vx,vy:-plan.vy,vz:plan.vz,spin:sp,side:0,bounces:0,owner:'ai',serving:true,type:'serve',shortServe:mode==='cutman'||!!LOOKS[srv].shortCutServe};trail=[];if(LOOKS[srv].serveMiss&&!net&&Math.random()<LOOKS[srv].serveMiss){Object.assign(ball,P.miss(ball,ball.y,ball.z,'net'),{serving:false,faultAt:1});toast('상대 서브 미스! 네트 (화잡이 10%)',1.2);return;}if(LOOKS[srv].serveFloat&&!net&&Math.random()<LOOKS[srv].serveFloat/(1-(LOOKS[srv].serveMiss||0))){const f=P.planServe(0,1.7,-x0,.3,tx());if(f){Object.assign(ball,{vx:-f.vx,vy:-f.vy,vz:f.vz,spin:0,chance:true});toast('상대 서브가 붕 떴어요! 찬스볼 · 아무 스윙이나 스매시 ⚡',2);return;}}toast(sp<0?'상대 커트 서브 · 첫 바운드 뒤, 두 번째 바운드 전에 테이블 위에서 쳐요 (아래·위로 긋기 OK, 탭은 네트)':'상대 서브 · 바운드 후 끝선 밖에서 타격!',2.2);}
 // when the opponent wins a point it teases me, half the time
 // counter-drive: a drive answered with a drive moves both players a step further back; anything else brings them in
 // each counter-drive pushes further than the last: steps grow with how deep the rally already is
@@ -1942,7 +1941,7 @@ let scs=!!LOOKS[charType].shortCutServe,spin=LOOKS[charType].topServe?Math.max(M
 const dbl=mode==='doubles';if(dbl)ball.x=P.clamp(ball.x,.35,.65);   // doubles: serve from my right half to their right half (my left)
 const aimX=dbl?P.clamp(-.28+right*.2,-.55,-.1):P.clamp(right*.55,-.55,.55),plan=P.planServe(spin,P.clamp(2.3+speed/1500*.9,2.3,3.2)*(LOOKS[charType].serveBoost?.speed||1),ball.x,ball.z,aimX,side)||P.planServe(spin,2.4,ball.x,ball.z,dbl?-.3:0,side)||P.planServe(0,2.4,ball.x,.3,dbl?-.3:0,0);
 questHit('serve');if(R_('utServeSpin'))spin*=1+R_('utServeSpin');Object.assign(ball,{held:false,tossed:false,serving:true,vx:plan.vx,vy:plan.vy,vz:plan.vz,spin,side,type:'serve',aiAttempt:false,shortServe:scs||spin<0&&Math.abs(motion.drop||0)<SHORT_CUT_PX()});if(mode==='trio')trioLaunch(ball,0,right<0?1:2,2.7,spin);
-if(!net&&LOOKS[charType].serveMiss&&Math.random()<LOOKS[charType].serveMiss){ball.vz=-.4;ball.faultAt=time+.32;ball.faultMine=true;toast('서브 미스… (화잡이 10%)',1.2);}
+if(!net&&LOOKS[charType].serveMiss&&Math.random()<LOOKS[charType].serveMiss){Object.assign(ball,P.miss(ball,ball.y,ball.z,'net'),{serving:false,faultAt:1});toast('서브 미스… 네트 (화잡이 10%)',1.2);}
 if(!net&&!ball.faultAt&&LOOKS[charType].serveFloat&&Math.random()<LOOKS[charType].serveFloat/(1-(LOOKS[charType].serveMiss||0))){const f=P.planServe(0,1.7,ball.x,ball.z,aimX,0);if(f){Object.assign(ball,{vx:f.vx,vy:f.vy,vz:f.vz,spin:0,chance:true});toast('서브가 붕 떴어요… 상대 찬스볼! (화잡이 10%)',1.6);}}
 if(spin<0)toast(ball.shortServe?'짧은 커트 · 투바운드 서브 ✂️':'긴 커트 · 원바운드 서브 (끝선 밖으로 나가요)',1.6);lastHit=time;lastShot=spin<0?'cut':'loop';mySwing.type=LOOKS[charType].serveMotion?(spin<0?'serveCut':'serveLoop'):lastShot;mySwing.t=time;swingMemory=null;
 const label='서브 · '+(spin>0?'상회전':'하회전(커트)'),quality=state==='perfect'?'PERFECT':'GOOD';
@@ -2000,7 +1999,7 @@ if(trait&&verdict==='ok'&&!special&&!shot.chance&&!flair){const roll=Math.random
 if(playerSide*fhDir()===trait.weak&&roll<(LOOKS[charType].traitErr??TRAIT_ERR)){shot=P.miss(shot,ball.y,ball.z,Math.random()<.5?'net':'over');flair='err';}
 else if(playerSide*fhDir()===trait.strong&&roll<TRAIT_POWER){shot=P.power(shot,ball.y,ball.z,TRAIT_MULT);if(shot.power)flair='power';}}
 if(LOOKS[charType].curver&&verdict==='ok'&&!special&&!infd()){if(adamFake){const t=.6,g=6-.6*.55,ax=(Math.random()-.5)*.7;shot={...shot,type:'short',vx:(ax-ball.x)/t,vy:(1.62-ball.y)/t,vz:(.5*g*t*t-ball.z)/t,spin:-.6,side:0,chance:false,shortCut:true,fake:true,power:false};flair=flair||'adamFake';toast('스매시하는 척… 툭! 🪶',1.2);}
-else if(!shot.miss&&!shot.chance||quality==='GOOD'){const k={PERFECT:1.5,GREAT:1,GOOD:.6}[quality]||0;if(k){const sp=inc==='cut'?-Math.max(.6,Math.abs(shot.spin)):Math.max(.6,Math.abs(shot.spin));let b=quality==='PERFECT'?P.power(shot,ball.y,ball.z,1.1):shot;b=P.retime(b,ball.y,ball.z,quality==='PERFECT'?1:.9,b.spin?sp/b.spin:1);shot={...b,spin:b.spin?b.spin:sp,side:-(Math.sign(b.vx)||1)*k,curve:k};}}}   // 아담 성: curl it in
+else if(!shot.miss&&!shot.chance||quality==='GOOD'){const k={PERFECT:1.5,GREAT:1,GOOD:.6}[quality]||0;if(k){const sp=inc==='cut'?-Math.max(.6,Math.abs(shot.spin)):Math.max(.6,Math.abs(shot.spin));let b=quality==='PERFECT'?P.power(shot,ball.y,ball.z,1.1):shot;b=P.retime(b,ball.y,ball.z,quality==='PERFECT'?1:.9,b.spin?sp/b.spin:1);{const side=-(Math.sign(b.vx||(ball.x>0?-1:1))||1)*k,ck=2.4,t=Math.abs((2.05-ball.y)/(b.vy||3));shot={...b,spin:b.spin?b.spin:sp,side,curveK:ck,vx:b.vx-.5*side*ck*t,curve:k};}}}}   // 아담 성: curl it in
 if(LOOKS[charType].gamble&&!me.gUsed&&verdict==='ok'&&!special&&!shot.chance&&!flair){me.gUsed=true;const p=Math.min(.7,.5+.05*(me.gs||0));if(Math.random()<p){shot={...P.power(shot,ball.y,ball.z,1.8),spin:shot.spin*1.8,gamble:true};toast(`🎰 대박! ×1.8 (${Math.round(p*100)}%)`,1.1);}else{shot=P.popup(shot,ball.y,ball.z);flair='gFloat';toast('💸 쪽박… 공이 떴어요',1.1);}}
 if(LOOKS[charType].glass&&verdict==='ok'&&!special&&!shot.chance){if(quality!=='PERFECT'&&!(ball.dual&&ball.anyPerf)&&!flair&&Math.random()<.3){shot=P.miss(shot,ball.y,ball.z,Math.random()<.5?'net':'over');flair='err';toast('쨍그랑… 유리대포 실수 💔',1);}else if(!shot.miss)shot={...P.power(shot,ball.y,ball.z,1.8),spin:shot.spin*1.8};}
 if(LOOKS[charType].smashAll&&verdict==='ok'&&!special&&!flair&&P.family(shot.type)==='smash'){if(ball.z<.25&&Math.random()<.4){shot=P.miss(shot,ball.y,ball.z,'net');flair='err';toast('낮은 공 스매시… 네트! 💢',1);}else shot={...P.power(shot,ball.y,ball.z,1.3),power:true};}
@@ -2046,7 +2045,7 @@ if(driveK)shot=driveK>1?{...P.power(shot,ball.y,ball.z,driveK),power:shot.power}
 if(mode==='doubles')myTurn='mate';
 if(me.mood&&verdict==='ok'&&!special&&!shot.chance&&!flair)shot=me.mood>0?{...P.power(shot,ball.y,ball.z,1+SLEEP_K),spin:shot.spin*(1+SLEEP_K),power:shot.power}:P.retime(shot,ball.y,ball.z,1-SLEEP_K,1-SLEEP_K);   // nap mood
 if(flair==='break'){pops.push({x:p.x,y:p.y,t:time,text:'💥 BREAK',rgb:'255,77,109'});toast('너무 세게 쳐서 라켓이 깨졌어요! 💥 (민희쌤 10%)',2);point(false,'라켓이 깨졌어요! 💥');return;}
-const inType=ball.type;Object.assign(ball,shot,{defMiss:shot.defMiss||0,shortCut:!!shot.shortCut,lob:!!shot.lob,lobN:shot.lobN||0,owner:'you',bounces:0,aiAttempt:false,chance:!!shot.chance,kill,power:!!shot.power,edge:shot.edge||0,dual:false,dualHit:false,aiSpecial:false});if(mode==='trio')trioLaunch(ball,0,(shot.vx||0)<0?1:2,Math.hypot(shot.vx,shot.vy),shot.spin);
+const inType=ball.type;Object.assign(ball,shot,{defMiss:shot.defMiss||0,shortCut:!!shot.shortCut,lob:!!shot.lob,lobN:shot.lobN||0,owner:'you',bounces:0,aiAttempt:false,chance:!!shot.chance,kill,power:!!shot.power,edge:shot.edge||0,dual:false,dualHit:false,aiSpecial:false,curveK:shot.curveK||0,curve:shot.curve||0,fake:!!shot.fake,gamble:!!shot.gamble,faultAt:0});if(mode==='trio')trioLaunch(ball,0,(shot.vx||0)<0?1:2,Math.hypot(shot.vx,shot.vy),shot.spin);
 if(net&&special)slowForDual(ball);   // 1:1: the other side has to take my 필살기 with two touches
 if(flair==='jaetgi'){ball.unreturn=true;me.taunt='쵸레이~ 🔥';me.tauntT=time;}
 ball.pf=quality==='PERFECT';
@@ -2068,8 +2067,7 @@ const PACE={base:.96,perHit:.025,max:1.4,cut:.8};
 function pace(){return (ball&&ball.owner==='ai'?1-R_('defSlow'):net&&ball?1-oppR('defSlow'):1)*PACE.base*Math.min(PACE.max,1+PACE.perHit*rally)*(P.incoming(ball)==='cut'?PACE.cut:1);}
 function update(dt){if(ball&&!ball.held)dt*=P.EQUIP.speed*pace();time+=dt;statusToast();if(!ball){wait-=dt;if(wait<=0)startServe();return;}if(mode==='trio'){trioUpdate(dt);return;}if(net&&net.dbl&&lastHit!==net.d.lastHit){net.d.lastHit=lastHit;if(!ball||!ball.held)net.d.turn.A^=1;}
 if(ball.held&&(ball.owner!=='you'||net&&net.dbl&&net.d.server!==1))return;
-if(ball.held){if(!ball.tossed)ballToHand();else{ball.vz-=6*dt;ball.z+=ball.vz*dt;if(ball.vz<0&&ball.z<ball.tossZ){ball.tossed=false;toast('놓쳤어요 · 다시 토스하세요',1.5);}}hit();return;}if(ball&&ball.faultAt&&time>=ball.faultAt){point(!ball.faultMine,ball.faultMine?'서브 미스 (네트)':'상대 서브 미스 (네트)');return;}
-mateCheck();if(ball&&ball.owner==='you'&&!ball.held&&ball.quadNext==null&&!net&&mode!=='doubles')ball.quadNext=Math.random()<dualRate()*quadRate();hit();if(!ball)return;const prevY=ball.y,prevZ=ball.z;if(dualHold()&&ball.dualX!=null)ball.x+=(ball.dualX-ball.x)*Math.min(1,dt*9);   // after ① the ball glides over to ②
+if(ball.held){if(!ball.tossed)ballToHand();else{ball.vz-=6*dt;ball.z+=ball.vz*dt;if(ball.vz<0&&ball.z<ball.tossZ){ball.tossed=false;toast('놓쳤어요 · 다시 토스하세요',1.5);}}hit();return;}mateCheck();if(ball&&ball.owner==='you'&&!ball.held&&ball.quadNext==null&&!net&&mode!=='doubles')ball.quadNext=Math.random()<dualRate()*quadRate();hit();if(!ball)return;const prevY=ball.y,prevZ=ball.z;if(dualHold()&&ball.dualX!=null)ball.x+=(ball.dualX-ball.x)*Math.min(1,dt*9);   // after ① the ball glides over to ②
 P.step(ball,dualHold()?dt*.5:dt);if((prevY-1.37)*(ball.y-1.37)<0){const z=prevZ+(ball.z-prevZ)*(1.37-prevY)/(ball.y-prevY);if(z<.1525){point(ball.owner==='ai','네트에 걸렸어요');return;}}
 if(ball.serving&&ball.z<=0&&ball.vz<0){ball.x=P.clamp(ball.x,-.7,.7);ball.y=ball.owner==='you'?P.clamp(ball.y,.1,1.25):P.clamp(ball.y,1.49,2.64);   // no serve faults: it always lands in
 ball.serving=false;ball.z=0;ball.vz=-ball.vz*.8;ball.vy*=1.03;beep(270);}
@@ -2084,7 +2082,7 @@ if((bossMin()||infd()||Math.abs(ball.x)<.87&&ball.z<(ball.chance?1.5:.8+.6*deep)
 const myType=ball.type,myShort=!!ball.shortCut;
 // spk: 하드 / 익스트림 AI fires a 필살기 once its gauge is full · dualNow: 투클릭 공 (two touch points, so it comes in slower), chosen up front so its share matches the table
 const preN=!dualNow?0:quadNow?2:Math.random()<triRate()?1:0;   // 포터치 is decided while my ball flies over, so its ① ring can close on the AI's hit
-Object.assign(ball,P.aiReturn(spk?spk[1]:kind,ball.x,ball.y,sjF?Math.max(ball.z,.26):ball.z,(dualNow?(preN===2?1.5:2.4):speed)*(spk?spk[2]:1),(Math.random()-.5)*(infd()?.4:pracLike()?.5:L.aim)),{bounces:0,owner:'ai',chance:kind==='block',kill:wasChance&&kind==='smash'&&ball.z>=.25,power:false,shadow:false,hellfire:false,lob:false,shortCut:false,defMiss:0,skill:null,dual:dualNow,pre:preN,preHit:earlyPre,pcv:false,easy:false,gamble:false,anyPerf:false,curve:0,fake:false,quadNext:null,earlyPre:0,dualHit:false,aiSpecial:!!spk});
+Object.assign(ball,P.aiReturn(spk?spk[1]:kind,ball.x,ball.y,sjF?Math.max(ball.z,.26):ball.z,(dualNow?(preN===2?1.5:2.4):speed)*(spk?spk[2]:1),(Math.random()-.5)*(infd()?.4:pracLike()?.5:L.aim)),{bounces:0,owner:'ai',chance:kind==='block',kill:wasChance&&kind==='smash'&&ball.z>=.25,power:false,shadow:false,hellfire:false,lob:false,shortCut:false,defMiss:0,skill:null,dual:dualNow,pre:preN,preHit:earlyPre,pcv:false,easy:false,gamble:false,anyPerf:false,curve:0,fake:false,curveK:0,faultAt:0,quadNext:null,earlyPre:0,dualHit:false,aiSpecial:!!spk});
 if(infd()||dualNow)fitReturn(ball);
 if(!dualNow&&!infd()&&!LOOKS[aiChar].lobber){const top=b=>{const g=6+b.spin*P.EQUIP.spin*.55;return b.vz>0?b.z+b.vz*b.vz/(2*g):b.z;};for(let i=0;i<2&&top(ball)>(ball.chance?.72:.52);i++){const q=P.power(ball,ball.y,ball.z,1.1);if(q===ball)break;Object.assign(ball,q,{power:false});}}   // AI returns stay low: a faster ball on the same landing spot has a flatter arc
 if(myShort&&kind==='drive'&&!spk&&Math.random()<SHORT_CUT_DRIVE_MISS+R_('utShort')){ball.vz+=2.2;ball.skill='상대가 짧은 커트를 드라이브하다 실수! ✂️ (30%)';}
@@ -2104,7 +2102,7 @@ if(roll<.1){Object.assign(ball,P.power(ball,ball.y,ball.z,1.5));ball.unreturn=tr
 else if(roll<.3){Object.assign(ball,P.power(ball,ball.y,ball.z,1.3));ball.spin*=1.3;toast('AI 민희쌤 포핸드 강타! 💥 ×1.3',1.2);}
 else if(roll<.4){toast('AI 민희쌤가 너무 세게 쳐서 라켓이 깨졌어요! 💥',2);point(true,'AI 라켓이 깨졌어요! 💥');return;}}
 if(LOOKS[aiChar].pcv&&!ball.kill){if(Math.random()<.2){foe.conf=Math.min(3,(foe.conf||0)+1);foe.taunt=`아엠 퍼시벌~ 🔥×${foe.conf}`;foe.tauntT=time;}const k=1+.05*(foe.conf||0);if(k>1){Object.assign(ball,P.power(ball,ball.y,ball.z,k));ball.spin*=k;}if(ball.type==='drive'){ball.side=(ball.side||0)+Math.sign(ball.vx||1)*.9;ball.pcv=true;}}
-if(LOOKS[aiChar].curver&&!dualNow&&!spk){if(wasChance){const t=.62,g=6-.6*.55,ax=(Math.random()-.5)*.7;Object.assign(ball,{type:'short',vx:(ax-ball.x)/t,vy:(1.1-ball.y)/t,vz:(.5*g*t*t-ball.z)/t,spin:-.6,side:0,kill:false,chance:false,shortCut:true});ball.skill='아담 성 스매시 페이크! 짧게 툭 🪶';}else{const cut=P.incoming({type:myType})==='cut';ball.spin=cut?-.8:.7;ball.side=-(Math.sign(ball.vx)||1)*1.2;ball.curve=1.2;Object.assign(ball,P.retime(ball,ball.y,ball.z,.95,1));}}
+if(LOOKS[aiChar].curver&&!dualNow&&!spk){if(wasChance){const t=.62,g=6-.6*.55,ax=(Math.random()-.5)*.7;Object.assign(ball,{type:'short',vx:(ax-ball.x)/t,vy:(1.1-ball.y)/t,vz:(.5*g*t*t-ball.z)/t,spin:-.6,side:0,kill:false,chance:false,shortCut:true});ball.skill='아담 성 스매시 페이크! 짧게 툭 🪶';}else{const cut=P.incoming({type:myType})==='cut';ball.spin=cut?-.8:.7;Object.assign(ball,P.retime(ball,ball.y,ball.z,.92,1));{const side=-(Math.sign(ball.vx||(ball.x>0?-1:1))||1)*1.3,ck=2.4,t=Math.abs((.55-ball.y)/(ball.vy||-3));ball.side=side;ball.curveK=ck;ball.vx-=.5*side*ck*t;ball.curve=1.3;}}}
 if(LOOKS[aiChar].glass&&!ball.kill){Object.assign(ball,P.power(ball,ball.y,ball.z,1.8));ball.spin*=1.8;}
 if(LOOKS[aiChar].smashAll&&ball.type==='smash'&&!ball.kill)Object.assign(ball,P.power(ball,ball.y,ball.z,1.3));
 if(LOOKS[aiChar].gamble&&!foe.gUsed&&!dualNow&&!spk){foe.gUsed=true;const p=Math.min(.7,.5+.05*(foe.gs||0));if(Math.random()<p){Object.assign(ball,P.power(ball,ball.y,ball.z,1.8));ball.spin*=1.8;ball.gamble=true;ball.skill='🎰 도박사 대박! ×1.8';}else{Object.assign(ball,P.aiReturn('block',ball.x,ball.y,ball.z,L.speed,(Math.random()-.5)*L.aim),{chance:true});ball.skill='💸 도박사 쪽박! 찬스볼 스매싱 ⚡';}}
@@ -2653,7 +2651,7 @@ function cleanName(v){return String(v).replace(/[\u0000-\u001f<>]/g,'').trim().s
 // One record per match (id = matchId, so a resend can never add it twice). Everything is captured now, so it can also be
 // sent on the next visit when the page was closed mid-game.
 function rankRecord(quit){const lv=LEVEL_NO[aiDif()]||4,won=!quit&&you>cpu&&!infd(),boss=mode==='boss'&&!net,
-tn=mode==='match'&&!net?({easy:'',hard:'하드 ',extreme:'익스트림 ',ultra:'울트라 ',uhard:'울트라H ',uext:'울트라EX '}[aiTier]??''):'',tm=mode==='match'&&!net?TIER_MULT[aiTier]:1,bonus=mode==='match'&&!net?driveBonus:0,
+tn=mode==='match'&&!net?({easy:'',hard:'H ',extreme:'EX ',ultra:'U ',uhard:'UH ',uext:'UEX '}[aiTier]??''):'',tm=mode==='match'&&!net?TIER_MULT[aiTier]:1,bonus=mode==='match'&&!net?driveBonus:0,
 rec={id:matchId,rmode:infd()?'inf':boss?'boss':mode==='doubles'?'doubles':mode==='trio'?'trio':rankOn?'rank':'ai',rally:infd()?Math.min(300,matchBest):matchBest,wins:won&&!boss?rankWinScore(lv,you-cpu,bonus,cpu,tm):0,detail:infd()?`랠리 ${matchBest}`:`${you}:${cpu}${won&&!boss?` · 랠리+${bonus} · 실점-${cpu}`:''}${quit?' 중단':''}`,level:infd()?'무한 드라이브':boss?BOSS_LABEL[aiChar]||'보스':tn+(LEVEL_NAME[aiDif()]||'4부'),character:LOOKS[charType].nick||'선수',racket:RACKETS[racketType].name.slice(0,10)};
 // 보스 클리어 board: only a win over the boss; bigger point gap first, then the longer rally of that match
 if(boss&&won){rec.boss=(you-cpu)*100+Math.min(99,matchBest);rec.bossDetail=`${you}:${cpu} · 랠리 ${matchBest}`;}return rec;}
@@ -2712,7 +2710,7 @@ function needNick(){if(!loginGate())return false;const n=cleanName(store.get('ni
 // so that rating follows the Google account to any device. The session is remembered by the browser. Only the uid and the
 // nickname are stored in the ranking - never the e-mail.
 let authLib=null,authObj=null,authReadyPromise=null,googleLoginBusy=false,googleLoginReady=false;
-function syncGoogleLoginButtons(){for(const id of ['google-login','auth-google-login']){const b=$(id);b.disabled=!googleLoginReady||googleLoginBusy||!!googleUser;b.hidden=!!googleUser||!FIREBASE_CONFIG;}}
+function syncGoogleLoginButtons(){for(const id of ['google-login','auth-google-login']){const b=$(id);b.disabled=!googleLoginReady||googleLoginBusy||!!googleUser;b.hidden=!!googleUser||!FIREBASE_CONFIG||id==='google-login';}const en=$('auth-enter');if(en)en.hidden=!(googleUser||!FIREBASE_CONFIG||TEST_HOST);}   /* sign-in happens in the prologue only */
 async function authReady(){if(authObj){await authObj.authStateReady();googleLoginReady=true;return authObj;}return authReadyPromise??=(async()=>{const db=await remote();if(!db)return null;authLib=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');authObj=authLib.getAuth(rankApp);await authObj.authStateReady();googleLoginReady=true;return authObj;})().catch(e=>{authReadyPromise=null;throw e;});}
 async function pvpRemote(){const db=await remote();if(!db)return null;const au=await authReady();if(!au.currentUser||au.currentUser.isAnonymous)return null;rankUid=au.currentUser.uid;return db;}   // Google accounts only - no guest accounts are created
 const IN_APP=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER|Line\/|DaumApps|everytimeApp/i.test(navigator.userAgent);   // Google blocks sign-in inside app web views
@@ -2726,7 +2724,7 @@ rankUid=au.currentUser.uid;if($('auth-gate')?.open)$('auth-gate').close();if(!cl
 catch(e){loginStatus(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'?'로그인을 취소했어요':e.code==='auth/popup-blocked'?'팝업이 막혔어요 · 팝업을 허용한 뒤 다시 눌러주세요':'로그인 실패 ('+(e.code||e.message)+')');}finally{googleLoginBusy=false;syncGoogleLoginButtons();}}
 async function googleLogout(){const au=await authReady();if(au)await authLib.signOut(au);rankUid=null;showLogin();}
 // Playing requires a Google account (when Firebase is configured), so every record belongs to a signed-in player.
-function loginGate(){if(!FIREBASE_CONFIG||TEST_HOST||googleUser)return true;loginStatus('🔒 구글 로그인 후 플레이할 수 있어요');toast('구글 로그인 후 플레이할 수 있어요',2);$('google-login').focus();return false;}
+function loginGate(){if(!FIREBASE_CONFIG||TEST_HOST||googleUser)return true;toast('구글 로그인 후 플레이할 수 있어요',2);if(!$('auth-gate').open)$('prologue-open').click();return false;}
 function loginStatus(t){$('login-status').textContent=t;if($('auth-status'))$('auth-status').textContent=t;}
 // Game setup follows the Google account: settings/{uid} (only the owner can read or write it, see firestore.rules).
 // Loaded on sign-in, saved whenever a game is started from the setup window. The device copy stays as a fallback.
@@ -2754,6 +2752,7 @@ const line=`랭킹전 ${won?'승리':'패배'} · 레이팅 ${before.rating} →
 const c=victoryCeremony;if(ceremonyId&&c?.id===ceremonyId)c.ratingLine=line;if(!ceremonyId||c?.id===ceremonyId&&c.phase==='finished'){const p=document.querySelector('.start-card p');p.textContent=p.textContent+' · '+line;toast(line,3);}if(board==='pvp')showBoard('pvp');}
 $('net-nick').value=store.get('nick')||'';updatePvpMe();
 $('google-login').onclick=$('auth-google-login').onclick=googleLogin;$('naver-login').onclick=naverLogin;$('google-logout').onclick=googleLogout;if(FIREBASE_CONFIG)naverReturn().then(ok=>{if(!ok)showLogin();});else{$('login-box').hidden=true;syncGoogleLoginButtons();loginStatus('메인 화면에서 코트와 캐릭터를 둘러보세요.');}
+$('auth-gate').addEventListener('cancel',e=>{if(FIREBASE_CONFIG&&!TEST_HOST&&!googleUser)e.preventDefault();});   /* Esc cannot skip the sign-in */
 $('auth-gate').addEventListener('prologue-before-open',e=>{if(net){e.preventDefault();toast('온라인 대전을 마친 뒤 프롤로그를 볼 수 있어요',2);return;}if(playing&&!paused)pause();});
 $('rank-send').onclick=sendRank;$('rank-name').onkeydown=e=>{if(e.key==='Enter')sendRank();};document.querySelectorAll('.rank-tabs button').forEach(b=>b.onclick=()=>showBoard(b.dataset.board));document.querySelectorAll('#boss-filter input').forEach(c=>c.onchange=()=>showBoard('boss'));showBoard('pvp');
 // iOS Safari ignores user-scalable=no: block its pinch gestures and multi-touch zoom over the court.
