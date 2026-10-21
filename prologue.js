@@ -6,11 +6,11 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const chapters = [...dialog.querySelectorAll('[data-chapter]')];
   const scenes = [
-    ['serve', '탁구의 순간을, 내 손끝으로.', '카사노바 윤 vs 빽종령. SPP의 코트에서 첫 번째 랠리가 시작됩니다.'],
-    ['spin', '한 번의 스윙이, 흐름을 바꾼다.', '움직이고, 받아치고, 빈틈을 노리고. 드라이브부터 백핸드까지 이어지는 랠리.'],
+    ['serve', '탁구의 순간을, 내 손끝으로.', '민희쌤 vs 올인 도박사. SPP의 코트에서 첫 번째 랠리가 시작됩니다.'],
+    ['spin', '필살기 한 방으로, 흐름을 뒤집다.', '민희쌤의 메테오 스매시, 도박사의 혜성 드라이브. 필살기가 맞붙는 SPP의 코트.'],
     ['ready', '다음 랠리의 주인공은 당신.', '캐릭터를 고르고, 나만의 코디로 코트에 서 보세요.']
   ];
-  const starts = [0, 3500, 9000];
+  const starts = [0, 5200, 11000];
   let elapsed = 0, last = 0, frame = 0, paused = false, scene = -1, previewReady = false;
   const canvas = document.getElementById('prologue-court');
   function drawRally(time) {
@@ -23,7 +23,7 @@
     previewReady = !!ready;
     return previewReady;
   }
-  Promise.allSettled(['yunhwan','jongryeong'].map(key => FACES[key].decode())).then(() => {
+  Promise.allSettled(['minhee','minheeS','minheeF','gambler'].map(key => FACES[key].decode())).then(() => {
     if (dialog.open && !drawRally(elapsed)) {
       document.getElementById('prologue-loading').textContent = '미리보기를 불러오지 못했어요. 아래에서 게임을 시작할 수 있어요.';
     }

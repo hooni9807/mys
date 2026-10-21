@@ -2,7 +2,7 @@
 
 ## Gameplay preview (2026-10-21)
 
-The introduction renders Casanova Yun and Jongryeong with the same `person`, `withFit`, `racket`, `project`, `arenaBg`, and `drawTable` code used by the game. Yun wears the arcade outfit; Jongryeong wears the club outfit. No external character art or video is embedded.
+The introduction renders Minhee and All-in Gambler with the same `person`, `withFit`, `racket`, `project`, `arenaBg`, and `drawTable` code used by the game. Both use their original character outfits. Minhee also uses the actual serve and forehand face variants. No external character art or video is embedded.
 
 `prologue-match.js` choreographs a continuous exhibition rally: a service toss and two service bounces, then alternating drives/backhands and periodic smashes. Ball endpoints use the real arm-length-clamped racket position via the renderer's non-drawing `measureOnly` argument. Characters shuffle and recover between strokes. The counter is a demo rally count; 08–08 is a decorative exhibition scoreboard, not a live ranked match.
 
@@ -27,3 +27,9 @@ node tests/prologue-preview.cjs
 ```
 
 `PLAYWRIGHT_MODULE` can point to an existing Playwright installation; `CHROME_PATH` optionally selects an installed browser. The smoke check covers desktop/mobile width, exact rally contact counters, restored game state, no page errors, reduced motion and entering the main screen. It blocks external requests and does not test Google login or multiplayer. Visual captures were also inspected at service, contact and follow-through.
+
+## Ultimate showcase
+
+Every 12 contacts, Minhee fires Meteor Smash (contact index 4) and the Gambler replies with Comet Drive (index 9). These use the actual `ULT_BY` definitions, `drawUltFx` particles and `drawUltCutin` face/name artwork, plus a colored ball trail and glow. The incoming lob sets up the smash. A small impact shake is limited to 0.3 seconds; the intro does not use the gameplay cut-in's full-screen white flash. Preview speed lines are deterministic so paused frames remain stable.
+
+The cut-in renderer accepts optional effect/time arguments, leaving ordinary gameplay calls unchanged. `ultFx` and `ball` are restored with all other preview state. No `fireUlt`, skill activation, sound, loadout or progression changes occur. Reduced-motion mode omits camera shake and the moving cut-in. The smoke check asserts both ultimate cues and preservation of effect, ball and progression state.
