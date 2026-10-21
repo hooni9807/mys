@@ -555,7 +555,7 @@ const TITLES=[['rookie','신입 부원','처음 시작한 탁구인',()=>true],
 ['rally10','랠리 새싹','한 경기 랠리 10번',()=>best>=10],['rally50','지칠 줄 모르는','한 경기 랠리 50번',()=>best>=50],['rally200','인간 탁구 로봇','한 경기 랠리 200번',()=>best>=200],
 ['streak3','연승 행진','3연승',()=>(tS().maxStreak||0)>=3],['streak5','파죽지세','5연승',()=>(tS().maxStreak||0)>=5],['streak10','무패 신화','10연승',()=>(tS().maxStreak||0)>=10],
 ['deuce','듀스의 강자','듀스(10:10 이후) 끝에 승리',()=>!!tS().deuce],['comeback8','기적의 역전극','8점 이상 지다가 역전승',()=>!!tS().comeback8],
-['bossAll','보스 사냥꾼','모든 보스 승리',()=>['minhee','maou','sejong'].every(k=>tS()[k])],['boss10','보스 학살자','보스전 10승',()=>(tS().bossN||0)>=10],
+['bossAll','보스 사냥꾼','모든 보스 승리',()=>['minhee','maou','sejong','godyung'].every(k=>tS()[k])],['boss10','보스 학살자','보스전 10승',()=>(tS().bossN||0)>=10],
 ['online30','랭커','온라인 대전 30승',()=>(tS().online||0)>=30],['online100','챌린저','온라인 대전 100승',()=>(tS().online||0)>=100],['dbl','환상의 복식조','복식 승리',()=>!!tS().dbl],['dbl20','복식 장인','복식 10승',()=>(tS().dblN||0)>=10],
 ['ultraAll','터치의 신','울트라 · 울트라 하드 · 울트라 익스트림 모두 승리',()=>['ultra','uhard','uext'].every(k=>tS()[k])],['uext10','포터치 고인물','울트라 익스트림 10승',()=>(tS().uextN||0)>=10],
 ['main50','원캐 장인','한 캐릭터로 50승',()=>Object.keys(tS()).some(k=>k.startsWith('c_')&&tS()[k]>=50)],['allchar','올라운더','10명의 캐릭터로 각각 1승',()=>Object.keys(tS()).filter(k=>k.startsWith('c_')).length>=10],
@@ -723,7 +723,7 @@ FIT_ACC.push(
 
 const FIT_SLOTS=['head','arm','body','wing','aura','pet'];
 FIT_TOPS.push(...VET_TOP);FIT_BOTS.push(...VET_BOT);FIT_ACC.push(...VET_HEAD,...VET_ARM,...VET_BODY);
-const fitOk=r=>!r||(!r.lv||progLevel()>=r.lv)&&(!r.tier||!!tS()[r.tier])&&(!r.bosses||['minhee','maou','sejong'].every(k=>tS()[k]))&&(!r.online||(tS().online||0)>=r.online),fitReqText=r=>[r.lv?`Lv${r.lv}`:'',r.tier==='uhard'?'울트라 하드 이상 승리':'',r.bosses?'모든 보스전 승리':'',r.online?`온라인 대전 ${r.online}승`:''].filter(Boolean).join(' · ');
+const fitOk=r=>!r||(!r.lv||progLevel()>=r.lv)&&(!r.tier||!!tS()[r.tier])&&(!r.bosses||['minhee','maou','sejong','godyung'].every(k=>tS()[k]))&&(!r.online||(tS().online||0)>=r.online),fitReqText=r=>[r.lv?`Lv${r.lv}`:'',r.tier==='uhard'?'울트라 하드 이상 승리':'',r.bosses?'모든 보스전 승리':'',r.online?`온라인 대전 ${r.online}승`:''].filter(Boolean).join(' · ');
 const fitClean=(f,gate=false)=>{const o={top:'def',bot:'def'};if(f&&typeof f==='object'){const t=FIT_TOPS.find(t=>t[0]===f.top),b=FIT_BOTS.find(t=>t[0]===f.bot);if(t&&(!gate||fitOk(t[3])))o.top=f.top;if(b&&(!gate||fitOk(b[3])))o.bot=f.bot;for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]&&x[2]===k);if(a&&(!gate||fitOk(a[5])))o[k]=a[0];}}return o;};
 let fitAnim=0,myFit=fitClean((()=>{try{return JSON.parse(localStorage.getItem('fit'));}catch{return null;}})(),true),fitDraft=null,fitTab='top';
 function withFit(look,f){if(!f||!look)return look;f=fitClean(f);let L=look;const t=FIT_TOPS.find(x=>x[0]===f.top),b=FIT_BOTS.find(x=>x[0]===f.bot);
