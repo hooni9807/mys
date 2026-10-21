@@ -371,8 +371,8 @@ const RACKETS={
 // Shakehand = ALC carbon blade, Viscaria look: 157x150 mm near-round head, flared FL handle, 5 wood + 2 arylate-carbon plies
 shake:{name:'쉐이크핸드',special:'crescent',skill:'백핸드 드라이브: 백핸드 쪽 드라이브 계열 속도 ×1.25',
 w:24.5,h:24.5,hw:10,hl:30,grip:'#c9c3b6',gripHi:'#e9e5dc',ply:'#5a554a55',wood:'#e9d4a8',flare:true,lens:'#3b3b3b',reach:1,power:1},
-cpen:{name:'중국식 펜홀더',special:'lightning',skill:'빠른 쇼트: 쇼트 속도 ×1.5',boost:{short:1.5},w:24,h:26,hw:8,hl:15,grip:'#9c7a4c',reach:.95,power:1.08},
-jpen:{name:'일본식 펜홀더',special:'thunder',skill:'포핸드 강타: 포핸드 드라이브 속도 ×1.25',w:19,h:28,hw:11,hl:19,grip:'#c9a46b',square:true,reach:.9,power:1.18},
+cpen:{name:'중국식 펜홀더',special:'lightning',skill:'빠른 쇼트: 쇼트 속도 ×1.25',boost:{short:1.25},w:24,h:26,hw:8,hl:15,grip:'#9c7a4c',reach:.93,power:1.03},
+jpen:{name:'일본식 펜홀더',special:'thunder',skill:'포핸드 강타: 포핸드 드라이브 속도 ×1.15',w:19,h:28,hw:11,hl:19,grip:'#c9a46b',square:true,reach:.88,power:1.08},
 defense:{name:'수비수 라켓',pips:true,special:'phantom',perfect:.65,skill:'수비 특화: 백핸드는 항상 커트(CHOP) · 포핸드는 드라이브 · 스매시 · 커트 가능 · 드라이브는 양쪽 모두 커트로 받아낼 수 있음 · 스매시는 PERFECT 커트로 방어 (PERFECT 범위 65%) · 뜬 공은 스윙하면 스매시 · 백핸드 롱핌플',w:27,h:28.5,hw:10,hl:30,grip:'#b58c58',gripHi:'#e2c08a',tape:'#7a1f1f',reach:1.2,power:.85}};
 const BLACK='#1b1b1b',RED='#c8312f';
 // Character looks. 'jersey' is drawn from the user's photo: short tousled dark hair, black square glasses,
@@ -1921,7 +1921,7 @@ if(ball.dual&&!ball.dualHit){ball.dualHit=true;ball.dualT=time;{const a=project(
 const qs=ball.dual&&ball.dualHit?(Math.abs(time-ball.dualT-DUAL_GAP-DUAL_CLOSE)<.15+R_('utDual')?'perfect':time-ball.dualT-DUAL_GAP-DUAL_CLOSE>.25?'late':'ready'):state,quality=qs==='perfect'?(distance<Math.max(touchInput?42:28,W*.04)*ringK*(1+R_('utPerfect')+(rally>=5?R_('utBreath'):0))*R.reach*(R.perfect||1)?'PERFECT':'GREAT'):qs==='late'?(!ball.dual&&R_('defLateT')&&((-.08-P.back(ball)-P.perfectSpan(ball))-ball.y)/Math.max(.5,Math.abs(ball.vy||0))<R_('defLateT')?'GOOD':'LATE'):'GOOD';   // 늦어도 괜찮아: just-late balls count as GOOD
 if(motion&&motion.side)playerSide=motion.side==='right'?1:-1;else updateSide();
 const special=!infd()&&charge===100;if(special&&R.special==='chiquita')playerSide=-fhDir();
-const boost=racketType==='jpen'&&playerSide*fhDir()>0?{loop:1.25,drive:1.25,side:1.25}:racketType==='shake'&&playerSide*fhDir()<0?{loop:1.25,drive:1.25,back:1.25}:R.boost;
+const boost=racketType==='jpen'&&playerSide*fhDir()>0?{loop:1.15,drive:1.15,side:1.15}:racketType==='shake'&&playerSide*fhDir()<0?{loop:1.25,drive:1.25,back:1.25}:R.boost;
 const still=tap&&!smash;let shot=P.shot(still||!motion?0:motion.vx*R.power,smash?-1450:still?-200:motion.vy*R.power,ball.z,ball.x,ball.y,pracLike(),motion?{above:motion.above,course:motion.course!=null?motion.course:smash?motion.dx/Math.max(Math.abs(motion.rise||0),40):null,dir:motion.dir,below:motion.below,side:motion.side,rise:motion.rise,drop:motion.drop,dx:motion.dx}:{},special?R.special:infd()?(playerSide*fhDir()>0?'loop':'back'):smash&&(racketType!=='defense'||ball.chance||playerSide*fhDir()>0)?'smash':tap||(racketType==='defense'&&playerSide*fhDir()<0?'chop':smash?'smash':undefined),boost);
 const inc=P.incoming(ball),resp=P.family(shot.type),verdict=special?'ok':ball.hellfire&&quality!=='PERFECT'?'over':P.judge(inc,resp,quality==='PERFECT',racketType==='defense');   // specials always get through
 if(verdict!=='ok')shot=P.miss(shot,ball.y,ball.z,verdict);
