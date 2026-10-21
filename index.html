@@ -1879,39 +1879,39 @@ function fitWaist(look,cx,hy,s,waistX=cx){
  ctx.save();ctx.fillStyle=look.pants;ctx.beginPath();ctx.moveTo(waistX-17*s,hy-5*s);ctx.lineTo(waistX+17*s,hy-5*s);ctx.lineTo(cx+13*s,hy+6*s);ctx.quadraticCurveTo(cx,hy+9*s,cx-13*s,hy+6*s);ctx.closePath();ctx.fill();ctx.restore();
 }
 
-/* 유리대포: 실제 야포(필드 캐논) 구조를 유리로 — 포신(캐스커블 손잡이 · 1·2 보강대 · 포신 · 포구 팽창부 · 트러니언 · 손잡이 2개),
-   포가(측판 · 꼬리대 · 고각 나사), 12살 바퀴. 이동하면 바퀴가 구르고, 스윙(since<.35) 때 반동 + 포구 섬광 */
+/* 유리대포 (3D 느낌, 3/4 시점): 포신은 단면이 타원인 원기둥 마디들(위 밝고 아래 어두운 음영 + 하이라이트 띠),
+   양쪽 바퀴 2개는 원근으로 기울어진 타원(먼 쪽은 더 어둡고 위로 비켜) + 차축, 포가 측판도 두 겹. 이동하면 바퀴가 구르고, 스윙 때 반동 + 섬광 */
 function drawCannon(st,hipY,target,s,side,since){const g=hipY+(st.legLen||30*s),x=st.x,wr=22*s,hit=since>=0&&since<.35?1-since/.35:0,dirX=Math.sign(target.x-x)||side||1;
-const hubX=x,hubY=g-wr,bob=Math.sin(time*3)*1*s,el=P.clamp(Math.atan2(hubY-target.y,Math.abs(target.x-hubX)),.05,.75),rec=hit*9*s;
+const hubX=x,hubY=g-wr,bob=Math.sin(time*3)*1*s,el=P.clamp(Math.atan2(hubY-target.y,Math.abs(target.x-hubX)),.05,.75),rec=hit*9*s,D={x:-10*s,y:-8*s};
 st.free={x:hubX,y:hubY};st.lean=0;st.wheel=(st.wheel||0)+((st.x-(st.lastX??st.x))/wr);st.lastX=st.x;
-const glass=(x0,y0,x1,y1)=>{const gr=ctx.createLinearGradient(x0,y0,x1,y1);gr.addColorStop(0,'rgba(236,254,255,.9)');gr.addColorStop(.22,'rgba(165,243,252,.45)');gr.addColorStop(.55,'rgba(103,232,249,.22)');gr.addColorStop(.8,'rgba(14,165,233,.45)');gr.addColorStop(1,'rgba(8,47,73,.6)');return gr;};
-ctx.save();ctx.fillStyle='#0006';ctx.beginPath();ctx.ellipse(x-dirX*14*s,g,46*s,7*s,0,0,Math.PI*2);ctx.fill();
+const cyl=(x0,x1,r0,r1)=>{const gr=ctx.createLinearGradient(0,-Math.max(r0,r1),0,Math.max(r0,r1));gr.addColorStop(0,'rgba(240,253,255,.92)');gr.addColorStop(.18,'rgba(186,230,253,.55)');gr.addColorStop(.32,'rgba(255,255,255,.85)');gr.addColorStop(.42,'rgba(125,211,252,.3)');gr.addColorStop(.8,'rgba(14,116,144,.5)');gr.addColorStop(1,'rgba(8,47,73,.75)');
+ctx.beginPath();ctx.moveTo(x0,-r0);ctx.lineTo(x1,-r1);ctx.ellipse(x1,0,r1*.32,r1,0,-Math.PI/2,Math.PI/2);ctx.lineTo(x0,r0);ctx.ellipse(x0,0,r0*.32,r0,0,Math.PI/2,-Math.PI/2,true);ctx.closePath();ctx.fillStyle=gr;ctx.fill();ctx.strokeStyle='rgba(236,254,255,.95)';ctx.lineWidth=1.3*s;ctx.stroke();
+ctx.beginPath();ctx.ellipse(x0,0,r0*.32,r0,0,0,Math.PI*2);ctx.strokeStyle='rgba(165,243,252,.9)';ctx.stroke();};
+const wheel=(ox,oy,far)=>{ctx.save();ctx.translate(ox,oy);ctx.scale(.82,1);ctx.globalAlpha=far?.55:1;
+ctx.beginPath();ctx.arc(0,0,wr,0,Math.PI*2);ctx.fillStyle='rgba(165,243,252,.16)';ctx.fill();ctx.lineWidth=4.5*s;ctx.strokeStyle='rgba(14,116,144,.7)';ctx.stroke();ctx.lineWidth=2.2*s;ctx.strokeStyle='#ecfeff';ctx.beginPath();ctx.arc(-1*s,-1*s,wr,Math.PI*.9,Math.PI*1.9);ctx.stroke();   // 두께 있는 테 + 윗면 하이라이트
+ctx.strokeStyle='rgba(224,247,255,.85)';ctx.lineWidth=1.8*s;for(let i=0;i<12;i++){const t=st.wheel*dirX+i*Math.PI/6;ctx.beginPath();ctx.moveTo(Math.cos(t)*4.5*s,Math.sin(t)*4.5*s);ctx.lineTo(Math.cos(t)*(wr-3*s),Math.sin(t)*(wr-3*s));ctx.stroke();}
+const hg=ctx.createRadialGradient(-2*s,-2*s,1,0,0,6*s);hg.addColorStop(0,'#fff');hg.addColorStop(1,'rgba(14,116,144,.8)');ctx.beginPath();ctx.arc(0,0,6*s,0,Math.PI*2);ctx.fillStyle=hg;ctx.fill();ctx.restore();};
+ctx.save();ctx.fillStyle='#0006';ctx.beginPath();ctx.ellipse(x-dirX*14*s,g,50*s,9*s,0,0,Math.PI*2);ctx.fill();
 ctx.translate(hubX,hubY);ctx.scale(dirX,1);ctx.lineJoin='round';
-// 포가: 꼬리대가 뒤쪽 땅까지, 측판이 트러니언을 받침
-ctx.fillStyle=glass(0,-14*s,0,wr);ctx.strokeStyle='#e0f7ff';ctx.lineWidth=1.6*s;ctx.beginPath();ctx.moveTo(10*s,-12*s);ctx.lineTo(-6*s,-16*s);ctx.lineTo(-52*s,wr-5*s);ctx.lineTo(-58*s,wr);ctx.lineTo(-46*s,wr);ctx.lineTo(4*s,2*s);ctx.closePath();ctx.fill();ctx.stroke();
-ctx.beginPath();ctx.arc(-54*s,wr-3*s,3*s,0,Math.PI*2);ctx.stroke();   // 꼬리 고리
-ctx.strokeStyle='#bae6fd';ctx.lineWidth=2*s;ctx.beginPath();ctx.moveTo(-16*s,-6*s);ctx.lineTo(-16*s,-14*s);ctx.stroke();for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(-19*s,-8*s-k*2.5*s);ctx.lineTo(-13*s,-9*s-k*2.5*s);ctx.stroke();}   // 고각 나사
-// 포신 (트러니언 중심으로 고각 + 반동)
-ctx.save();ctx.translate(-rec,-14*s+bob);ctx.rotate(-el);
-const L=70*s,R1=11*s,R2=9.5*s,Rc=7.5*s,Rm=9*s;
-ctx.beginPath();ctx.moveTo(-26*s,0);ctx.arc(-28*s,0,4.5*s,0,Math.PI*2);ctx.fillStyle='rgba(207,250,254,.8)';ctx.fill();ctx.strokeStyle='#e0f7ff';ctx.lineWidth=1.4*s;ctx.stroke();   // 캐스커블
-ctx.beginPath();ctx.moveTo(-24*s,-3*s);ctx.lineTo(-22*s,-R1);ctx.lineTo(-2*s,-R1);ctx.lineTo(0,-R2);ctx.lineTo(18*s,-R2+.5*s);ctx.lineTo(20*s,-Rc);ctx.lineTo(L-12*s,-Rc+1*s);ctx.quadraticCurveTo(L-6*s,-Rc,L-3*s,-Rm);ctx.lineTo(L,-Rm);ctx.lineTo(L,Rm);ctx.lineTo(L-3*s,Rm);ctx.quadraticCurveTo(L-6*s,Rc,L-12*s,Rc-1*s);ctx.lineTo(20*s,Rc);ctx.lineTo(18*s,R2-.5*s);ctx.lineTo(0,R2);ctx.lineTo(-2*s,R1);ctx.lineTo(-22*s,R1);ctx.lineTo(-24*s,3*s);ctx.closePath();
-ctx.fillStyle=glass(0,-R1,0,R1);ctx.fill();ctx.strokeStyle='#ecfeff';ctx.lineWidth=2*s;ctx.stroke();
-ctx.save();ctx.clip();ctx.fillStyle='rgba(8,47,73,.35)';ctx.fillRect(-18*s,-3*s,L+18*s,6*s);   // 유리 안으로 보이는 포강
-ctx.fillStyle='rgba(255,255,255,.75)';ctx.fillRect(-20*s,-R1+2*s,L+16*s,2.2*s);ctx.fillStyle='rgba(255,255,255,.3)';ctx.fillRect(-20*s,R1-5*s,L,1.4*s);   // 반사광
-ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=.9*s;ctx.beginPath();ctx.moveTo(30*s,-5*s);ctx.lineTo(36*s,1*s);ctx.lineTo(33*s,6*s);ctx.moveTo(36*s,1*s);ctx.lineTo(42*s,-2*s);ctx.stroke();ctx.restore();   // 금
-ctx.strokeStyle='#a5f3fc';ctx.lineWidth=1.6*s;for(const bx of[-22,-2,18,L/s-12]){ctx.beginPath();ctx.moveTo(bx*s,-R1);ctx.lineTo(bx*s,R1);ctx.stroke();}   // 보강대 · 포구 경계
-ctx.lineWidth=1.8*s;ctx.strokeStyle='#e0f7ff';for(const hx of[2,12]){ctx.beginPath();ctx.arc(hx*s,-R2-1.5*s,3.2*s,Math.PI,0);ctx.stroke();}   // 손잡이(돌핀)
-ctx.fillStyle='#0c4a6e';ctx.beginPath();ctx.ellipse(L,0,1.8*s,4.5*s,0,0,Math.PI*2);ctx.fill();   // 포구
-ctx.beginPath();ctx.arc(0,0,4*s,0,Math.PI*2);ctx.fillStyle='rgba(207,250,254,.9)';ctx.fill();ctx.strokeStyle='#e0f7ff';ctx.lineWidth=1.4*s;ctx.stroke();   // 트러니언
-if(hit>0){ctx.globalAlpha=hit;ctx.fillStyle='#fff7c2';ctx.shadowColor='#7dd3fc';ctx.shadowBlur=30;ctx.beginPath();for(let i=0;i<12;i++){const r=(i%2?9:28)*s*(1+(1-hit)),t=i/12*Math.PI*2;ctx.lineTo(L+10*s+Math.cos(t)*r*.9,Math.sin(t)*r*.6);}ctx.fill();ctx.globalAlpha=hit*.5;ctx.fillStyle='#e0f2fe';for(let k=0;k<4;k++){ctx.beginPath();ctx.arc(L+(20+k*12)*s*(1.4-hit),(k%2?-6:6)*s,(6+k*2)*s*(1.5-hit),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;ctx.shadowBlur=0;}   // 섬광 + 연기
+wheel(D.x,D.y,true);   // 먼 쪽 바퀴
+const cheek=(ox,oy,far)=>{ctx.save();ctx.translate(ox,oy);ctx.globalAlpha=far?.5:1;const gr=ctx.createLinearGradient(0,-16*s,0,wr);gr.addColorStop(0,'rgba(224,247,255,.75)');gr.addColorStop(1,'rgba(8,47,73,.55)');ctx.fillStyle=gr;ctx.strokeStyle='#e0f7ff';ctx.lineWidth=1.4*s;ctx.beginPath();ctx.moveTo(10*s,-12*s);ctx.lineTo(-6*s,-16*s);ctx.lineTo(-52*s,wr-5*s);ctx.lineTo(-58*s,wr);ctx.lineTo(-46*s,wr);ctx.lineTo(4*s,2*s);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();};
+cheek(D.x,D.y,true);
+ctx.fillStyle='rgba(125,211,252,.35)';ctx.beginPath();ctx.moveTo(-6*s,-16*s);ctx.lineTo(-6*s+D.x,-16*s+D.y);ctx.lineTo(-52*s+D.x,wr-5*s+D.y);ctx.lineTo(-52*s,wr-5*s);ctx.closePath();ctx.fill();   // 두 측판을 잇는 윗면
+ctx.strokeStyle='rgba(14,116,144,.9)';ctx.lineWidth=5*s;ctx.beginPath();ctx.moveTo(D.x,D.y);ctx.lineTo(0,0);ctx.stroke();   // 차축
+// 포신
+ctx.save();ctx.translate(-rec+D.x*.5,-14*s+bob+D.y*.5);ctx.rotate(-el);const L=70*s;
+cyl(-24*s,-2*s,11*s,11*s);cyl(-2*s,18*s,9.5*s,9*s);cyl(18*s,L-12*s,7.5*s,7*s);cyl(L-12*s,L,7*s,9*s);
+ctx.beginPath();ctx.arc(-28*s,0,4.5*s,0,Math.PI*2);{const kg=ctx.createRadialGradient(-29.5*s,-1.5*s,.5,-28*s,0,4.5*s);kg.addColorStop(0,'#fff');kg.addColorStop(1,'rgba(14,116,144,.7)');ctx.fillStyle=kg;}ctx.fill();   // 캐스커블
+ctx.beginPath();ctx.ellipse(L,0,9*s*.32,9*s,0,0,Math.PI*2);ctx.fillStyle='rgba(207,250,254,.85)';ctx.fill();ctx.strokeStyle='#ecfeff';ctx.stroke();ctx.beginPath();ctx.ellipse(L,0,4.5*s*.32,4.5*s,0,0,Math.PI*2);ctx.fillStyle='#082f49';ctx.fill();   // 포구 단면 + 포강
+ctx.fillStyle='rgba(8,47,73,.3)';ctx.fillRect(-18*s,-2.5*s,L+16*s,5*s);   // 유리 속 포강
+ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=.9*s;ctx.beginPath();ctx.moveTo(30*s,-5*s);ctx.lineTo(36*s,1*s);ctx.lineTo(33*s,5*s);ctx.moveTo(36*s,1*s);ctx.lineTo(42*s,-2*s);ctx.stroke();   // 금
+ctx.lineWidth=2*s;ctx.strokeStyle='#e0f7ff';for(const hx of[2,12]){ctx.beginPath();ctx.ellipse(hx*s,-10.5*s,3.4*s,3*s,0,Math.PI,0);ctx.stroke();}   // 손잡이
+ctx.beginPath();ctx.ellipse(0,6*s,4*s*.6,4*s,0,0,Math.PI*2);ctx.fillStyle='rgba(207,250,254,.95)';ctx.fill();ctx.strokeStyle='#e0f7ff';ctx.lineWidth=1.2*s;ctx.stroke();   // 트러니언(가까운 쪽)
+if(hit>0){ctx.globalAlpha=hit;ctx.fillStyle='#fff7c2';ctx.shadowColor='#7dd3fc';ctx.shadowBlur=30;ctx.beginPath();for(let i=0;i<12;i++){const r=(i%2?9:28)*s*(1+(1-hit)),t=i/12*Math.PI*2;ctx.lineTo(L+10*s+Math.cos(t)*r*.9,Math.sin(t)*r*.6);}ctx.fill();ctx.globalAlpha=hit*.5;ctx.fillStyle='#e0f2fe';for(let k=0;k<4;k++){ctx.beginPath();ctx.arc(L+(20+k*12)*s*(1.4-hit),(k%2?-6:6)*s,(6+k*2)*s*(1.5-hit),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;ctx.shadowBlur=0;}
 ctx.restore();
-// 12살 바퀴: 테(철띠) · 바퀴살 · 허브
-ctx.fillStyle='rgba(165,243,252,.18)';ctx.beginPath();ctx.arc(0,0,wr,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ecfeff';ctx.lineWidth=3*s;ctx.stroke();ctx.strokeStyle='rgba(125,211,252,.9)';ctx.lineWidth=1.4*s;ctx.beginPath();ctx.arc(0,0,wr-3.5*s,0,Math.PI*2);ctx.stroke();
-ctx.strokeStyle='rgba(224,247,255,.85)';ctx.lineWidth=1.6*s;for(let i=0;i<12;i++){const t=st.wheel*dirX+i*Math.PI/6;ctx.beginPath();ctx.moveTo(Math.cos(t)*4.5*s,Math.sin(t)*4.5*s);ctx.lineTo(Math.cos(t)*(wr-3.5*s),Math.sin(t)*(wr-3.5*s));ctx.stroke();}
-ctx.beginPath();ctx.arc(0,0,5*s,0,Math.PI*2);ctx.fillStyle='rgba(207,250,254,.9)';ctx.fill();ctx.strokeStyle='#e0f7ff';ctx.stroke();ctx.fillStyle='rgba(255,255,255,.6)';ctx.beginPath();ctx.arc(-wr*.45,-wr*.5,wr*.18,0,Math.PI*2);ctx.fill();
+cheek(0,0,false);wheel(0,0,false);   // 가까운 쪽 측판 · 바퀴
 ctx.restore();
-if(st.taunt&&time-st.tauntT<1.6){const fz=Math.max(12,15*s),bx=x,by=hubY-60*s;ctx.save();ctx.font=`900 ${fz}px Arial`;const bw=ctx.measureText(st.taunt).width+fz*1.2,bh=fz*1.8;ctx.fillStyle='#ffffff';ctx.beginPath();ctx.roundRect(bx-bw/2,by-bh/2,bw,bh,bh/2);ctx.fill();ctx.fillStyle='#ff345d';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(st.taunt,bx,by+1);ctx.restore();}}
+if(st.taunt&&time-st.tauntT<1.6){const fz=Math.max(12,15*s),bx=x,by=hubY-62*s;ctx.save();ctx.font=`900 ${fz}px Arial`;const bw=ctx.measureText(st.taunt).width+fz*1.2,bh=fz*1.8;ctx.fillStyle='#ffffff';ctx.beginPath();ctx.roundRect(bx-bw/2,by-bh/2,bw,bh,bh/2);ctx.fill();ctx.fillStyle='#ff345d';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(st.taunt,bx,by+1);ctx.restore();}}
 
 function person(st,hipY,target,angle,look,s,type,face,side,stroke,since,prep=null,measureOnly=false){
 if(look.glass)return drawCannon(st,hipY,target,s,side,since);
