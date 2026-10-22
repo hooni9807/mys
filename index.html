@@ -2174,7 +2174,7 @@ const baseZ=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK*(1-.4*deepS)*(mode=
 // While the ball is coming to me the camera pans so the hitting spot sits mid-screen and my waist line (the raise /
 // lower divider) runs through the middle of the screen - room to draw the stroke above and below it. The point comes
 // from the ball, not from my finger, so moving the racket never drags the camera along.
-const chase=!!(ball&&!ball.held&&ball.owner==='ai'&&(ball.hi||ball.y<.9&&(project(ball.x,ball.y,ball.z).scale<.85||Math.abs(ball.x)>.7||ball.y<-.9)));   // 높은 공 · 멀리 간 공(깊거나 옆으로 빠지거나 작게 보이는 공): 카메라가 공을 따라가 가운데 두고 크게 확대   // 높은 공: the camera follows the ball itself, so it stays big and its timing ring is easy to hit
+const chase=!!(ball&&!ball.held&&ball.owner==='ai'&&(ball.hi||(ball.dual||ball.pre||ball.quadNext)&&ball.y<1.2||ball.y<.9&&(project(ball.x,ball.y,ball.z).scale<.85||Math.abs(ball.x)>.7||ball.y<-.9)));   // 높은 공 · 멀리 간 공(깊거나 옆으로 빠지거나 작게 보이는 공): 카메라가 공을 따라가 가운데 두고 크게 확대   // 높은 공: the camera follows the ball itself, so it stays big and its timing ring is easy to hit
 {const inc=!!(ball&&!ball.held&&ball.owner==='ai'&&me.waistY!=null),bp=chase?project(ball.x,ball.y,ball.z):null,hx=chase?bp.x:inc?project(ball.x,contactY(),.25).x:W/2,k=Math.min(1,cdt*(chase?7:inc?4:3));
 cam.cx=lerp(cam.cx||W/2,inc||chase?hx:W/2,k);cam.cy=lerp(cam.cy||H*.62,chase?bp.y:inc?me.waistY:H*.62,k);cam.ax=lerp(cam.ax||W/2,W/2,k);cam.ay=lerp(cam.ay||H*.62,chase?H*.45:inc?H*.5:H*.62,k);}
 if(chase){const bs=P.clamp(project(ball.x,ball.y,ball.z).scale,.4,1.3),z0=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK;goalZ=Math.min(2.4,z0*P.clamp(1.9/bs,1.7,2.4));}
@@ -2303,6 +2303,12 @@ fx.push({x:p.x,y:p.y,t:time});if(touchInput)navigator.vibrate?.(15);beep(520);to
 const FAM={cut:'커트',drive:'드라이브',smash:'스매시',spin:'회전',short:'쇼트',block:'디펜스 쇼트'},
 ANSWER={cut:'커트 · 드라이브',drive:'블록(탭) · 드라이브',smash:'정확한 타이밍의 쇼트(탭)',spin:'스매시 · 쇼트(탭)'};
 // tap = short (a timed tap on a drive becomes a block), hold in place = defense short (block); a double tap arms a smash for the next hittable ball
+/* 착지 보정: 회전 · 속도 배율(유리대포 ×1.8 · 대박 · 특성 · 필살기 등)을 궤적 계산 뒤에 곱하면 낙하가 달라져 엉뚱한 곳으로 날아가요.
+   들어가야 할 공이 상대 테이블 밖으로 예측되면, 같은 속도 · 회전으로 테이블 안쪽에 떨어지게 위아래 각도와 좌우를 다시 맞춰요. */
+function landGuard(s,b){const sim=v=>{const q={...v,x:b.x,y:b.y,z:b.z,dual:false};let netOk=true;for(let i=0;i<600;i++){const py=q.y;P.step(q,1/240);if(py<1.37&&q.y>=1.37&&q.z<.16)netOk=false;if(q.z<=0&&q.vz<0)return{x:q.x,y:q.y,netOk};}return null;},ok=l=>l&&l.netOk&&l.y>1.45&&l.y<2.7&&Math.abs(l.x)<.74;
+let l=sim(s);if(ok(l)||!(s.vy>0))return s;const g=6+s.spin*P.EQUIP.spin*.55;
+for(const ty of[2.25,2.4,2.1,2.55,1.9]){const F=(ty-b.y)/s.vy;if(F<=0)continue;const vz=(.5*g*F*F-b.z)/F;let v={...s,vz};l=sim(v);if(l&&Math.abs(l.x)>=.74)v={...v,vx:s.vx-(l.x-P.clamp(l.x,-.6,.6))/F};l=sim(v);if(ok(l))return v;}
+return s;}
 function hit(tap){if(performance.now()<cdUntil)return;
 if(mode==='doubles'&&ball&&!ball.held&&ball.owner==='ai'&&myTurn==='mate')return;   // partner's ball
 if(ball&&ball.held){if(playing&&!paused&&ball.owner==='you'&&(!net||!net.dbl||net.d.server===net.d.slot))serveHit();return;}
@@ -2396,7 +2402,7 @@ if(driveK)shot=driveK>1?{...P.power(shot,ball.y,ball.z,driveK),power:shot.power}
 if(mode==='doubles')myTurn='mate';
 if(me.mood&&verdict==='ok'&&!special&&!shot.chance&&!flair)shot=me.mood>0?{...P.power(shot,ball.y,ball.z,1+SLEEP_K),spin:shot.spin*(1+SLEEP_K),power:shot.power}:P.retime(shot,ball.y,ball.z,1-SLEEP_K,1-SLEEP_K);   // nap mood
 if(flair==='break'){pops.push({x:p.x,y:p.y,t:time,text:'💥 BREAK',rgb:'255,77,109'});toast('너무 세게 쳐서 라켓이 깨졌어요! 💥 (민희쌤 10%)',2);point(false,'라켓이 깨졌어요! 💥');return;}
-const inType=ball.type;Object.assign(ball,shot,{hi:false,defMiss:shot.defMiss||0,shortCut:!!shot.shortCut,lob:!!shot.lob,lobN:shot.lobN||0,owner:'you',bounces:0,aiAttempt:false,chance:!!shot.chance,kill,power:!!shot.power,edge:shot.edge||0,dual:false,dualHit:false,aiSpecial:false,curveK:shot.curveK||0,curve:shot.curve||0,fake:!!shot.fake,gamble:!!shot.gamble,faultAt:0,ult:ult?ult.id:null});if(mode==='trio')trioLaunch(ball,0,(shot.vx||0)<0?1:2,Math.hypot(shot.vx,shot.vy),shot.spin);
+const inType=ball.type;if(verdict==='ok'&&!shot.miss&&!['gear','err','timing','spin','drunkMiss','fhFloat','bhFloat','adamFake','overhit','tgNet','tgOut','tgFloat','spec','pipsDrive','pipsCut'].includes(flair))shot=landGuard(shot,ball);Object.assign(ball,shot,{hi:false,defMiss:shot.defMiss||0,shortCut:!!shot.shortCut,lob:!!shot.lob,lobN:shot.lobN||0,owner:'you',bounces:0,aiAttempt:false,chance:!!shot.chance,kill,power:!!shot.power,edge:shot.edge||0,dual:false,dualHit:false,aiSpecial:false,curveK:shot.curveK||0,curve:shot.curve||0,fake:!!shot.fake,gamble:!!shot.gamble,faultAt:0,ult:ult?ult.id:null});if(mode==='trio')trioLaunch(ball,0,(shot.vx||0)<0?1:2,Math.hypot(shot.vx,shot.vy),shot.spin);
 if(net&&special)slowForDual(ball);   // 1:1: the other side has to take my 필살기 with two touches
 if(flair==='jaetgi'){ball.unreturn=true;me.taunt='쵸레이~ 🔥';me.tauntT=time;}
 ball.pf=quality==='PERFECT';
@@ -2465,7 +2471,7 @@ if(bossSj()&&ball.type==='smash'){Object.assign(ball,P.power(ball,ball.y,ball.z,
 if(LOOKS[aiChar].swing&&you-cpu>=3&&!ball.kill){Object.assign(ball,P.power(ball,ball.y,ball.z,1.3));ball.spin*=1.3;}
 {const tier=LOOKS[aiChar].drunk?drunkTier(drunkR):1;if(tier>1&&tier!=='float'&&!ball.kill){Object.assign(ball,P.power(ball,ball.y,ball.z,tier));ball.spin*=tier;toast(`AI 만취범 괴력! 💥 ×${tier}`,1.2);}}if(LOOKS[aiChar].boss)bossSkill(kind);if(mode==='doubles'){aiHitter=foeTurn;foeTurn^=1;}lastAIHit=time;aiShot={drive:'loop',cut:'cut',side:'side',smash:'smash',block:'block'}[spk?spk[1]:ball.type];rally++;best=Math.max(best,rally);updateScore();beep(390);if(LOOKS[charType].blind&&!net&&Math.random()<LOOKS[charType].blind)blindT=time+.15;if(ball.skill)toast(ball.skill,1.5);else if(kind==='block')toast(LOOKS[aiChar].drunk&&drunkR<DRUNK_FLOAT?'딸꾹… AI 만취범 공이 붕 떴어요! 스매시 찬스 ⚡':'상대가 막았어요! 뜬 공 · 스매시 찬스 ⚡',1.4);else if(ball.kill)toast('상대가 찬스볼을 강타! ⚡ PERFECT 낮게 · GREAT 보통 · GOOD 뜨면 또 맞아요',1.6);else if(ball.power)toast(`AI ${LOOKS[aiChar].nick} ${SIDE_NAME[aiFore]} 강타! 💥`,1.2);}}
 const remote=net&&ball.owner==='you'&&ball.bounces===1&&ball.y>2.74;if(remote)ball.passT??=time; // the far player's swing is still on the wire: give it time to arrive
-if((!remote||time-ball.passT>.45)&&(ball.y<-1.1-P.back(ball)-Math.max(0,ball.z-.35)*1.6||ball.y>(net?4.1:3.25+P.DEEP_M*deep)||Math.abs(ball.x)>1.6||ball.z<-.65)){point(ball.owner==='you'&&ball.bounces===1||ball.owner==='ai'&&ball.bounces===0,ball.bounces===1?'공을 놓쳤어요':'아웃');return;}trail.push({x:ball.x,y:ball.y,z:ball.z});if(trail.length>(SPECIALS[ball.type]?28:14))trail.shift();}
+if((!remote||time-ball.passT>.45)&&(ball.y<-1.1-P.back(ball)-Math.max(0,ball.z-.35)*1.6-(ball.owner==='ai'&&(ball.dual||ball.pre||ball.quadNext)?1.4:0)||ball.y>(net?4.1:3.25+P.DEEP_M*deep)||Math.abs(ball.x)>1.6||ball.z<-.65)){point(ball.owner==='you'&&ball.bounces===1||ball.owner==='ai'&&ball.bounces===0,ball.bounces===1?'공을 놓쳤어요':'아웃');return;}trail.push({x:ball.x,y:ball.y,z:ball.z});if(trail.length>(SPECIALS[ball.type]?28:14))trail.shift();}
 function move(e){
 if(activePointer!==null&&e.pointerId!==activePointer)return;
 const r=canvas.getBoundingClientRect(),now=performance.now(),offset=e.pointerType==='touch'?32:0;
