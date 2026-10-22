@@ -879,7 +879,7 @@ const fitOk=r=>!r||(!r.lv||progLevel()>=r.lv)&&(!r.tier||!!tS()[r.tier])&&(!r.bo
 const fitClean=(f,gate=false)=>{const o={top:'def',bot:'def'};if(f&&typeof f==='object'){const t=FIT_TOPS.find(t=>t[0]===f.top),b=FIT_BOTS.find(t=>t[0]===f.bot);if(t&&(!gate||fitOk(t[3])))o.top=f.top;if(b&&(!gate||fitOk(b[3])))o.bot=f.bot;for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]&&x[2]===k);if(a&&(!gate||fitOk(a[5])))o[k]=a[0];}}return o;};
 let fitAnim=0,myFit=fitClean((()=>{try{return JSON.parse(localStorage.getItem('fit'));}catch{return null;}})(),true),fitDraft=null,fitTab='top';
 function withFit(look,f){if(!f||!look)return look;f=fitClean(f);let L=look;const t=FIT_TOPS.find(x=>x[0]===f.top),b=FIT_BOTS.find(x=>x[0]===f.bot);
-if(t&&t[2]){L={...L,...NOPAT,...t[2]};if(t[2].bareArms)L.sleeve=L.skin||'#f2cda8';}if(b&&b[2])L={...L,socks:false,pstripe:null,skirt:null,skirtTrim:null,legx:null,...b[2]};for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]);if(a)L={...L,...a[4]};}return L;}
+if(t&&t[2]){L={...L,...NOPAT,...t[2]};if(t[2].bareArms)L.sleeve=L.skin||'#f2cda8';}if(b&&b[2])L={...L,socks:false,pstripe:null,skirt:null,skirtTrim:null,legx:null,...b[2]};for(const k of FIT_SLOTS){const a=FIT_ACC.find(x=>x[0]===f[k]);if(a)L={...L,...a[4]};}if(look.model3d&&(f.top!=='def'||f.bot!=='def'||FIT_SLOTS.some(k=>f[k])))L={...L,fit3d:true};return L;}
 const fitLook=look=>withFit(look,myFit);
 const FIT_COLLECTIONS=[
  {id:'club',name:'선데이 테니스 클럽',label:'COURT CLUB',desc:'크림 니트와 포레스트 그린. 주말 코트의 여유를 담은 클래식 스포츠 룩.',colors:['#f2eddb','#244f42','#c8a967']},
@@ -1979,7 +1979,7 @@ if(st.taunt&&time-st.tauntT<1.6){const fz=Math.max(12,15*s),bx=x,by=hubY-62*s;ct
 
 function draw3DPlayer(st,hipY,s,look,since){const im=FACES[look.model3d];if(!im?.complete||!im.naturalWidth)return;const leg=st.legLen||30*s,ground=hipY+leg,bounce=since>=0&&since<.55?Math.sin(Math.PI*P.clamp(since/.55,0,1))*7*s:0,h=142*s,w=h*im.naturalWidth/im.naturalHeight;st.free={x:st.x-w*.16,y:hipY-48*s};ctx.save();ctx.fillStyle='#00000055';ctx.beginPath();ctx.ellipse(st.x,ground+2*s,w*.3,5*s,0,0,Math.PI*2);ctx.fill();ctx.drawImage(im,st.x-w/2,ground-h-bounce,w,h);ctx.restore();}
 function person(st,hipY,target,angle,look,s,type,face,side,stroke,since,prep=null,measureOnly=false){
-if(look.model3d)return draw3DPlayer(st,hipY,s,look,since);
+if(look.model3d&&!look.fit3d)return draw3DPlayer(st,hipY,s,look,since);
 if(look.glass)return drawCannon(st,hipY,target,s,side,since);
 const arm=look.lefty?(hipY>H*.5?-1:1):side,T=st.tall||1,R=RACKETS[type],skin=look.skin||'#f2cda8',pants=look.pants,x=st.x,moving=P.clamp(Math.abs(st.vx)/160,0,1),dir=Math.sign(st.vx)||1;
 const pose=strokePose(stroke,since,side,s,{x:x+arm*15*s,y:hipY-50*s*T+st.crouch*18*s},target,angle,st.crouch,look,st.amp??1,st.dirX||0,prep,T);
