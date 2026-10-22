@@ -2174,13 +2174,13 @@ const baseZ=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK*(1-.4*deepS)*(mode=
 // While the ball is coming to me the camera pans so the hitting spot sits mid-screen and my waist line (the raise /
 // lower divider) runs through the middle of the screen - room to draw the stroke above and below it. The point comes
 // from the ball, not from my finger, so moving the racket never drags the camera along.
-const chase=!!(ball&&!ball.held&&ball.owner==='ai'&&ball.hi);   // 높은 공: the camera follows the ball itself, so it stays big and its timing ring is easy to hit
+const chase=!!(ball&&!ball.held&&ball.owner==='ai'&&(ball.hi||ball.y<.9&&(project(ball.x,ball.y,ball.z).scale<.85||Math.abs(ball.x)>.7||ball.y<-.9)));   // 높은 공 · 멀리 간 공(깊거나 옆으로 빠지거나 작게 보이는 공): 카메라가 공을 따라가 가운데 두고 크게 확대   // 높은 공: the camera follows the ball itself, so it stays big and its timing ring is easy to hit
 {const inc=!!(ball&&!ball.held&&ball.owner==='ai'&&me.waistY!=null),bp=chase?project(ball.x,ball.y,ball.z):null,hx=chase?bp.x:inc?project(ball.x,contactY(),.25).x:W/2,k=Math.min(1,cdt*(chase?7:inc?4:3));
 cam.cx=lerp(cam.cx||W/2,inc||chase?hx:W/2,k);cam.cy=lerp(cam.cy||H*.62,chase?bp.y:inc?me.waistY:H*.62,k);cam.ax=lerp(cam.ax||W/2,W/2,k);cam.ay=lerp(cam.ay||H*.62,chase?H*.45:inc?H*.5:H*.62,k);}
-if(chase&&!ball.dual){const bs=P.clamp(project(ball.x,ball.y,ball.z).scale,.55,1.3),z0=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK;goalZ=Math.min(1.9,z0*P.clamp(.95/bs,1,1.8));}
+if(chase){const bs=P.clamp(project(ball.x,ball.y,ball.z).scale,.4,1.3),z0=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK;goalZ=Math.min(2.4,z0*P.clamp(1.9/bs,1.7,2.4));}
 // 투클릭: if the ball, ① or ② would leave the screen, zoom out just enough to keep them all in view; the rings and the
 // touch radius are scaled back up by ringK so they stay the same size on screen
-if(ball&&!ball.held&&ball.owner==='ai'&&(ball.dual||deep>0&&!chase)){goalZ=Math.min(goalZ,baseZ*.85);const p0=project(ball.x,ball.y,ball.z),m=56,pts=[p0,{x:p0.x,y:p0.y-40},project(ball.x,contactY(),.25)];if(ball.dual&&ball.bounces===1)pts.push({x:p0.x-dualOff(),y:p0.y},ball.dualX!=null?project(ball.dualX,ball.y,ball.z):{x:p0.x+dualOff(),y:p0.y});   // 맞드라이브 / 투클릭: wider view, the high ball and its hit spot always on screen
+if(ball&&!ball.held&&ball.owner==='ai'&&(ball.dual||deep>0&&!chase)){if(!chase)goalZ=Math.min(goalZ,baseZ*.85);const p0=project(ball.x,ball.y,ball.z),m=56,pts=[p0,{x:p0.x,y:p0.y-40},project(ball.x,contactY(),.25)];if(ball.dual&&ball.bounces===1)pts.push({x:p0.x-dualOff(),y:p0.y},ball.dualX!=null?project(ball.dualX,ball.y,ball.z):{x:p0.x+dualOff(),y:p0.y});   // 맞드라이브 / 투클릭: wider view, the high ball and its hit spot always on screen
 for(const q of pts){const dx=Math.abs(q.x-cam.cx),up=cam.cy-q.y,dn=q.y-cam.cy;if(dx>1)goalZ=Math.min(goalZ,(W/2-m)/dx);if(up>1)goalZ=Math.min(goalZ,(cam.ay-m)/up);if(dn>1)goalZ=Math.min(goalZ,(H-cam.ay-m)/dn);}goalZ=Math.max(goalZ,baseZ*.45);}
 cam.z=lerp(cam.z,goalZ,Math.min(1,cdt*(focus?10:4)));ringK=Math.max(1,baseZ/cam.z);if(Math.abs(cam.z-goalZ)<.002)cam.z=goalZ;
 const sk=Math.max(0,1-(time-shakeT)/.5)*10;ctx.save();ctx.translate(cam.ax+(Math.random()-.5)*sk,cam.ay+(Math.random()-.5)*sk);ctx.scale(cam.z,cam.z);ctx.translate(-cam.cx,-cam.cy);renderScene();ctx.restore();drawUltCutin();courtHud();}
@@ -2871,7 +2871,7 @@ function roomClose(){if(!roomBeat)return;clearInterval(roomBeat);roomBeat=null;p
 
 // ===== 빠른 매칭 로비: room-list popup -> (방 만들기 -> 대기방) / (방 선택 -> 대기방). The host presses 대결 시작 to begin.
 let lobbyUI=false,lobbyRole=null,lobbyConn=null,lobbyGPeer=null,lobbyTimer=null,lobbyCode='',lobbyKind='single';const lobbyConns={};   // 복식 host: slot -> {conn,name}
-const myName=()=>cleanName(store.get('nick')||'선수')||'선수';
+const myName=()=>cleanName(googleUser?.displayName||store.get('nick')||'선수')||'선수';   // 구글 로그인 중이면 구글 계정 이름 그대로
 function lobbyShow(p){$('lb-list').hidden=p!=='list';$('lb-wait').hidden=p!=='wait';}
 function lobbyPoll(){clearInterval(lobbyTimer);lobbyTimer=setInterval(lobbyRefresh,4000);}
 function lobbyOpen(){if(net||!needNick())return;lobbyUI=true;lobbyRole=null;$('lb-msg').textContent='';lobbyShow('list');if(!$('lobby').open)$('lobby').showModal();lobbyRefresh();lobbyPoll();}
@@ -3027,7 +3027,7 @@ localRank(p);
 remoteRank(p).catch(()=>{}).then(()=>showBoard(board));toast(`지난번 중단한 경기 기록을 랭킹에 남겼어요 (최고 랠리 ${p.rally})`,2.5);}
 addEventListener('pagehide',()=>{if(!playing||net||matchBest<=0)return;keepPending();remoteRank(rankRecord(true)).catch(()=>{});});   // best effort now; the next visit sends it again (same id, no double)
 function offerRank(quit){store.set('rank-pending','');pendingRank=rankRecord(quit);
-if(!pendingRank.rally&&!pendingRank.wins&&!pendingRank.boss)return;$('rank-name').value=store.get('nick')||'';$('rank-msg').textContent=`최고 랠리 ${pendingRank.rally}`+(pendingRank.boss?` · 👑 ${pendingRank.level} 클리어 ${pendingRank.bossDetail}`:pendingRank.wins?` · ${pendingRank.level} 승리 점수 ${pendingRank.wins}점 (${pendingRank.detail})`:' · 패배한 경기는 랠리만 등록돼요');$('rank-submit').hidden=false;$('rank-send').disabled=false;
+if(!pendingRank.rally&&!pendingRank.wins&&!pendingRank.boss)return;$('rank-name').value=myName();$('rank-msg').textContent=`최고 랠리 ${pendingRank.rally}`+(pendingRank.boss?` · 👑 ${pendingRank.level} 클리어 ${pendingRank.bossDetail}`:pendingRank.wins?` · ${pendingRank.level} 승리 점수 ${pendingRank.wins}점 (${pendingRank.detail})`:' · 패배한 경기는 랠리만 등록돼요');$('rank-submit').hidden=false;$('rank-send').disabled=false;
 if(!cleanName($('rank-name').value))$('rank-name').value=cleanName(googleUser&&googleUser.displayName||'')||'선수';sendRank();}
 async function sendRank(){const name=cleanName($('rank-name').value);if(!name){$('rank-msg').textContent='닉네임을 입력하세요';return;}if(!pendingRank)return;
 store.set('nick',name);$('rank-send').disabled=true;$('rank-msg').textContent='등록 중…';
@@ -3103,7 +3103,7 @@ async function naverReturn(){const q=new URLSearchParams(location.search),code=q
 history.replaceState(null,'',location.pathname);if(st!==sessionStorage.getItem('naverState')){loginStatus('네이버 로그인 확인 실패 · 다시 시도해 주세요');return false;}sessionStorage.removeItem('naverState');
 loginStatus('네이버 로그인 중…');try{const r=await fetch(NAVER.worker,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,state:st})}),d=await r.json();if(!d.token)throw new Error(d.error||'token');
 const au=await authReady();await authLib.signInWithCustomToken(au,d.token);if(d.nickname&&!store.get('nick'))store.set('nick',cleanName(d.nickname));await showLogin();if(!playing&&!net)openSetup();return true;}catch(e){loginStatus('네이버 로그인 실패 ('+(e.message||e)+')');return false;}}
-async function showLogin(){let u=null,ready=false,authError='';syncGoogleLoginButtons();try{const au=await authReady();ready=!!au;u=au&&au.currentUser;}catch(e){authError=e.code||e.message||'초기화 오류';}const g=u&&!u.isAnonymous;googleUser=g?u:null;googleLoginReady=ready;syncGoogleLoginButtons();if(g&&!store.get('nick'))store.set('nick',cleanName(u.displayName||'')||'선수');$('start').classList.toggle('locked',!g);if(g){await loadCloudSetup(u.uid);flushPending();presenceStart();loadProgress();setTimeout(inboxLoad,1500);}$('friends-btn').hidden=!g;
+async function showLogin(){let u=null,ready=false,authError='';syncGoogleLoginButtons();try{const au=await authReady();ready=!!au;u=au&&au.currentUser;}catch(e){authError=e.code||e.message||'초기화 오류';}const g=u&&!u.isAnonymous;googleUser=g?u:null;googleLoginReady=ready;syncGoogleLoginButtons();if(g){const gn=cleanName(u.displayName||'');if(gn)store.set('nick',gn);else if(!store.get('nick'))store.set('nick','선수');}$('start').classList.toggle('locked',!g);if(g){await loadCloudSetup(u.uid);flushPending();presenceStart();loadProgress();setTimeout(inboxLoad,1500);}$('friends-btn').hidden=!g;
 $('naver-login').hidden=!!g||!NAVER.worker;$('google-logout').hidden=!g;loginStatus(g?`${cleanName(u.displayName||store.get('nick')||'내 계정')} 님으로 로그인됨 · 랭킹전 기록이 어느 기기에서든 이어져요`:authError?`로그인 준비 실패 (${authError}) · 새로고침 후 다시 시도해 주세요`:'Google로 로그인해 주세요 · 경기 기록이 자동으로 랭킹에 남아요');}
 async function applyRated(won,ceremonyId=null){questMatchEnd(won);gainXp(won?XP.pvp*(1+R_('utWinXp')):XP.pvp/2*(1+R_('utLose')),won?'1대1 승리':'1대1 패배 (절반)');const name=cleanName(store.get('nick')||'')||'익명';let before=pvpLocal(),next=P.nextRating(before,won),where='내 기기';
 try{const db=await pvpRemote();if(db){const ref=rankFs.doc(db,'players',rankUid),snap=await rankFs.getDoc(ref);if(snap.exists())before={...before,...snap.data()};next=P.nextRating(before,won);
