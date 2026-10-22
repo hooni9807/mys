@@ -666,7 +666,7 @@ function ultApply(u,shot,b){let s2=shot;const m=u.m;if(m.pw)s2=P.power(s2,b.y,b.
 if(m.cv){const side=-(Math.sign(s2.vx||(b.x>0?-1:1))||1)*m.cv,ck=2.4,t=Math.abs((2.05-b.y)/(s2.vy||3));s2={...s2,side,curveK:ck,vx:s2.vx-.5*side*ck*t,curve:m.cv};}
 if(m.dm)s2={...s2,defMiss:(s2.defMiss||0)+m.dm};return s2;}
 let ultFx=[];
-function fireUlt(u,x,y,ai=false){ultFx.push({u,x,y,t:time});if(ultFx.length>3)ultFx.shift();ultCut={u,x,y,ai,t:performance.now()/1000,face:faceImg(ai?(net&&net.opp?withFit(LOOKS[net.opp.ch]||LOOKS.ai,net.opp.fit):LOOKS[aiChar]):fitLook(LOOKS[charType])),nick:ai?(net&&net.opp?(net.opp.nick||LOOKS[net.opp.ch]?.nick||'상대'):LOOKS[aiChar].nick):LOOKS[charType].nick};shakeT=time;if(!net)slowUntil=performance.now()+1000;beep(1200);setTimeout(()=>beep(1500),90);}
+function fireUlt(u,x,y,ai=false){ultFx.push({u,x,y,t:time});if(ultFx.length>3)ultFx.shift();ultCut={u,x,y,ai,t:performance.now()/1000,face:faceImg(ai?(net&&net.opp?withFit(LOOKS[net.opp.ch]||LOOKS.ai,net.opp.fit):LOOKS[aiChar]):fitLook(LOOKS[charType])),nick:ai?(net&&net.opp?(net.opp.nick||LOOKS[net.opp.ch]?.nick||'상대'):LOOKS[aiChar].nick):LOOKS[charType].nick};const st=ai?foe:me;st.ultMove={u,t:time};if(ai){st.swingType=u.base;st.swingT=time;}shakeT=time;if(!net)slowUntil=performance.now()+460;beep(1200);setTimeout(()=>beep(1500),90);}
 /* 필살 슛 연출(애니 스포츠 만화풍): 하얀 섬광 → 화면 어둡게 + 집중선 → 사선 컷인(내 캐릭터 얼굴 + 기술 이름) → 잠깐 슬로모션 · 화면 흔들림 */
 let ultCut=null,slowUntil=0;
 function drawUltCutin(f=ultCut,elapsed=null,preview=false){if(!f)return;let T=elapsed??(performance.now()/1000-f.t);if(T>(preview?1.35:1.8)){if(elapsed===null)ultCut=null;return;}const u=f.u,c=u.rgb;ctx.save();
@@ -1408,6 +1408,15 @@ if(since<.05)return mix(B,C,since/.05);                   // contact lands on th
 if(since<.33)return mix(C,F,ease((since-.05)/.28));       // follow-through
 return mix(F,R,P.clamp((since-.45)/.2,0,1));               // hold, then back to ready
 }
+// Original anime-sports finish poses: explosive release, then a quick recovery so the next return remains readable.
+function ultMotionPose(p,move,side,s){if(!move)return p;const t=time-move.t;if(t<0||t>.62)return p;const k=ultFxKind(move.u),outK=P.clamp((t-.32)/.3,0,1),hold=1-outK;
+const set=(x,y,a,c,tw)=>{p.target={x:p.target.x+x*side*s*hold,y:p.target.y+y*s*hold};p.angle+=a*side*hold;p.crouch=Math.max(p.crouch,c*hold);p.twist+=(tw||0)*hold;};
+if(['meteor','flame','burst'].includes(k))set(42,-66,.95,.72,.55);       // leap-and-slam
+else if(['bolt','slash','arrow'].includes(k))set(54,-10,.35,.42,.75);     // driving dash
+else if(['mist','petal','feather'].includes(k))set(28,30,-.3,.88,-.35);   // low deceptive finish
+else if(['spiral','ring','wave'].includes(k))set(34,-42,.72,.55,.62);     // body-turn release
+else set(38,-28,.48,.5,.38);                                               // counter / star / shard
+p.crouch=lerp(p.crouch,.24,outK);return p;}
 // Coaching cue per stroke, shown after each hit so the player can copy the form.
 const GUIDE={
 loop:'루프 드라이브 · ① 무릎 굽히고 라켓을 공보다 낮게, 체중은 오른발 ② 골반을 돌리며 공 뒤를 위로 쓸기 ③ 라켓은 이마 앞까지, 체중은 왼발로',
@@ -1455,7 +1464,7 @@ function liveStroke(){const g=gesture,t=P.classify(paddle.vx,paddle.vy,{rise:g.y
 // The figure loads its racket in time with the incoming ball: from the net to the PERFECT point it eases into the backswing
 // of the stroke this ball calls for (low for a loop off backspin, high for a defender's chop), so the swing lands on the beat.
 function expectStroke(){const inc=P.incoming(ball);return ball.chance?'smash':racketType==='defense'?'chop':inc==='cut'?'loop':inc==='smash'?'block':'drive';}
-function drawingPrep(){if(!ball||ball.owner!=='ai'||ball.held||ball.y>1.37||time-mySwing.t<.65)return null;
+function drawingPrep(){if(!ball||ball.owner!=='ai'||ball.held||ball.y>1.37||time-mySwing.t<(mySwing.ult?.32:.65))return null;
 if(down&&gesture&&!gesture.held&&gesture.distance>=(touchInput?18:12)&&liveStroke()){mySwing.type=gesture.stroke;return .35+P.clamp(gesture.distance/90,0,1)*.65;}
 if(down&&gesture&&!gesture.held&&!gesture.dir&&gesture.stance!=='mid'){mySwing.type=gesture.stance==='low'?'lower':'chop';return .35;}   // finger down: show the chosen stance
 mySwing.type=expectStroke();return P.clamp((1.37-ball.y)/1.45,0,1)*.35;}let lastShot='drive',aiShot='short',lastRenderT=performance.now();
@@ -1971,6 +1980,7 @@ function person(st,hipY,target,angle,look,s,type,face,side,stroke,since,prep=nul
 if(look.glass)return drawCannon(st,hipY,target,s,side,since);
 const arm=look.lefty?(hipY>H*.5?-1:1):side,T=st.tall||1,R=RACKETS[type],skin=look.skin||'#f2cda8',pants=look.pants,x=st.x,moving=P.clamp(Math.abs(st.vx)/160,0,1),dir=Math.sign(st.vx)||1;
 const pose=strokePose(stroke,since,side,s,{x:x+arm*15*s,y:hipY-50*s*T+st.crouch*18*s},target,angle,st.crouch,look,st.amp??1,st.dirX||0,prep,T);
+ultMotionPose(pose,st.ultMove,side,s);
 const cheer=st.cheerT!=null&&time-st.cheerT<1.2?Math.abs(Math.sin((time-st.cheerT)*8)):-1;   // won the point: jump with both arms up
 if(cheer>=0){pose.target={x:x+side*16*s,y:hipY-128*s*T};pose.angle=side*.15;pose.crouch=.15;pose.twist=0;}
 const squat=look.squatCheer&&st.ceremT!=null&&time-st.ceremT<1.2;   // PERFECT ceremony, independent of scoring
@@ -2310,7 +2320,7 @@ const aimX=dbl?P.clamp(-.28+right*.2,-.55,-.1):P.clamp(right*.55,-.55,.55);let p
 questHit('serve');Object.assign(ball,{held:false,tossed:false,serving:true,vx:plan.vx,vy:plan.vy,vz:plan.vz,spin,side,type:'serve',aiAttempt:false,shortServe:scs||spin<0&&Math.abs(motion.drop||0)<SHORT_CUT_PX()});if(mode==='trio')trioLaunch(ball,0,right<0?1:2,2.7,spin);
 if(!net&&LOOKS[charType].serveMiss&&Math.random()<LOOKS[charType].serveMiss){Object.assign(ball,P.miss(ball,ball.y,ball.z,'net'),{serving:false,faultAt:1});toast('서브 미스… 네트 (화잡이 10%)',1.2);}
 if(!net&&!ball.faultAt&&LOOKS[charType].serveFloat&&Math.random()<LOOKS[charType].serveFloat/(1-(LOOKS[charType].serveMiss||0))){const f=P.planServe(0,1.7,ball.x,ball.z,aimX,0);if(f){Object.assign(ball,{vx:f.vx,vy:f.vy,vz:f.vz,spin:0,chance:true});toast('서브가 붕 떴어요… 상대 찬스볼! (화잡이 10%)',1.6);}}
-if(spin<0)toast(ball.shortServe?'짧은 커트 · 투바운드 서브 ✂️':'긴 커트 · 원바운드 서브 (끝선 밖으로 나가요)',1.6);lastHit=time;lastShot=spin<0?'cut':'loop';mySwing.type=LOOKS[charType].serveMotion?(spin<0?'serveCut':'serveLoop'):lastShot;mySwing.t=time;swingMemory=null;
+if(spin<0)toast(ball.shortServe?'짧은 커트 · 투바운드 서브 ✂️':'긴 커트 · 원바운드 서브 (끝선 밖으로 나가요)',1.6);lastHit=time;lastShot=spin<0?'cut':'loop';mySwing.type=LOOKS[charType].serveMotion?(spin<0?'serveCut':'serveLoop'):lastShot;mySwing.t=time;mySwing.ult=null;swingMemory=null;
 const label='서브 · '+(spin>0?'상회전':'하회전(커트)'),quality=state==='perfect'?'PERFECT':'GOOD';
 if(quality==='PERFECT')perfectCeremony(me,LOOKS[charType]);
 $('shot').firstChild.textContent='SERVE';$('shot-sub').textContent=label;$('timing').textContent=quality;
@@ -2423,7 +2433,7 @@ const inType=ball.type;if(verdict==='ok'&&!shot.miss&&!['gear','err','timing','s
 if(net&&special)slowForDual(ball);   // 1:1: the other side has to take my 필살기 with two touches
 if(flair==='jaetgi'){ball.unreturn=true;me.taunt='쵸레이~ 🔥';me.tauntT=time;}
 ball.pf=quality==='PERFECT';
-if(flair==='jaetgi');else if(verdict==='ok'&&!special&&!flair&&!shot.chance&&Math.random()<R_('utEdge')){ball.unreturn=true;toast('엣지! 🍀 테이블 모서리에 맞았어요 · 상대가 못 받아요 (스킬)',1.6);}if(!net)deepen(P.family(inType)==='drive'&&P.family(shot.type)==='drive');lastHit=time;lastShot=shot.type;mySwing.type=shot.type;mySwing.t=time;smashUntil=-1;lastTap=null;
+if(flair==='jaetgi');else if(verdict==='ok'&&!special&&!flair&&!shot.chance&&Math.random()<R_('utEdge')){ball.unreturn=true;toast('엣지! 🍀 테이블 모서리에 맞았어요 · 상대가 못 받아요 (스킬)',1.6);}if(!net)deepen(P.family(inType)==='drive'&&P.family(shot.type)==='drive');lastHit=time;lastShot=shot.type;mySwing.type=shot.type;mySwing.t=time;mySwing.ult=ult||null;smashUntil=-1;lastTap=null;
 const sp=motion?Math.hypot(motion.vx,motion.vy):0;me.amp=motion?P.clamp(.55+sp/2000,.55,1.25):tap?.45:1;me.dirX=motion?P.clamp(motion.vx/(sp||1),-1,1):0;swingMemory=null;
 if(quality==='PERFECT'&&verdict==='ok'){me.shoutT=time;if(R_('utSteal'))aiCharge=Math.max(0,aiCharge-R_('utSteal')*100);if(!['gear','err','timing','spin','drunkMiss','fhFloat','bhFloat','gFloat','adamFake','overhit','tgNet','tgOut','tgFloat','spec'].includes(flair))perfectCeremony(me,LOOKS[charType]);
 if(LOOKS[charType].jaetgi&&flair!=='jaetgi'&&!special){const ty=shot.type,sh=ty==='smash'?'민희쌤 스매싱!':ty==='short'||ty==='block'?'민희쌤 쇼트!':P.family(ty)==='drive'?(playerSide*fhDir()<0?'민희쌤 백드라이브!':'민희쌤 드라이브!'):null;if(sh){me.taunt=sh;me.tauntT=time;}}}   // 민희쌤 PERFECT call-outs
@@ -2519,7 +2529,7 @@ if(e.pointerId!==activePointer)return;move(e);const now=performance.now();
 if(gesture&&!gesture.held&&gesture.distance<(touchInput?18:12)&&now-gesture.t<(touchInput?260:200)){
 hit('short');
 }
-if(gesture&&gesture.stroke&&time-mySwing.t>.65){mySwing.type=gesture.stroke;mySwing.t=time;}   // drawn but never met the ball: swing in the air
+if(gesture&&gesture.stroke&&time-mySwing.t>.65){mySwing.type=gesture.stroke;mySwing.t=time;mySwing.ult=null;}   // drawn but never met the ball: swing in the air
 release();
 });
 // Where the stroke starts decides it: racket below the hit point = drive ready, above = cut ready. An incoming ball is judged
