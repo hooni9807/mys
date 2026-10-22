@@ -2,7 +2,7 @@
 
 Edited with the built-in image generation tool on 2026-10-21. Source portraits are the existing project assets; the replacements retain transparent backgrounds.
 
-Assets: `yunhwan-face.png`, `jongryeong-face.png`, `ajae-face.png`, `sleepy-face.png`, `hyde-face.png`, `jekyll-hyde-face.png`, `percival-face.png`, `adam-face.png`, `minhee-serve.png` (repository root).
+Assets: `yunhwan-face.png`, `jongryeong-face.png`, `ajae-face.png`, `sleepy-face.png`, `hyde-face.png`, `jekyll-hyde-face.png`, `percival-face.png`, `adam-face.png`, `minhee-serve.png`, `boss-face.png` (repository root). `boss-face.png` is a supplied white-haired martial-arts-master portrait with its background removed for 탁구 마왕.
 
 Prompt set: remove neck and shoulders below the natural jaw, preserve the original face identity, expression, angle, hair, glasses, photographic texture and transparency. Preserve the monochrome/color split and scars for Jekyll/Hyde. For the serve portrait also remove the blue background and shirt. Keep the full head uncropped; do not beautify or redesign.
 
