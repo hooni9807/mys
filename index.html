@@ -388,6 +388,7 @@ const BLACK='#1b1b1b',RED='#c8312f';
 // Character looks. 'jersey' is drawn from the user's photo: short tousled dark hair, black square glasses,
 // navy jersey with green / lime vertical stripes and a lime V collar, black shorts, black watch on the left wrist.
 const LOOKS={
+pastor3d:{name:'목사님',nick:'목사님',kit:{name:'PASTOR',color:'#e9d5ff'},face:'pastorFace',faceFit:{h:55,b:24,cx:.5},model3d:'pastorBody',spinServe:true,ceremony:'좋은 소식입니다! 🏓',split:true,stanceK:1.02,crouchK:.1,shirt:'#25252d',sleeve:'#25252d',collar:'#f8fafc',pants:'#172033',shorts:false,hair:'#1b1618',skin:'#a96843',skinShade:'#824629'},
 neon3d:{name:'네온 스핀',nick:'네온 스핀',kit:{name:'NEON',color:'#22d3ee'},face:'neonFace',faceFit:{h:56,b:24,cx:.5},model3d:'neonBody',spinServe:true,ceremony:'스핀 온!',split:true,stanceK:1.1,crouchK:.12,shirt:'#172554',sleeve:'#172554',collar:'#22d3ee',pants:'#111827',shorts:false,hair:'#16121e',skin:'#efc6a6',skinShade:'#d3a283'},
 jersey:{name:'휴고범',nick:'휴고범',kit:{name:'BEOM',color:'#c9ec4a'},trait:{strong:-1,weak:1},face:'hugo',split:true,shout:'촤!',strokes:'hugo',stanceK:1.15,crouchK:.12,shirt:'#163a6b',stripes:['#1f9b54','#c9ec4a'],sleeve:'#1f9b54',collar:'#c9ec4a',pants:'#151515',shorts:true,hair:'#211812',tousled:true,glasses:true,watch:true},
 // 리신범, from the user's photo: wavy dark hair, black headband over the eyes with glasses on top, stubble,
@@ -463,7 +464,7 @@ const characterAvailable=k=>!!LOOKS[k]&&!LOOKS[k].disabled&&k!=='ai';
 // ===== 레벨 · 캐릭터 해금: every account starts at Lv 1 with 휴고범 only. Wins give XP (AI전 50 · 1대1 80 · 보스전 100),
 // every 100 XP is a level, and each level lets you unlock one character out of 3 random locked ones (2 → pick of 2, 1 → given).
 // Stored on the device and in progress/{uid} (cloud wins when it has more XP).
-const XP={ai:50,pvp:80,boss:100},XP_LEVEL=100,START_CHARS=['jersey','neon3d'],UNLOCKABLE=()=>[...document.querySelectorAll('#char-pick button')].map(b=>b.dataset.char).filter(k=>characterAvailable(k)&&!START_CHARS.includes(k));
+const XP={ai:50,pvp:80,boss:100},XP_LEVEL=100,START_CHARS=['jersey','neon3d','pastor3d'],UNLOCKABLE=()=>[...document.querySelectorAll('#char-pick button')].map(b=>b.dataset.char).filter(k=>characterAvailable(k)&&!START_CHARS.includes(k));
 let prog=(()=>{try{const p=JSON.parse(localStorage.getItem('spinlab.progress'));if(p&&Array.isArray(p.unlocked))return p;}catch{}return {xp:0,unlocked:[...START_CHARS]};})();
 const charUnlocked=k=>prog.unlocked.includes(k)||!UNLOCKABLE().includes(k),
 needXp=l=>l<20?100:l<30?100+(l-19)*30:500+(l-30)*100,lvAt=x=>{let l=1;while(x>=needXp(l)){x-=needXp(l);l++;}return[l,x];},progLevel=()=>lvAt(prog.xp)[0],picksOwed=()=>Math.min(progLevel()-1-(prog.unlocked.length-START_CHARS.length),UNLOCKABLE().filter(k=>!prog.unlocked.includes(k)).length);
@@ -1045,7 +1046,7 @@ const DRUNK_NOSCORE=.01;   // 만취범's won point: 1% he is too drunk to turn 
 const TRAIT_POWER=.3,TRAIT_MULT=1.25,TRAIT_ERR=.1,SIDE_NAME={'1':'포핸드','-1':'백핸드'};
 // Head-only cutouts use their own chin anchors; untouched photos keep their original fit.
 const HEAD_FITS={yunhwan:{h:49,b:22,cx:.5},jongryeong:{h:49,b:21.5,cx:.46},ajae:{h:49,b:23.5,cx:.5},sleepy:{h:49,b:20,cx:.5},hyde:{h:49,b:20,cx:.5},percival:{h:45,b:19.5,cx:.45},adam:{h:49,b:24,cx:.5},minheeS:{h:49,b:20.5,cx:.42}};
-const FACES={};for(const [k,f] of [['neonBody','neon-spin-3d.png'],['neonFace','neon-spin-face.png'],['hugo','hugo-face.png'],['gambler','gambler-face.png'],['leesin','leesin-face.png'],['percival','percival-face.png'],['drunk','drunk-face.png'],['ajae','ajae-face.png'],['sleepy','sleepy-face.png'],['hyde','hyde-face.png'],['jh','jekyll-hyde-face.png'],['minhee','minhee-face.png'],['yunhwan','yunhwan-face.png'],['seohyun','seohyun-face.png'],['jongryeong','jongryeong-face.png'],['songstar','songstar-face.png'],['ttalgak','ttalgak-face.png'],['adam','adam-face.png'],['godyung','godyung-face.png'],['jiseong','jiseong-face.png'],['infibot','infibot-face.png'],['boss','boss-face.png'],['minheeS','minhee-serve.png'],['minheeF','minhee-fh.png']]){const im=new Image();im.photoFit=HEAD_FITS[k];im.fetchPriority=['minhee','gambler','neonBody','neonFace'].includes(k)?'high':'low';im.src=f;im.onload=()=>{if(typeof setCharacter==='function')setCharacter(charType);};FACES[k]=im;}
+const FACES={};for(const [k,f] of [['pastorBody','pastor-3d.png'],['pastorFace','pastor-face.png'],['neonBody','neon-spin-3d.png'],['neonFace','neon-spin-face.png'],['hugo','hugo-face.png'],['gambler','gambler-face.png'],['leesin','leesin-face.png'],['percival','percival-face.png'],['drunk','drunk-face.png'],['ajae','ajae-face.png'],['sleepy','sleepy-face.png'],['hyde','hyde-face.png'],['jh','jekyll-hyde-face.png'],['minhee','minhee-face.png'],['yunhwan','yunhwan-face.png'],['seohyun','seohyun-face.png'],['jongryeong','jongryeong-face.png'],['songstar','songstar-face.png'],['ttalgak','ttalgak-face.png'],['adam','adam-face.png'],['godyung','godyung-face.png'],['jiseong','jiseong-face.png'],['infibot','infibot-face.png'],['boss','boss-face.png'],['minheeS','minhee-serve.png'],['minheeF','minhee-fh.png']]){const im=new Image();im.photoFit=HEAD_FITS[k];im.fetchPriority=['minhee','gambler','pastorBody','pastorFace','neonBody','neonFace'].includes(k)?'high':'low';im.src=f;im.onload=()=>{if(typeof setCharacter==='function')setCharacter(charType);};FACES[k]=im;}
 const faceImg=look=>{const im=look&&look.face&&FACES[look.jekyll&&jk()<0?'hyde':look.face];return im&&im.complete&&im.naturalWidth?im:null;};
 // Each racket's special: shot type in PingPhysics.shot, trail colour, coach line.
 const SPECIALS={
@@ -2673,6 +2674,7 @@ $('blade').value=bladeType;$('rubber').value=rubberType;setRacket(store.get('rac
 $('apply-settings').onclick=applySettings;markPending();
 // Character card: what each character can do, shown before picking one
 const CHAR_INFO={
+pastor3d:{tag:'3D 모델 · 소식통 사이드스핀 선수',rows:[['info','소식 전달','늘 새로운 이야기를 전하는 활기찬 코트의 전달자'],['plus','사이드스핀 서브','회전이 실린 균형형 서브'],['perf','PERFECT','"좋은 소식입니다! 🏓"']]},
 neon3d:{tag:'3D 모델 · 균형형 사이드스핀 선수',rows:[['info','3D 캐릭터','실제 코트와 캐릭터 선택 화면에서 입체 전신 모델로 표시'],['plus','사이드스핀 서브','회전이 실린 균형형 서브'],['perf','PERFECT','"스핀 온!"']]},
 jiseong:{tag:'승승패패패 · 패패승승승',rows:[['minus','승승패패패','3점 이상 앞서면 모든 공에서 실수 확률 +10%'],['plus','패패승승승','3점 이상 지고 있으면 모든 공을 칠 때 능력치 +30% (속도 · 회전)'],['perf','PERFECT','"엥?"']]},ttalgak:{tag:'서브의 달인 · 오른쪽 무릎 수술',rows:[['plus','서브','어떤 서브든 회전 ×1.3 · 속도 ×1.35'],['plus','서브 압박','내 서브를 받은 공: 20% 붕 떠서 찬스볼 · 3% 네트 · 3% 아웃'],['minus','무릎','멀리 있는 공으로 급하게 움직일 때 타격 범위 −30%'],['perf','PERFECT','"찬스! 🔥"']]},
 songstar:{tag:'커트 수비의 달인 · 수비수 라켓',rows:[['plus','백핸드 롱 수비','PERFECT: 낮고 빠른 커트 + 상대 실수 +5% · GREAT: 보통 커트 + 상대 실수 +2.5%'],['info','회전 바꾸기','백핸드 롱으로 상회전 서브를 받으면 커트로 · 커트 서브는 상회전으로 · 랠리 중 커트 공은 약한 상회전으로 풀려서 리턴'],['plus','드라이브 커트','드라이브를 커트로 막으면 회전 추가: PERFECT +10% · GREAT +5% · GOOD +2.5%'],['plus','찬스볼','상대가 띄운 공은 스매싱 · 드라이브'],['minus','포핸드 공격','포핸드 드라이브 · 스매싱은 5% 확률로 너무 세게 쳐서 실수'],['perf','PERFECT','"허허이! 😆" / "으악~ 😱"']]},
@@ -2700,8 +2702,8 @@ $('ci-close').onclick=()=>{$('char-info').close();ciSync();};$('ci-pick').onclic
 // next step in view: the Google sign-in (or, once signed in, the play button)
 const nx=$('google-login').hidden?$('start'):$('google-login');setTimeout(()=>nx.scrollIntoView({behavior:'smooth',block:'center'}),80);
 setTimeout(()=>{const r=nx.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)nx.scrollIntoView({block:'center'});},900);};   // smooth where it animates, a plain jump otherwise
-// A project-owned 3D player joins both pickers without duplicating the long static HTML lists.
-{const opt=document.createElement('option');opt.value='neon3d';opt.textContent='네온 스핀 · 3D 밸런스형 · 사이드스핀 서브';$('character').prepend(opt);const b=document.createElement('button');b.type='button';b.setAttribute('role','radio');b.dataset.char='neon3d';const c=document.createElement('canvas');c.width=c.height=96;c.setAttribute('aria-hidden','true');b.append(c,'네온 스핀');$('char-pick').prepend(b);renderCharPick();renderLevel();}
+// Project-owned 3D players join both pickers without duplicating the long static HTML lists.
+for(const [id,label] of [['neon3d','네온 스핀 · 3D 밸런스형 · 사이드스핀 서브'],['pastor3d','목사님 · 3D 소식통 · 사이드스핀 서브']]){const opt=document.createElement('option');opt.value=id;opt.textContent=label;$('character').prepend(opt);const b=document.createElement('button');b.type='button';b.setAttribute('role','radio');b.dataset.char=id;const c=document.createElement('canvas');c.width=c.height=96;c.setAttribute('aria-hidden','true');b.append(c,LOOKS[id].nick);$('char-pick').prepend(b);}renderCharPick();renderLevel();
 document.querySelectorAll('#char-pick button').forEach(b=>b.onclick=()=>showCharInfo(b.dataset.char));
 // the settings panel's character list opens the same card; closing it without picking puts the list back
 const ciSync=()=>{$('character').value=charType;markPending();previewSettings();};
