@@ -666,7 +666,7 @@ function ultApply(u,shot,b){let s2=shot;const m=u.m;if(m.pw)s2=P.power(s2,b.y,b.
 if(m.cv){const side=-(Math.sign(s2.vx||(b.x>0?-1:1))||1)*m.cv,ck=2.4,t=Math.abs((2.05-b.y)/(s2.vy||3));s2={...s2,side,curveK:ck,vx:s2.vx-.5*side*ck*t,curve:m.cv};}
 if(m.dm)s2={...s2,defMiss:(s2.defMiss||0)+m.dm};return s2;}
 let ultFx=[];
-function fireUlt(u,x,y,ai=false){ultFx.push({u,x,y,t:time});if(ultFx.length>3)ultFx.shift();ultCut={u,x,y,ai,t:performance.now()/1000,face:faceImg(ai?LOOKS[aiChar]:fitLook(LOOKS[charType])),nick:ai?LOOKS[aiChar].nick:LOOKS[charType].nick};shakeT=time;if(!net)slowUntil=performance.now()+1000;beep(1200);setTimeout(()=>beep(1500),90);}
+function fireUlt(u,x,y,ai=false){ultFx.push({u,x,y,t:time});if(ultFx.length>3)ultFx.shift();ultCut={u,x,y,ai,t:performance.now()/1000,face:faceImg(ai?(net&&net.opp?withFit(LOOKS[net.opp.ch]||LOOKS.ai,net.opp.fit):LOOKS[aiChar]):fitLook(LOOKS[charType])),nick:ai?(net&&net.opp?(net.opp.nick||LOOKS[net.opp.ch]?.nick||'상대'):LOOKS[aiChar].nick):LOOKS[charType].nick};shakeT=time;if(!net)slowUntil=performance.now()+1000;beep(1200);setTimeout(()=>beep(1500),90);}
 /* 필살 슛 연출(애니 스포츠 만화풍): 하얀 섬광 → 화면 어둡게 + 집중선 → 사선 컷인(내 캐릭터 얼굴 + 기술 이름) → 잠깐 슬로모션 · 화면 흔들림 */
 let ultCut=null,slowUntil=0;
 function drawUltCutin(f=ultCut,elapsed=null,preview=false){if(!f)return;let T=elapsed??(performance.now()/1000-f.t);if(T>(preview?1.35:1.8)){if(elapsed===null)ultCut=null;return;}const u=f.u,c=u.rgb;ctx.save();
@@ -685,7 +685,7 @@ const g=ctx.createLinearGradient(0,0,W,0);g.addColorStop(0,`rgba(${c},.95)`);g.a
 ctx.save();ctx.clip();ctx.globalAlpha=.25;ctx.fillStyle='#fff';for(let i=0;i<14;i++){const yy=by-bh/2+((i*37+T*900)%(bh+60))-30;ctx.fillRect(0,yy,W,2);}ctx.restore();
 const fr=bh*.42,fx=Math.min(W*.2,140),fy=by+8;ctx.save();ctx.beginPath();ctx.arc(fx,fy,fr,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.clip();if(f.face){const im=f.face,k=fr*2.3/Math.max(im.naturalWidth,im.naturalHeight);ctx.drawImage(im,fx-im.naturalWidth*k/2,fy-im.naturalHeight*k/2+fr*.15,im.naturalWidth*k,im.naturalHeight*k);}else{ctx.fillStyle=`rgb(${c})`;ctx.font=`900 ${fr}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText((f.nick||'?')[0],fx,fy);}ctx.restore();ctx.lineWidth=4;ctx.strokeStyle=`rgb(${c})`;ctx.beginPath();ctx.arc(fx,fy,fr,0,Math.PI*2);ctx.stroke();
 const tx=fx+fr+18,fz=Math.max(26,Math.min(54,W*.065)),pop=T<.3?1+Math.sin(T/.3*Math.PI)*.18:1;ctx.save();ctx.translate(tx,by+2);ctx.transform(1,0,-.22,1,0,0);ctx.scale(pop,pop);ctx.textAlign='left';ctx.textBaseline='middle';ctx.font=`italic 900 ${fz}px Arial`;ctx.lineJoin='round';ctx.lineWidth=fz*.28;ctx.strokeStyle='#120a24';ctx.strokeText(u.name,0,-fz*.12);ctx.lineWidth=fz*.1;ctx.strokeStyle=`rgb(${c})`;ctx.strokeText(u.name,0,-fz*.12);
-const tg=ctx.createLinearGradient(0,-fz*.7,0,fz*.4);tg.addColorStop(0,'#ffffff');tg.addColorStop(.6,'#fff7d6');tg.addColorStop(1,`rgb(${c})`);ctx.fillStyle=tg;ctx.shadowColor=`rgb(${c})`;ctx.shadowBlur=20;ctx.fillText(u.name,0,-fz*.12);ctx.shadowBlur=0;ctx.font=`italic 800 ${Math.round(fz*.32)}px Arial`;ctx.fillStyle='#fff';ctx.fillText(u.en+'  ·  '+(f.ai?`AI ${f.nick} 필살기`:'필살기'),4,fz*.62);ctx.restore();
+const tg=ctx.createLinearGradient(0,-fz*.7,0,fz*.4);tg.addColorStop(0,'#ffffff');tg.addColorStop(.6,'#fff7d6');tg.addColorStop(1,`rgb(${c})`);ctx.fillStyle=tg;ctx.shadowColor=`rgb(${c})`;ctx.shadowBlur=20;ctx.fillText(u.name,0,-fz*.12);ctx.shadowBlur=0;ctx.font=`italic 800 ${Math.round(fz*.32)}px Arial`;ctx.fillStyle='#fff';ctx.fillText(u.en+'  ·  '+(f.ai?`${net?'':'AI '}${f.nick} 필살기`:'필살기'),4,fz*.62);ctx.restore();
 ctx.restore();if(!preview&&T<.09){ctx.fillStyle=`rgba(255,255,255,${1-T/.09})`;ctx.fillRect(0,0,W,H);}}
 function drawUltFx(){ultFx=ultFx.filter(f=>time-f.t<1.4);for(const f of ultFx){const t=(time-f.t),u={...f.u,fx:ultFxKind(f.u)},c=u.rgb;ctx.save();
 if(t<.9){const k=t/.9;ctx.globalAlpha=1-k;ctx.strokeStyle=ctx.fillStyle=`rgb(${c})`;ctx.shadowColor=`rgb(${c})`;ctx.shadowBlur=16;ctx.lineWidth=3;
@@ -2769,7 +2769,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){tickVicto
 // marks it dual itself - the host in its H handler, the guest when it shows up in a snapshot.
 function slowForDual(b){const m=mir(b),k=Math.min(1,1.6/Math.abs(m.vy||1));m.vx*=k;m.vy*=k;fitReturn(m);const back=mir(m);Object.assign(b,{vx:back.vx,vy:back.vy,vz:back.vz});}
 const mir=b=>b&&{...b,x:-b.x,y:2.74-b.y,vx:-b.vx,vy:-b.vy,side:-(b.side||0),owner:b.owner==='you'?'ai':'you'};
-const wire=b=>b&&{x:b.x,y:b.y,z:b.z,vx:b.vx,vy:b.vy,vz:b.vz,spin:b.spin,side:b.side,bounces:b.bounces,owner:b.owner,type:b.type,held:b.held,tossed:b.tossed,serving:b.serving,shortServe:b.shortServe,kill:!!b.kill,shortCut:!!b.shortCut,unreturn:!!b.unreturn,pf:!!b.pf,power:!!b.power};
+const wire=b=>b&&{x:b.x,y:b.y,z:b.z,vx:b.vx,vy:b.vy,vz:b.vz,spin:b.spin,side:b.side,bounces:b.bounces,owner:b.owner,type:b.type,held:b.held,tossed:b.tossed,serving:b.serving,shortServe:b.shortServe,kill:!!b.kill,shortCut:!!b.shortCut,unreturn:!!b.unreturn,pf:!!b.pf,power:!!b.power,ult:b.ult||null};
 function me4net(){const base=project(0,-.15);return {rn:runeNet(),fit:myFit,ttl:myTtl().ttl||'',nick:store.get('nick')||'',x:(paddle.x-base.x)/(W*.43*base.scale),side:playerSide,rk:racketType,ch:charType,shot:lastShot,h:lastHit,c:me.ceremT};}
 function snapshot(){return {t:'S',round:net.round,matchId:net.matchId,packet:++net.snapshotNo,clock:performance.now(),ceremony:ceremonyWire(),b:wire(ball),you,cpu,rally,best:matchBest,playing,reason:lastReason,seq:net.seq,...me4net()};}
 function oppServe(){ball={x:0,y:2.89,z:-.3,vx:0,vy:0,vz:0,spin:0,side:0,bounces:0,owner:'ai',held:true,tossed:false};trail=[];toast('상대 서브',1.5);}
@@ -2826,7 +2826,7 @@ if(m.t==='E'){showEmote(foe,m.i|0);return;}
 if(m.t==='Q'||m.t==='A'){receiveNetClock(m);return;}
 if(m.t==='P')takeOpp(m);
 if(m.t==='H'&&net.role==='host'&&m.round===net.round&&m.matchId===net.matchId&&ball&&playing&&!ceremonyActive()){const serve=ball.held&&ball.owner==='ai';if(!serve&&!(ball.owner==='you'&&ball.bounces===1))return;
-ball={...m.b,aiAttempt:true};if(ball.pf&&oppR('utSteal')){charge=Math.max(0,charge-Math.round(oppR('utSteal')*100));updateSpecial();}if(SPECIALS[ball.type]){Object.assign(ball,{dual:true,dualHit:false});toast('상대 필살기! 🎯 ① ② 투클릭으로 받아야 해요',1.6);}trail=[];lastAIHit=time;net.seq++;takeOpp(m);if(!serve){rally++;best=Math.max(best,rally);updateScore();}beep(SPECIALS[ball.type]?950:390);}
+ball={...m.b,aiAttempt:true};if(ball.pf&&oppR('utSteal')){charge=Math.max(0,charge-Math.round(oppR('utSteal')*100));updateSpecial();}if(SPECIALS[ball.type]){Object.assign(ball,{dual:true,dualHit:false},ultTouches(ball));ultRecvToast(ball);}trail=[];lastAIHit=time;net.seq++;takeOpp(m);if(!serve){rally++;best=Math.max(best,rally);updateScore();}beep(SPECIALS[ball.type]?950:390);}
 if(m.t==='S'&&net.role==='guest')applySnap(m);}
 function applySnap(S){if(!Number.isSafeInteger(S.round)||S.round<1||S.round<net.round||!Number.isSafeInteger(S.packet)||S.packet<=net.lastSnapshot||typeof S.matchId!=='string'||!Number.isFinite(S.clock))return;
 if(S.round===net.round&&S.matchId!==net.matchId)return;
@@ -2841,7 +2841,10 @@ if(victoryCeremony?.round===net.round)return;
 if(!S.playing){if(playing&&net.dbl){dblEnd(you>cpu);lockPage(false);$('home').hidden=true;$('overlay').classList.remove('hidden');document.querySelector('.start-card h2').innerHTML=you>cpu?'우리 팀 승리!':'좋은 경기였어요.';document.querySelector('.start-card p').textContent=`최종 스코어 ${you} : ${cpu} · 방장이 다시 시작하면 새 경기가 시작돼요`;}playing=false;ball=null;return;}
 if(S.seq<net.expect&&time<net.ignoreUntil)return;                 // my hit is still on its way to the host
 if(ball&&ball.held&&ball.owner==='you'&&S.b&&S.b.held&&(!net.dbl||net.d.server===net.d.slot))return;     // my own toss runs locally
-{const prev=ball;ball=mir(S.b);if(ball&&!ball.held&&ball.owner==='ai'&&ball.pf&&!(prev&&prev.owner==='ai')&&oppR('utSteal')){charge=Math.max(0,charge-Math.round(oppR('utSteal')*100));updateSpecial();}if(ball&&!ball.held&&ball.owner==='ai'&&SPECIALS[ball.type]){ball.dual=true;if(prev&&prev.dual&&prev.owner==='ai'){ball.dualHit=prev.dualHit;ball.dualT=prev.dualT;}else toast('상대 필살기! 🎯 ① ② 투클릭으로 받아야 해요',1.6);}}}
+{const prev=ball;ball=mir(S.b);if(ball&&!ball.held&&ball.owner==='ai'&&ball.pf&&!(prev&&prev.owner==='ai')&&oppR('utSteal')){charge=Math.max(0,charge-Math.round(oppR('utSteal')*100));updateSpecial();}if(ball&&!ball.held&&ball.owner==='ai'&&SPECIALS[ball.type]){ball.dual=true;Object.assign(ball,ultTouches(ball));if(prev&&prev.dual&&prev.owner==='ai'){ball.dualHit=prev.dualHit;ball.dualT=prev.dualT;ball.preHit=prev.preHit||0;ball.anyPerf=prev.anyPerf;}else ultRecvToast(ball);}}}
+/* 멀티: 상대 필살기는 티어에 따라 받는 터치 수가 늘어요 — 1~2티어 투터치 · 3~5티어 쓰리터치 · 6~8티어 포터치 (라켓 기본 필살기는 투터치) */
+function ultTouches(b){const u=ULT_BY[b.ult],n=!u?2:u.tier<=2?2:u.tier<=5?3:4;return{pre:n-2,preHit:0,touchN:n};}
+function ultRecvToast(b){const u=ULT_BY[b.ult],n=b.touchN||2;toast(`상대 필살기${u?` 「${u.name}」 ${u.tier}티어`:''}! 🎯 ${['','','투','쓰리','포'][n]}터치로 받아야 해요 (${CIRC.slice(0,n).join(' ')})`,1.8);if(u){const q=project(b.x,b.y,b.z);fireUlt(u,q.x,q.y,true);}}
 function sendHit(){if(!playing||ceremonyActive())return;net.conn.send({t:'H',round:net.round,matchId:net.matchId,b:net.trio?{...wire(ball),hitter:0}:wire(mir(ball)),...me4net()});net.expect=net.seq+1;net.ignoreUntil=time+1;}
 function guestUpdate(dt){time+=dt;statusToast();
 if(lastHit!==net.sentHit){net.sentHit=lastHit;if(ball&&!ball.held)sendHit();}   // swings land in pointer handlers too: ship them here
