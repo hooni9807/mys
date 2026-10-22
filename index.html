@@ -2174,7 +2174,7 @@ const baseZ=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK*(1-.4*deepS)*(mode=
 // While the ball is coming to me the camera pans so the hitting spot sits mid-screen and my waist line (the raise /
 // lower divider) runs through the middle of the screen - room to draw the stroke above and below it. The point comes
 // from the ball, not from my finger, so moving the racket never drags the camera along.
-const chase=!!(ball&&!ball.held&&ball.owner==='ai'&&(ball.hi||(ball.dual||ball.pre||ball.quadNext)&&ball.y<1.2||ball.y<.9&&(project(ball.x,ball.y,ball.z).scale<.85||Math.abs(ball.x)>.7||ball.y<-.9)));   // 높은 공 · 멀리 간 공(깊거나 옆으로 빠지거나 작게 보이는 공): 카메라가 공을 따라가 가운데 두고 크게 확대   // 높은 공: the camera follows the ball itself, so it stays big and its timing ring is easy to hit
+const chase=!!(ball&&!ball.held&&ball.owner==='ai'&&(ball.hi||ball.bounces===1&&(ball.y<-.95-P.back(ball)||Math.abs(ball.x)>.76||ball.z>.8)));   // 높은 공, 또는 내 테이블에 맞고 멀리(깊게 · 옆으로 · 높이) 튀어 나간 공만: 카메라가 공을 따라가 가운데 두고 크게 확대 · 평범한 공은 예전 카메라 그대로
 {const inc=!!(ball&&!ball.held&&ball.owner==='ai'&&me.waistY!=null),bp=chase?project(ball.x,ball.y,ball.z):null,hx=chase?bp.x:inc?project(ball.x,contactY(),.25).x:W/2,k=Math.min(1,cdt*(chase?7:inc?4:3));
 cam.cx=lerp(cam.cx||W/2,inc||chase?hx:W/2,k);cam.cy=lerp(cam.cy||H*.62,chase?bp.y:inc?me.waistY:H*.62,k);cam.ax=lerp(cam.ax||W/2,W/2,k);cam.ay=lerp(cam.ay||H*.62,chase?H*.45:inc?H*.5:H*.62,k);}
 if(chase){const bs=P.clamp(project(ball.x,ball.y,ball.z).scale,.4,1.3),z0=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK;goalZ=Math.min(2.4,z0*P.clamp(1.9/bs,1.7,2.4));}
