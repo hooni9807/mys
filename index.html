@@ -2251,6 +2251,7 @@ arenaCache={w:W,h:H,c,v:view};return c;}
 // Pointer input is mapped back through the same zoom in move(), so hit detection stays in unzoomed court space.
 // Camera: world point (cx,cy) is shown at screen point (ax,ay), scaled by z.
 const cam={z:1,cx:0,cy:0,ax:0,ay:0,t:performance.now()};
+function incomingBodyX(b){if(b.dual&&b.dualHit&&b.dualX!=null)return b.dualX;const t=b.vy<0?P.clamp((b.y-contactY())/-b.vy,0,.8):0;return P.clamp(b.x+(b.vx||0)*t+.5*(b.side||0)*(b.curveK||.3)*t*t,-.85,.85);}
 function playerWaistAt(retreat){const p=project(0,MY_FEET_Y+(me.depth||0)*.2-retreat,-.76);return p.y-legPx(p)-6*figScale(p);}
 function render(){const nowC=performance.now(),cdt=Math.min((nowC-cam.t)/1000,.05);cam.t=nowC;
 if(ceremonyActive()){renderVictoryCeremony();return;}
@@ -2339,7 +2340,7 @@ fx=fx.filter(f=>f.special?(performance.now()-f.wall)<ULT_HOLD_MS:time-f.t<.4);fx
 const baseScale=Math.min(P.clamp(W/700,.65,1),H/460),myFeet=project(0,MY_FEET_Y+(me.depth||0)*.2-deepS,-.76),playerScale=figScale(myFeet);me.legLen=legPx(myFeet);me.waistY=myFeet.y-me.legLen-6*playerScale;updateSide();
 // doubles: I make room when my partner takes the ball
 let bodyTarget=P.clamp(paddle.x-playerSide*BODY_SIDE_M*W*VIEWS[view].tw*myFeet.scale,-W*.1,W*1.1);
-if(ball&&!ball.held&&ball.owner==='ai'&&ball.hi)bodyTarget=P.clamp(project(ball.x,contactY(),.25).x-playerSide*BODY_SIDE_M*W*VIEWS[view].tw*myFeet.scale,-W*.1,W*1.1);   // 높은 공: walk under it by yourself
+if(playing&&!paused&&ball&&!ball.held&&ball.owner==='ai'&&(mode!=='doubles'||net||myTurn!=='mate')&&(!net?.dbl||dblMine())&&(mode!=='trio'||ball.rcv===0)){const x=project(incomingBodyX(ball),contactY(),.25).x;bodyTarget=P.clamp(x-playerSide*BODY_SIDE_M*W*VIEWS[view].tw*myFeet.scale,-W*.1,W*1.1);}   // Move to the incoming contact point without moving the player's pointer.
 if(mode==='doubles'&&!net&&mate.x!=null&&myTurn==='mate'&&ball&&!ball.held&&ball.owner==='ai'&&Math.abs(bodyTarget-mate.x)<W*.22)bodyTarget=mate.x+(bodyTarget>=mate.x?1:-1)*W*.22;const L=LOOKS[charType];me.stanceK=(L.stanceK||1)*(1+Math.abs(me.lean||0)*.6);const oppHit=net?net.opp.hitT:lastAIHit;if(oppHit!==me.seenOpp){me.seenOpp=oppHit;if(oppHit>0)me.splitT=time;}   // split-step as the opponent strikes
 stepBody(me,bodyTarget,rdt,(ball&&ball.owner==='ai'?.55:.25)+(L.crouchK||0),playerScale);
 const angle=P.clamp((paddle.vx-paddle.vy*.3)/2400,-.9,.9)+playerSide*.3;
