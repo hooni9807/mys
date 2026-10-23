@@ -296,6 +296,8 @@ function timing(b){if(!b||b.owner!=='ai')return 'none';const d=back(b);if(b.boun
 const DEEP_M=0,OFF_T=.18,DEEP_STEP=.2;   // up to 1.4 m further back after a long drive-vs-drive rally
 // how far past my end line the hit window starts: always clearly off the table, further back in a drive rally
 function back(b){return OFF_T+(b&&b.retreat||0);}
+function retreatAt(y){return clamp((.65-y)*.65,0,.35);}
+function incomingRetreat(b){if(!b||b.owner!=='ai'||b.held||b.serving||b.vy>=0)return 0;const g=6+(b.spin||0)*EQUIP.spin*.55,d=b.vz*b.vz+2*g*b.z;if(g<=0||d<0)return 0;const t=(b.vz+Math.sqrt(d))/g,y=b.y+b.vy*t;return t>=0&&y>=0&&y<1.37?retreatAt(y):0;}
 // Spin the receiver has to deal with: every 1.0 of spin above SPIN_FREE adds SPIN_MISS to the chance the return fails.
 function spinMiss(b){return Math.max(0,Math.abs(b.spin||0)*EQUIP.spin-SPIN_FREE)*SPIN_MISS;}
 function normalShot(b){return !b.ult&&!b.aiSpecial&&!['crescent','chiquita','lightning','thunder','phantom'].includes(b.type)&&!b.kill&&!b.lob&&!b.fake&&!b.curve&&!b.gamble&&!b.unreturn;}
@@ -370,7 +372,7 @@ function step(b,dt){b.vx+=b.side*dt*(b.curveK||.3);b.vz-=(6+b.spin*EQUIP.spin*.5
 // PvP rating: start 1000, win +10 / loss -10, each extra game in a streak adds 1 more (+11, +12 ... / -11, -12 ...).
 function nextRating(o,won){const streak=won?(o.streak>0?o.streak+1:1):(o.streak<0?o.streak-1:-1),delta=won?9+streak:-9+streak;
 return {rating:o.rating+delta,wins:o.wins+(won?1:0),losses:o.losses+(won?0:1),streak,delta};}
-root.PingPhysics={shortLeft,EQUIP,back,OFF_T,DEEP_M,DEEP_STEP,spinMiss,normalShot,returnChance,perfectSpan,STROKE_SPEED,STANCE_PX,CUT_FROM_BELOW,retime,power,popup,nextRating,LEVELS,clamp,classify,timing,aiChance,shot,planServe,miss,incoming,family,judge,aiReturn,step};if(typeof module!=='undefined')module.exports=root.PingPhysics;
+root.PingPhysics={shortLeft,EQUIP,back,retreatAt,incomingRetreat,OFF_T,DEEP_M,DEEP_STEP,spinMiss,normalShot,returnChance,perfectSpan,STROKE_SPEED,STANCE_PX,CUT_FROM_BELOW,retime,power,popup,nextRating,LEVELS,clamp,classify,timing,aiChance,shot,planServe,miss,incoming,family,judge,aiReturn,step};if(typeof module!=='undefined')module.exports=root.PingPhysics;
 })(typeof window==='undefined'?globalThis:window);
 </script><script>
 'use strict';
@@ -1272,7 +1274,7 @@ $('special-status').textContent=ready?'✦ 충전 완료 · 다음 타격에 자
 const dualHold=()=>!!(ball&&ball.dual&&ball.dualHit&&ball.owner==='ai'&&time-ball.dualT<DUAL_GAP+DUAL_CLOSE+.35);
 function dualRing(p0,state){const off=dualOff(),R0=19*p0.scale*P.EQUIP.len;ctx.save();ctx.textAlign='center';
 const ring=(x,r,col,w,label)=>{ctx.setLineDash([3,4]);ctx.lineWidth=1.5;ctx.strokeStyle='#f3eeff70';ctx.beginPath();ctx.arc(x,p0.y,R0*ringK,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=w;ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=12;ctx.beginPath();ctx.arc(x,p0.y,r*ringK,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=col;ctx.font='900 20px Arial';ctx.lineWidth=4;ctx.strokeStyle='#160d2d';ctx.strokeText(label,x,p0.y+7);ctx.fillText(label,x,p0.y+7);};
-if(!ball.dualHit){const y=ball.y+P.back(ball),r=y>-.08?R0+Math.min(1,(y+.08)/1.45)*95*p0.scale:R0,col=state==='wait'?'#f3eeff':'#ffd166';const n1=CIRC[ball.pre||0];ring(p0.x-off,r,col,state==='wait'?3:5,n1);ring(p0.x+off,R0,'#9ccfff',3,'②');ctx.font='bold 11px Arial';ctx.fillStyle='#f3eeffcc';ctx.fillText(state==='wait'?n1:n1+' 지금 터치',p0.x-off,p0.y-R0-12);}
+if(!ball.dualHit){const y=ball.y+P.back(ball),r=y>-.08?R0+Math.min(1,(y+.08)/1.45)*95*p0.scale:R0,col=state==='wait'?'#f3eeff':'#ffd166';const n1=CIRC[ball.pre||0];ring(p0.x-off,r,col,state==='wait'?3:5,n1);ring(p0.x+off,R0,'#9ccfff',3,'②');ctx.font='bold 11px Arial';ctx.fillStyle='#f3eeffcc';ctx.fillText(state==='wait'?'준비':'지금 터치',p0.x-off,p0.y-R0-12);}
 else{const q1=project(ball.dualX0??ball.x,ball.y,ball.z),q2=project(ball.dualX??ball.x,ball.y,ball.z),x1=ball.dualX0!=null?q1.x-off:p0.x-off,x2=ball.dualX!=null?q2.x:p0.x+off;ctx.fillStyle='#7dffb2';ctx.font='bold 16px Arial';ctx.fillText('✓',x1,p0.y+5);const t=time-ball.dualT-DUAL_GAP;
 {const e=t-DUAL_CLOSE,r=R0+P.clamp(1-Math.max(0,t)/DUAL_CLOSE,0,1.2)*80*p0.scale,ok=Math.abs(e)<.15,col=t<0?'#f3eeff99':ok?'#7dffb2':e>.25?'#ff4d6d':'#ffd166';ring(x2,r,col,ok?8:6,'②');ctx.font='bold 14px Arial';ctx.fillStyle=col;const nm=CIRC[(ball.pre||0)+1];ctx.fillText(ok?nm+' 지금!':e>.25?'LATE':nm+' 원이 공에 맞을 때 스윙 · 탭',x2,p0.y-R0-14);}}
 ctx.restore();}
@@ -2248,6 +2250,7 @@ arenaCache={w:W,h:H,c,v:view};return c;}
 // Pointer input is mapped back through the same zoom in move(), so hit detection stays in unzoomed court space.
 // Camera: world point (cx,cy) is shown at screen point (ax,ay), scaled by z.
 const cam={z:1,cx:0,cy:0,ax:0,ay:0,t:performance.now()};
+function playerWaistAt(retreat){const p=project(0,MY_FEET_Y+(me.depth||0)*.2-retreat,-.76);return p.y-legPx(p)-6*figScale(p);}
 function render(){const nowC=performance.now(),cdt=Math.min((nowC-cam.t)/1000,.05);cam.t=nowC;
 if(ceremonyActive()){renderVictoryCeremony();return;}
 const offTable=!!(ball&&!ball.held&&ball.owner==='ai'&&ball.bounces===1&&ball.y<0&&ball.y>-1.2-P.back(ball));
@@ -2262,7 +2265,7 @@ const baseZ=(document.fullscreenElement?FS_ZOOM:1)*VIEW_BACK*(mode==='trio'&&(!n
 // from the ball, not from my finger, so moving the racket never drags the camera along.
 const chase=false;
 {const inc=!!(ball&&!ball.held&&ball.owner==='ai'&&me.waistY!=null),bp=chase?project(ball.x,ball.y,ball.z):null,hx=chase?bp.x:inc?project(ball.x,contactY(),.25).x:W/2,k=Math.min(1,cdt*(chase?7:inc?4:3));
-cam.cx=lerp(cam.cx||W/2,inc||chase?hx:W/2,k);cam.cy=lerp(cam.cy||H*.62,chase?bp.y:inc?me.waistY:H*.62,k);cam.ax=lerp(cam.ax||W/2,W/2,k);cam.ay=lerp(cam.ay||H*.62,chase?H*.45:inc?H*.5:H*.62,k);}
+const pan=playerWaistAt(deepS)-playerWaistAt(0);cam.cx=lerp(cam.cx||W/2,inc||chase?hx:W/2,k);cam.cy=lerp((cam.cy||H*.62)-(cam.retreatPan||0),chase?bp.y:inc?playerWaistAt(0):H*.62,k)+pan;cam.retreatPan=pan;cam.ax=lerp(cam.ax||W/2,W/2,k);cam.ay=lerp(cam.ay||H*.62,chase?H*.45:inc?H*.5:H*.62,k);}
 cam.z=baseZ;ringK=1;
 const sk=Math.max(0,1-(time-shakeT)/.5)*10;ctx.save();ctx.translate(cam.ax+(Math.random()-.5)*sk,cam.ay+(Math.random()-.5)*sk);ctx.scale(cam.z,cam.z);ctx.translate(-cam.cx,-cam.cy);renderScene();ctx.restore();drawUltCutin();courtHud();}
 const KIND_HINT={cut:'하회전 · 내려서 아래→위로 걸어 올리기',drive:'상회전 · 라켓 덮어서 맞드라이브 / 탭 블록',smash:'강타 · 드라이브 / 쇼트로 받기 (PERFECT 낮게 · GOOD 뜸)',spin:'회전 · 공 방향 보고 맞춰 치기',chance:'찬스볼 · 높이 뜬 공, 강하게 때리기!',kill:'찬스볼 강타 · PERFECT 낮게 · GREAT 보통 · GOOD 뜸',short:'짧은 공 · 가볍게 넘기기',serve:'서브 · 바운드 보고 받기'};
@@ -2511,11 +2514,11 @@ const PACE={base:.96,perHit:.025,max:1.4,cut:.8};
 function pace(){return (ball&&ball.owner==='ai'?1-R_('defSlow'):(net||aiRn)&&ball?1-oppR('defSlow'):1)*PACE.base*Math.min(PACE.max,1+PACE.perHit*rally)*(P.incoming(ball)==='cut'?PACE.cut:1);}
 function update(dt){if(performance.now()<cdUntil)return;if(ball&&!ball.held)dt*=P.EQUIP.speed*pace();time+=dt;statusToast();if(!ball){wait-=dt;if(wait<=0)startServe();return;}if(mode==='trio'){trioUpdate(dt);return;}if(net&&net.dbl&&lastHit!==net.d.lastHit){net.d.lastHit=lastHit;if(!ball||!ball.held)net.d.turn.A^=1;}
 if(ball.held&&(ball.owner!=='you'||net&&net.dbl&&net.d.server!==1))return;
-if(ball.held){if(!ball.tossed)ballToHand();else{ball.vz-=6*dt;ball.z+=ball.vz*dt;if(ball.vz<0&&ball.z<ball.tossZ){ball.tossed=false;toast('놓쳤어요 · 다시 토스하세요',1.5);}}hit();return;}mateCheck();if(ball&&ball.owner==='you'&&!ball.held&&ball.quadNext==null&&!net&&mode!=='doubles')ball.quadNext=Math.random()<dualRate()*quadRate();hit();if(!ball)return;const prevY=ball.y,prevZ=ball.z;if(dualHold()&&ball.dualX!=null)ball.x+=(ball.dualX-ball.x)*Math.min(1,dt*9);   // after ① the ball glides over to ②
+if(ball.held){if(!ball.tossed)ballToHand();else{ball.vz-=6*dt;ball.z+=ball.vz*dt;if(ball.vz<0&&ball.z<ball.tossZ){ball.tossed=false;toast('놓쳤어요 · 다시 토스하세요',1.5);}}hit();return;}mateCheck();if(ball&&ball.owner==='ai'&&ball.bounces===0)ball.retreat=P.incomingRetreat(ball);if(ball&&ball.owner==='you'&&!ball.held&&ball.quadNext==null&&!net&&mode!=='doubles')ball.quadNext=Math.random()<dualRate()*quadRate();hit();if(!ball)return;const prevY=ball.y,prevZ=ball.z;if(dualHold()&&ball.dualX!=null)ball.x+=(ball.dualX-ball.x)*Math.min(1,dt*9);   // after ① the ball glides over to ②
 P.step(ball,dt);if((prevY-1.37)*(ball.y-1.37)<0){const z=prevZ+(ball.z-prevZ)*(1.37-prevY)/(ball.y-prevY);if(z<.1525){point(ball.owner==='ai','네트에 걸렸어요');return;}}
 if(ball.serving&&ball.z<=0&&ball.vz<0){ball.x=P.clamp(ball.x,-.7,.7);ball.y=ball.owner==='you'?P.clamp(ball.y,.1,1.25):P.clamp(ball.y,1.49,2.64);   // no serve faults: it always lands in
 ball.serving=false;ball.z=0;ball.vz=-ball.vz*.8;ball.vy*=1.03;beep(270);}
-else if(ball.z<=0&&ball.vz<0&&!(ball.bounces===1&&(ball.y<0||ball.y>2.74))){if(Math.abs(ball.x)>.76||ball.y<0||ball.y>2.74){point(ball.owner==='ai','테이블 밖으로 나갔어요');return;}const valid=ball.owner==='ai'?ball.y<1.37:ball.y>1.37;if(!valid){point(ball.owner==='ai','자기 코트에 떨어졌어요');return;}ball.bounces++;if(ball.bounces>1){point(ball.owner==='you','두 번 바운드');return;}ball.z=0;ball.vz=-ball.vz*(ball.spin<0?.68:.8);ball.vy*=ball.spin<0?.78:1.03;ball.side=(ball.side||0)*.1;if(ball.owner==='ai'&&!ball.lob&&mode!=='trio')ball.retreat=P.clamp((.65-ball.y)*.55,0,.25);{const g=6+(ball.spin||0)*.55,clear=g*((ball.owner==='ai'?ball.y+.3:3.04-ball.y)/Math.max(Math.abs(ball.vy),.5))/2;ball.vz=Math.min(ball.vz,ball.dual?Math.sqrt(2*g*BOUNCE_MAX):Math.max(Math.sqrt(2*g*(ball.chance?BOUNCE_CHANCE:BOUNCE_MAX)),clear));
+else if(ball.z<=0&&ball.vz<0&&!(ball.bounces===1&&(ball.y<0||ball.y>2.74))){if(Math.abs(ball.x)>.76||ball.y<0||ball.y>2.74){point(ball.owner==='ai','테이블 밖으로 나갔어요');return;}const valid=ball.owner==='ai'?ball.y<1.37:ball.y>1.37;if(!valid){point(ball.owner==='ai','자기 코트에 떨어졌어요');return;}ball.bounces++;if(ball.bounces>1){point(ball.owner==='you','두 번 바운드');return;}ball.z=0;ball.vz=-ball.vz*(ball.spin<0?.68:.8);ball.vy*=ball.spin<0?.78:1.03;ball.side=(ball.side||0)*.1;if(ball.owner==='ai')ball.retreat=P.retreatAt(ball.y);{const g=6+(ball.spin||0)*.55,clear=g*((ball.owner==='ai'?ball.y+.3:3.04-ball.y)/Math.max(Math.abs(ball.vy),.5))/2;ball.vz=Math.min(ball.vz,ball.dual?Math.sqrt(2*g*BOUNCE_MAX):Math.max(Math.sqrt(2*g*(ball.chance?BOUNCE_CHANCE:BOUNCE_MAX)),clear));
 }
 if(ball.shortServe){ball.shortServe=false;const g=6+(ball.spin||0)*.55,T=.6,mineIn=ball.owner==='ai',d=Math.min(.3+Math.random()*.25,Math.max(.1,mineIn?ball.y-.18:2.56-ball.y));ball.vz=T*g/2;ball.vy=(mineIn?-d:d)/T;ball.vx=P.clamp(ball.vx,(-.68-ball.x)/T,(.68-ball.x)/T);ball.side=0;}   // 커트맨 serve: a low hop that lands again on the table (옆으로도 테이블 안에: 예전엔 옆 속도가 그대로라 코너로 넣은 짧은 커트 서브가 옆으로 튀어 나가 실점했어요)
 beep(270);}   // the table grips and bleeds off side spin
@@ -2911,7 +2914,7 @@ if(victoryCeremony?.round===net.round)return;
 if(!S.playing){if(playing&&net.dbl){dblEnd(you>cpu);lockPage(false);$('home').hidden=true;$('overlay').classList.remove('hidden');document.querySelector('.start-card h2').innerHTML=you>cpu?'우리 팀 승리!':'좋은 경기였어요.';document.querySelector('.start-card p').textContent=`최종 스코어 ${you} : ${cpu} · 방장이 다시 시작하면 새 경기가 시작돼요`;}playing=false;ball=null;return;}
 if(S.seq<net.expect&&time<net.ignoreUntil)return;                 // my hit is still on its way to the host
 if(ball&&ball.held&&ball.owner==='you'&&S.b&&S.b.held&&(!net.dbl||net.d.server===net.d.slot))return;     // my own toss runs locally
-{const prev=ball;ball=mir(S.b);if(ball&&!ball.held&&ball.owner==='ai'&&ball.pf&&!(prev&&prev.owner==='ai')&&oppR('utSteal')){charge=Math.max(0,charge-Math.round(oppR('utSteal')*100));updateSpecial();}if(ball&&!ball.held&&ball.owner==='ai'&&(SPECIALS[ball.type]||ball.ult)){ball.dual=true;Object.assign(ball,ultTouches(ball));if(prev&&prev.dual&&prev.owner==='ai'){ball.dualHit=prev.dualHit;ball.dualT=prev.dualT;ball.dualX=prev.dualX;ball.dualX0=prev.dualX0;ball.preHit=prev.preHit||0;ball.anyPerf=prev.anyPerf;}else ultRecvToast(ball);}}}
+{const prev=ball;ball=mir(S.b);if(ball&&!ball.held&&ball.owner==='ai'&&mode!=='trio')ball.retreat=ball.bounces===0?P.incomingRetreat(ball):prev&&prev.owner==='ai'&&prev.bounces===1?prev.retreat||0:P.retreatAt(ball.y);if(ball&&!ball.held&&ball.owner==='ai'&&ball.pf&&!(prev&&prev.owner==='ai')&&oppR('utSteal')){charge=Math.max(0,charge-Math.round(oppR('utSteal')*100));updateSpecial();}if(ball&&!ball.held&&ball.owner==='ai'&&(SPECIALS[ball.type]||ball.ult)){ball.dual=true;Object.assign(ball,ultTouches(ball));if(prev&&prev.dual&&prev.owner==='ai'){ball.dualHit=prev.dualHit;ball.dualT=prev.dualT;ball.dualX=prev.dualX;ball.dualX0=prev.dualX0;ball.preHit=prev.preHit||0;ball.anyPerf=prev.anyPerf;}else ultRecvToast(ball);}}}
 /* 멀티: 상대 필살기는 티어에 따라 받는 터치 수가 늘어요 — 1~2티어 투터치 · 3~5티어 쓰리터치 · 6~8티어 포터치 (라켓 기본 필살기는 투터치) */
 function ultTouches(){return{pre:0,preHit:0,touchN:2};}
 function ultRecvToast(b){const u=ULT_BY[b.ult],n=b.touchN||2;toast(`상대 필살기${u?` 「${u.name}」 ${u.tier}티어`:''}! 🎯 ${['','','투','쓰리','포'][n]}터치로 받아야 해요 (${CIRC.slice(0,n).join(' ')})`,1.8);if(u){const q=project(b.x,b.y,b.z);fireUlt(u,q.x,q.y,true);}}
@@ -2920,7 +2923,7 @@ function guestUpdate(dt){time+=dt;statusToast();
 if(lastHit!==net.sentHit){net.sentHit=lastHit;if(ball&&!ball.held)sendHit();}   // swings land in pointer handlers too: ship them here
 if(!ball)return;
 if(ball.held){if(ball.owner!=='you'||net.dbl&&net.d.server!==net.d.slot)return;if(!ball.tossed)ballToHand();else{ball.vz-=6*dt;ball.z+=ball.vz*dt;if(ball.vz<0&&ball.z<ball.tossZ){ball.tossed=false;toast('놓쳤어요 · 다시 토스하세요',1.5);}}hit();return;}
-P.step(ball,dt);if(ball.z<0&&ball.vz<0&&(mode==='trio'?trioIn(ball.x,ball.y):Math.abs(ball.x)<.76&&ball.y>0&&ball.y<2.74)){ball.z=0;ball.vz=-ball.vz*.8;}   // smooth between snapshots
+if(mode!=='trio'&&ball.owner==='ai'&&ball.bounces===0)ball.retreat=P.incomingRetreat(ball);P.step(ball,dt);if(ball.z<0&&ball.vz<0&&(mode==='trio'?trioIn(ball.x,ball.y):Math.abs(ball.x)<.76&&ball.y>0&&ball.y<2.74)){if(mode!=='trio'&&ball.owner==='ai'&&!ball.serving&&ball.bounces===0&&ball.y<1.37){ball.retreat=P.retreatAt(ball.y);ball.bounces=1;}ball.z=0;ball.vz=-ball.vz*.8;}   // smooth between snapshots
 trail.push({x:ball.x,y:ball.y,z:ball.z});if(trail.length>(SPECIALS[ball.type]?28:14))trail.shift();
 hit();}
 function guestStart(){reset();runeLostLast=false;charge=Math.min(100,Math.round(R_('utCharge')*100));setMode(net&&net.trio?'trio':'match');$('mode-label').textContent=net&&net.trio?'온라인 3인':net&&net.dbl?'온라인 복식':'온라인 1:1';{const tn=titleName(prog.q?._t);$('you-name').textContent=(tn?`〔${tn}〕 `:'')+(myName()||LOOKS[charType].nick);}playing=true;paused=false;lockPage(true);$('overlay').classList.add('hidden');$('pause').disabled=true;$('resume').hidden=true;$('home').hidden=false;$('restart').hidden=true;me.sadT=foe.sadT=null;toast('연결됐어요! 첫 서브는 내 차례',2.5);}

@@ -94,3 +94,14 @@ test('AI special notice shows the selected move at the bottom', () => {
   assert.equal(vm.runInNewContext('aiSpecialNoticeUntil', popup), 12.5);
   assert.match(html, /\.ai-special-notice\{position:absolute;bottom:/);
 });
+
+
+test('long incoming balls trigger retreat before the bounce', () => {
+  const ball = { owner: 'ai', bounces: 0, y: 1.2, z: .4, vy: -2, vz: 0, spin: 0 };
+  const retreat = context.P.incomingRetreat(ball);
+  assert.ok(retreat > 0);
+  assert.ok(Math.abs(retreat - context.P.retreatAt(1.2 - 2 * Math.sqrt(.8 / 6))) < 1e-9);
+  assert.equal(context.P.incomingRetreat({ ...ball, y: 2.2 }), 0);
+  assert.equal(context.P.incomingRetreat({ ...ball, serving: true }), 0);
+  assert.equal(context.P.incomingRetreat({ ...ball, y: .1 }), 0);
+});
