@@ -113,3 +113,25 @@ test('long incoming balls trigger retreat before the bounce', () => {
   assert.equal(context.P.incomingRetreat({ ...ball, serving: true }), 0);
   assert.equal(context.P.incomingRetreat({ ...ball, y: .1 }), 0);
 });
+
+
+vm.runInNewContext('const DUAL_GAP=.08, DUAL_CLOSE=.45;'+html.slice(html.indexOf('function dualCloseFor('),html.indexOf('const dualHold=')), context);
+test('deep two-touch balls allow the second touch before leaving the playable range', () => {
+  for (const vy of [-3, -4, -5]) {
+    const ball = {x: 0, y: -.5, z: .2, vx: 0, vy, vz: 1, spin: 1, side: 0, owner: 'ai', bounces: 1, dual: true, retreat: .2};
+    const close = context.dualCloseFor(ball);
+    assert.ok(close >= .08 && close <= .45);
+    for (let t = 0; t < .08 + close; t += 1/240) context.P.step(ball, 1/240);
+    assert.ok(ball.z > -.65 && context.P.timing(ball) !== 'wait', `vy=${vy}, z=${ball.z}, y=${ball.y}`);
+    const shot = context.P.shot(0, -200, ball.z, ball.x, ball.y, false, {}, 'block');
+    const returned = {...context.landGuard(shot, ball), x:ball.x, y:ball.y, z:ball.z};
+    let cleared = false, landed = false;
+    for (let i = 0; i < 1200; i++) {
+      const y = returned.y; context.P.step(returned, 1/240);
+      if (y < 1.37 && returned.y >= 1.37) cleared = returned.z >= .1525;
+      if (returned.z <= 0 && returned.vz < 0) { landed = cleared && returned.y > 1.37 && returned.y < 2.74 && Math.abs(returned.x) < .76; break; }
+    }
+    assert.ok(landed, `vy=${vy} returned ball missed the table`);
+  }
+  assert.equal(context.dualCloseFor({y:-.3,retreat:0}), .45);
+});
