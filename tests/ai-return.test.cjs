@@ -8,7 +8,7 @@ const context = { module: { exports: {} }, Math };
 context.globalThis = context;
 vm.runInNewContext(physics[2], context);
 context.P = context.module.exports;
-vm.runInNewContext(html.slice(html.indexOf('function fitReturn(b)'), html.indexOf('function endInfDrive')), context);
+vm.runInNewContext(html.slice(html.indexOf('function fitReturn(b,'), html.indexOf('function endInfDrive')), context);
 
 test('fast AI returns clear the net and land inside the table', () => {
   for (const z of [-.2, 0, .2, .4]) for (const speed of [3, 5, 7, 9]) for (const type of ['drive', 'cut', 'smash']) {
@@ -54,11 +54,18 @@ test('late two-touch returns stay low or miss the net', () => {
   }
 });
 
-test('two-touch balls allow an early first touch and a forgiving second swing', () => {
-  const first = { owner: 'ai', dual: true, dualHit: false, bounces: 1, y: .45, z: .2, vy: -4, vz: 1 };
-  assert.equal(context.P.timing(first), 'ready');
-  assert.equal(context.P.timing({ ...first, dualHit: true }), 'ready');
-  assert.equal(context.P.timing({ ...first, dual: false }), 'wait');
-  for (const elapsed of [.04, .1, .2, .35]) assert.equal(context.P.dualTiming(elapsed, .04, .16), 'perfect');
-  assert.equal(context.P.dualTiming(.65, .04, .16), 'late');
+test('two-touch incoming balls land without a high arc', () => {
+  let landed = 0;
+  for (const z of [0, .2, .4]) for (const speed of [2.5, 3.5, 5, 7]) for (const type of ['drive', 'cut']) {
+    const b = { x: .1, y: 2.85, z, ...context.P.aiReturn(type, .1, 2.85, z, speed, .3, 1.5), curveK: 0, dual: true };
+    context.fitReturn(b, .75);
+    let crossed = false, valid = false, peak = z;
+    for (let i = 0; i < 1500; i++) {
+      context.P.step(b, 1 / 240); peak = Math.max(peak, b.z);
+      if (!crossed && b.y <= 1.37) { crossed = true; if (b.z < .1525) break; }
+      if (b.z <= 0 && b.vz < 0) { valid = crossed && b.y > 0 && b.y < 1.37 && Math.abs(b.x) < .76; break; }
+    }
+    if (valid) { landed++; assert.ok(peak <= .751, `high ${type} arc: ${peak}`); }
+  }
+  assert.ok(landed >= 20, `only ${landed} low returns landed`);
 });
