@@ -162,3 +162,20 @@ test('racket skills remain returnable and tier-four miss chance survives AI bonu
   assert.ok(normal>equipped,'racket skill must not receive the equipped-special penalty');
   assert.ok(context.P.returnRoll({type:'drive',defMiss:.2},'uext',.99)<=.79,'20% skill miss is applied after the return tier');
 });
+
+test('every marginal out ball can become an edge and net cords have a five percent pass', () => {
+  const edge = { owner:'ai', x:.9, y:.7 };
+  assert.equal(context.P.edgeSave(edge, () => 0), true);
+  assert.equal(edge.edge, true);
+  assert.ok(Math.abs(edge.x) < .76 && edge.y > 0 && edge.y < 1.37);
+  assert.equal(context.P.edgeSave({owner:'ai',x:0,y:.7}, () => .01), false);
+  assert.equal(context.P.edgeSave({owner:'ai',x:0,y:1.6}, () => 0), false, 'wrong-court balls are never rescued as edges');
+  assert.equal(context.P.netCord(() => .049), true);
+  assert.equal(context.P.netCord(() => .05), false);
+});
+
+test('long-ball timing stays available until the playable reach limit', () => {
+  const long = {owner:'ai', bounces:1, y:-1.5, z:.2, vy:-3, vz:0, retreat:.35};
+  assert.equal(context.P.timing(long), 'late');
+  assert.equal(context.P.timing({...long,y:-1.64}), 'wait');
+});
