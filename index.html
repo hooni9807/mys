@@ -3140,7 +3140,7 @@ if(k==='level'){let rows=[{name:myName()+' (나)',xp:prog.xp,chars:prog.unlocked
 try{const db=await remote();if(db){const q=rankFs.query(rankFs.collection(db,'levels'),rankFs.orderBy('xp','desc'),rankFs.limit(20));const got=(await rankFs.getDocs(q)).docs.map(d=>d.data());if(got.length){rows=got;src='전체 레벨 랭킹 · 상위 20';}}}catch{src='전체 랭킹을 불러오지 못해 내 기록만 보여줘요';}
 $('rank-src').textContent=src;const ol=$('rank-list');ol.textContent='';
 rows.forEach((r,i)=>{const li=document.createElement('li'),no=document.createElement('span'),nm=document.createElement('span'),sub=document.createElement('span'),val=document.createElement('span');const xp=+r.xp||0;
-no.className='no';no.textContent=i+1;nm.className='nm';nameTtl(nm,r);sub.className='sub';sub.textContent=`캐릭터 ${r.chars||1}명`+(r.main&&LOOKS[r.main]?` · 주캐 ${LOOKS[r.main].nick||LOOKS[r.main].name}`:'');val.className='val';val.textContent='Lv '+(1+Math.floor(xp/XP_LEVEL));li.append(no,nm,sub,val);ol.append(li);});return;}
+no.className='no';no.textContent=i+1;nm.className='nm';nameTtl(nm,r);sub.className='sub';sub.textContent=`캐릭터 ${r.chars||1}명`+(r.main&&LOOKS[r.main]?` · 주캐 ${LOOKS[r.main].nick||LOOKS[r.main].name}`:'');val.className='val';val.textContent='Lv '+lvAt(xp)[0];li.append(no,nm,sub,val);ol.append(li);});return;}
 if(k==='pvp'){let rows=[],src='내 기기 기록';const me=pvpLocal();if(me.wins+me.losses)rows=[{name:store.get('nick')||'나',...me,...myTtl()}];
 try{const db=await remote();if(db){const q=rankFs.query(rankFs.collection(db,'players'),rankFs.orderBy('rating','desc'),rankFs.limit(20));rows=(await rankFs.getDocs(q)).docs.map(d=>d.data());src='전체 PvP 랭킹 · 상위 20';}}catch{src='전체 랭킹을 불러오지 못해 내 기기 기록을 보여줘요';}
 $('rank-src').textContent=src;const ol=$('rank-list');ol.textContent='';
