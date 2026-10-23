@@ -40,3 +40,16 @@ test('ultra extreme returns ordinary shots with a 99% chance', () => {
   }
   assert.equal(context.P.returnChance({type:'drive'}, 'uhard', .4), .4);
 });
+
+vm.runInNewContext(html.slice(html.indexOf('function landGuard(s,b)'), html.indexOf('function hit(tap)')), context);
+test('late two-touch returns stay low or miss the net', () => {
+  for (const y of [-.3, -.7, -1.1]) for (const z of [-.45, -.2, 0, .2]) for (const type of ['block', 'short', 'drive', 'cut']) {
+    const incoming = {x: 0, y, z};
+    const shot = context.P.shot(0, -200, z, 0, y, false, {}, type);
+    const result = context.lowDualReturn(shot, incoming);
+    if (result.miss) { assert.equal(result.miss, 'net'); continue; }
+    const g = 6 + result.spin * context.P.EQUIP.spin * .55;
+    const peak = z + (result.vz > 0 ? result.vz ** 2 / (2 * g) : 0);
+    assert.ok(peak <= .6500001, `${type}, y=${y}, z=${z}, peak=${peak}`);
+  }
+});
