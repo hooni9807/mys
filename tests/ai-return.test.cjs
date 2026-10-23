@@ -83,3 +83,14 @@ test('AI special shots with strong curve and spin land inside the table', () => 
     assert.ok(landed, `special side=${side} spin=${spin} height=${z}`);
   }
 });
+
+test('AI special notice shows the selected move at the bottom', () => {
+  const notice = { hidden: true, textContent: '' };
+  const popup = { time: 10, $: id => { assert.equal(id, 'ai-special-notice'); return notice; } };
+  vm.runInNewContext(html.slice(html.indexOf('let aiSpecialNoticeUntil=0;'), html.indexOf('function reset()')), popup);
+  popup.aiSpecialNotice('번개 속공');
+  assert.equal(notice.hidden, false);
+  assert.equal(notice.textContent, '상대 필살기 · 번개 속공');
+  assert.equal(vm.runInNewContext('aiSpecialNoticeUntil', popup), 12.5);
+  assert.match(html, /\.ai-special-notice\{position:absolute;bottom:/);
+});
