@@ -135,3 +135,23 @@ test('deep two-touch balls allow the second touch before leaving the playable ra
   }
   assert.equal(context.dualCloseFor({y:-.3,retreat:0}), .45);
 });
+
+
+test('smash character can return cuts and drives without an automatic net fault', () => {
+  for (const incoming of ['cut', 'drive', 'smash', 'spin']) {
+    assert.equal(context.P.judge(incoming, 'smash', true, false, true), 'ok');
+  }
+  assert.equal(context.P.judge('cut', 'smash', true, false), 'net');
+  for (const z of [-.3, 0, .2]) {
+    const b = {x:0, y:-.35, z};
+    const shot = context.landGuard(context.P.power(context.P.shot(0, -1450, z, 0, b.y, false, {}, 'smash'), b.y, z, 1.3), b);
+    const q = {...shot, ...b};
+    let net = false, landed = false;
+    for (let i=0; i<1200; i++) {
+      const previous = q.y; context.P.step(q, 1/240);
+      if (previous < 1.37 && q.y >= 1.37) net = q.z >= .1525;
+      if (q.z <= 0 && q.vz < 0) { landed = net && q.y > 1.37 && q.y < 2.74 && Math.abs(q.x) < .76; break; }
+    }
+    assert.ok(landed, `smash from height ${z}`);
+  }
+});
