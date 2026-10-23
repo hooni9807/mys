@@ -1,0 +1,11 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const html=fs.readFileSync('index.html','utf8');
+const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(x=>x[1]).filter(Boolean);
+for(const script of scripts)new vm.Script(script);
+const roll=html.match(/function rollCharm\(look\)\{[^\n]+/)[0];
+const context={Math:Object.create(Math),Date}; vm.createContext(context);vm.runInContext(roll,context);
+context.Math.random=()=>.49;assert(context.rollCharm({charm:true}));
+context.Math.random=()=>.5;assert.strictEqual(context.rollCharm({charm:true}),null);
+context.Math.random=()=>0;assert.strictEqual(context.rollCharm({}),null);
+assert(html.includes('charmId:b.charmId||null'));
+console.log('Character charm roll, network serialization and script syntax OK');
