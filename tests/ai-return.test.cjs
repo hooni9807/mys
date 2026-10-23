@@ -69,3 +69,17 @@ test('two-touch incoming balls land without a high arc', () => {
   }
   assert.ok(landed >= 20, `only ${landed} low returns landed`);
 });
+
+test('AI special shots with strong curve and spin land inside the table', () => {
+  for (const side of [-18, -5, 0, 5, 18]) for (const spin of [-3, 0, 3]) for (const z of [0, .3]) {
+    const b = { x: .45, y: 2.8, z, vx: 2, vy: -5, vz: 1, spin, side, curveK: 2.4 };
+    context.fitReturn(b);
+    let crossed = false, landed = false;
+    for (let i = 0; i < 1500; i++) {
+      context.P.step(b, 1 / 240);
+      if (!crossed && b.y <= 1.37) { crossed = true; if (b.z < .1525) break; }
+      if (b.z <= 0 && b.vz < 0) { landed = crossed && b.y > 0 && b.y < 1.37 && Math.abs(b.x) < .76; break; }
+    }
+    assert.ok(landed, `special side=${side} spin=${spin} height=${z}`);
+  }
+});
