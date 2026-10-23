@@ -53,3 +53,12 @@ test('late two-touch returns stay low or miss the net', () => {
     assert.ok(peak <= .6500001, `${type}, y=${y}, z=${z}, peak=${peak}`);
   }
 });
+
+test('two-touch balls allow an early first touch and a forgiving second swing', () => {
+  const first = { owner: 'ai', dual: true, dualHit: false, bounces: 1, y: .45, z: .2, vy: -4, vz: 1 };
+  assert.equal(context.P.timing(first), 'ready');
+  assert.equal(context.P.timing({ ...first, dualHit: true }), 'ready');
+  assert.equal(context.P.timing({ ...first, dual: false }), 'wait');
+  for (const elapsed of [.04, .1, .2, .35]) assert.equal(context.P.dualTiming(elapsed, .04, .16), 'perfect');
+  assert.equal(context.P.dualTiming(.65, .04, .16), 'late');
+});
