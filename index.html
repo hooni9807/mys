@@ -388,7 +388,7 @@ const BLACK='#1b1b1b',RED='#c8312f';
 // Character looks. 'jersey' is drawn from the user's photo: short tousled dark hair, black square glasses,
 // navy jersey with green / lime vertical stripes and a lime V collar, black shorts, black watch on the left wrist.
 const LOOKS={
-pastor:{name:'목사님',nick:'목사님',kit:{name:'PASTOR',color:'#e9d5ff'},pastor:true,ceremony:'아쎄이 하!',split:true,stanceK:1.02,crouchK:.1,shirt:'#25252d',sleeve:'#25252d',collar:'#f8fafc',pants:'#172033',shorts:false,hair:'#1b1618',skin:'#a96843',skinShade:'#824629'},
+pastor:{name:'허허 목사',nick:'허허 목사',kit:{name:'PASTOR',color:'#e9d5ff'},pastor:true,ceremony:'아쎄이 하!',split:true,stanceK:1.02,crouchK:.1,shirt:'#25252d',sleeve:'#25252d',collar:'#f8fafc',pants:'#172033',shorts:false,hair:'#1b1618',skin:'#a96843',skinShade:'#824629'},
 jersey:{name:'휴고범',nick:'휴고범',kit:{name:'BEOM',color:'#c9ec4a'},trait:{strong:-1,weak:1},face:'hugo',split:true,shout:'촤!',strokes:'hugo',stanceK:1.15,crouchK:.12,shirt:'#163a6b',stripes:['#1f9b54','#c9ec4a'],sleeve:'#1f9b54',collar:'#c9ec4a',pants:'#151515',shorts:true,hair:'#211812',tousled:true,glasses:true,watch:true},
 // 리신범, from the user's photo: wavy dark hair, black headband over the eyes with glasses on top, stubble,
 // brown/khaki digital camo tee, big square smartwatch on the left wrist. Martial-arts guard, compact punchy strokes.
@@ -2748,7 +2748,7 @@ $('ci-close').onclick=()=>{$('char-info').close();ciSync();};$('ci-pick').onclic
 // next step in view: the Google sign-in (or, once signed in, the play button)
 const nx=$('google-login').hidden?$('start'):$('google-login');setTimeout(()=>nx.scrollIntoView({behavior:'smooth',block:'center'}),80);
 setTimeout(()=>{const r=nx.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)nx.scrollIntoView({block:'center'});},900);};   // smooth where it animates, a plain jump otherwise
-{const id='pastor',label='목사님 · 백드라이브·백커트 ×1.45 · 포핸드 드라이브 30% 미스',opt=document.createElement('option');opt.value=id;opt.textContent=label;$('character').prepend(opt);const b=document.createElement('button');b.type='button';b.setAttribute('role','radio');b.dataset.char=id;const c=document.createElement('canvas');c.width=c.height=96;c.setAttribute('aria-hidden','true');b.append(c,LOOKS[id].nick);$('char-pick').prepend(b);renderCharPick();renderLevel();}
+{const id='pastor',label='허허 목사 · 백드라이브·백커트 ×1.45 · 포핸드 드라이브 30% 미스',opt=document.createElement('option');opt.value=id;opt.textContent=label;$('character').prepend(opt);const b=document.createElement('button');b.type='button';b.setAttribute('role','radio');b.dataset.char=id;const c=document.createElement('canvas');c.width=c.height=96;c.setAttribute('aria-hidden','true');b.append(c,LOOKS[id].nick);$('char-pick').prepend(b);renderCharPick();renderLevel();}
 document.querySelectorAll('#char-pick button').forEach(b=>b.onclick=()=>showCharInfo(b.dataset.char));
 // the settings panel's character list opens the same card; closing it without picking puts the list back
 const ciSync=()=>{$('character').value=charType;markPending();previewSettings();};
