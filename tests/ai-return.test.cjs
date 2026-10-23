@@ -38,7 +38,15 @@ test('ultra extreme returns ordinary shots with a 99% chance', () => {
   for (const ball of [{type:'drive', ult:'special'}, {type:'thunder'}, {type:'drive', lob:true}, {type:'drive', unreturn:true}]) {
     assert.equal(context.P.returnChance(ball, 'uext', .4), .4);
   }
-  assert.equal(context.P.returnChance({type:'drive'}, 'uhard', .4), .4);
+  let previous = .4;
+  for (const tier of ['easy', 'hard', 'extreme', 'ultra', 'uhard', 'uext']) {
+    const chance = context.P.returnChance({type:'drive'}, tier, .4);
+    assert.ok(chance > previous && chance <= .99, tier);
+    assert.equal(context.P.returnChance({type:'thunder'}, tier, .4), .4);
+    previous = chance;
+  }
+  assert.equal(context.P.returnChance({type:'drive'}, null, .4), .4);
+  assert.equal(context.P.returnChance({type:'drive'}, 'easy', 1), 1);
 });
 
 vm.runInNewContext(html.slice(html.indexOf('function landGuard(s,b)'), html.indexOf('function hit(tap)')), context);
