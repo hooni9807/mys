@@ -33,19 +33,19 @@ test('moving back preserves the relative hit position and timing', () => {
 
 test('each AI tier uses its configured ordinary-shot return rate', () => {
   for (const type of ['serve', 'loop', 'drive', 'back', 'cut', 'chop', 'block', 'smash']) {
-    assert.ok(Math.abs(context.P.returnChance({type, power: true}, 'uext', .4)-.36)<1e-9);
+    assert.ok(Math.abs(context.P.returnChance({type, power: true}, 'uext', .4)-.38)<1e-9);
   }
   for (const ball of [{type:'drive', ult:'special'}, {type:'thunder',ult:'special'}, {type:'drive', lob:true}, {type:'drive', unreturn:true}]) {
     assert.equal(context.P.returnChance(ball, 'uext', .4), .4);
   }
-  const rates={easy:.30,hard:.40,extreme:.50,ultra:.70,uhard:.80,uext:.90};
+  const rates={easy:.40,hard:.50,extreme:.60,ultra:.70,uhard:.85,uext:.95};
   const bases={easy:.70,hard:.91,extreme:.925,ultra:.94,uhard:.99,uext:1};
   for (const [tier,rate] of Object.entries(rates)) {
     assert.ok(Math.abs(context.P.returnChance({type:'drive'},tier,bases[tier])-rate)<1e-9,tier);
     assert.ok(Math.abs(context.P.returnChance({type:'thunder'},tier,.4)-Math.min(.4*rate/bases[tier],rate))<1e-9,'racket specials follow the normal return tier');
   }
   assert.equal(context.P.returnChance({type:'drive'}, null, .4), .4);
-  assert.equal(context.P.returnChance({type:'drive'}, 'easy', 1), .30);
+  assert.equal(context.P.returnChance({type:'drive'}, 'easy', 1), .40);
 });
 
 vm.runInNewContext(html.slice(html.indexOf('function landGuard(s,b)'), html.indexOf('function hit(tap)')), context);
@@ -159,7 +159,7 @@ test('racket skills remain returnable and tier-four miss chance survives AI bonu
   const normal=context.P.aiChance({type:'lightning',x:0,vy:-3,spin:0},'b5',false,{atk:.3,sp:.45,cap:.999,base:{b5:.95}});
   const equipped=context.P.aiChance({type:'lightning',ult:'x',x:0,vy:-3,spin:0},'b5',false,{atk:.3,sp:.45,cap:.999,base:{b5:.95}});
   assert.ok(normal>equipped,'racket skill must not receive the equipped-special penalty');
-  assert.ok(context.P.returnRoll({type:'drive',defMiss:.2},'uext',1)<=.70,'20% skill miss is applied after the return tier');
+  assert.ok(context.P.returnRoll({type:'drive',defMiss:.2},'uext',1)<=.75,'20% skill miss is applied after the return tier');
 });
 
 test('every marginal out ball can become an edge and net cords have a five percent pass', () => {

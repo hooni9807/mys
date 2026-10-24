@@ -307,10 +307,10 @@ function normalShot(b){return !b.ult&&!b.aiSpecial&&!b.kill&&!b.lob&&!b.fake&&!b
 // A normal-ball return starts at the selected tier's advertised rate.  The
 // already-calculated chance still carries spin, pace and placement penalties,
 // scaled from that tier's neutral baseline.
-const RETURN_RATE={easy:.30,hard:.40,extreme:.50,ultra:.70,uhard:.80,uext:.90};
+const RETURN_RATE={easy:.40,hard:.50,extreme:.60,ultra:.70,uhard:.85,uext:.95};
 const RETURN_BASE={easy:.70,hard:.91,extreme:.925,ultra:.94,uhard:.99,uext:1};
 function returnChance(b,tier,chance){if(!normalShot(b)||RETURN_RATE[tier]==null)return chance;return clamp(chance*RETURN_RATE[tier]/RETURN_BASE[tier],0,RETURN_RATE[tier]);}
-if(typeof document!=='undefined'){const info=document.querySelector('[data-tier="uext"] small');if(info)info.textContent='가장 빠른 공격과 강한 회전 · 일반 공 리턴 시도 성공률 90% · 투터치 대상 타구의 약 80%가 투터치 · AI 스킬 25P · 3~4티어 필살기';}
+if(typeof document!=='undefined'){const info=document.querySelector('[data-tier="uext"] small');if(info)info.textContent='가장 빠른 공격과 강한 회전 · 일반 공 리턴 시도 성공률 95% · 투터치 대상 타구의 약 80%가 투터치 · AI 스킬 25P · 3~4티어 필살기';}
 // A move's stated defensive miss chance is applied after the AI tier bonus, so it cannot be erased by a high return tier.
 function returnRoll(b,tier,chance){return Math.max(0,returnChance(b,tier,chance)-Math.min(.95,Math.max(0,b.defMiss||0)));}
 const EDGE_CHANCE=.01,NET_CORD_CHANCE=.05;
