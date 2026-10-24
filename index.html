@@ -621,8 +621,8 @@ setTimeout(()=>{const d=$('gamble-dlg');d.querySelector('[data-g="y"]').onclick=
 function gyKind(aiFore){if(aiFore<0)return P.incoming(ball)==='cut'?'block':'cut';return Math.random()<.6?'cut':'block';}
 /* 💥 필살기 20종: 상대 공의 종류(trig)에 맞으면 발동. 게이지 100%일 때 다음 타격에서 장착한 것 중 상황에 맞는 것이 나가고, 맞는 게 없으면 라켓 기본 필살기.
    base = P.shot 기본 타구, pw = 속도 배율(P.power), sp = 회전 배율, cv = 휘는 정도, dm = 상대 실수 확률 +, fx = 임팩트 모양 */
-const ULT_TRIG={cut:'상대 커트',drive:'상대 드라이브',short:'상대 짧은 공',lob:'상대 뜬 공 · 로빙',serve:'상대 서브',smash:'상대 스매시',any:'언제든'};
-const ULT_KEEP=new Set(['dragon','frostloop','eclipse','twister','blitz','mirror','tsunami','sunflare','banana','feather','hawk','lunar','meteor','phoenix','starfall','icicle','flick','tide','bladerx','rocket','wall','radiant','phoenixc','thunderc','comet','rainbow','sakura','heaven']);
+const ULT_TRIG={cut:'상대 커트',drive:'상대 드라이브',short:'상대 짧은 공',lob:'상대 뜬 공 · 스매싱',serve:'상대 서브'};
+const ULT_KEEP=new Set(['dragon','frostloop','eclipse','twister','blitz','mirror','tsunami','sunflare','banana','feather','hawk','lunar','meteor','phoenix','starfall','icicle','flick','tide','bladerx','rocket','wall','radiant','phoenixc','thunderc']);
 const ULTS=[
 ['dragon','','용오름 루프','DRAGON LOOP','cut','loop',{pw:1.1,sp:1.8},'spiral','80,220,140','커트를 뚫고 솟아오르는 초강력 상회전 루프 · 회전 ×1.8'],
 ['blast','','폭렬 드라이브','BLAST DRIVE','cut','loop',{pw:1.4},'burst','255,110,40','커트 공을 그대로 터뜨리는 강타 · 속도 ×1.4'],
@@ -640,8 +640,8 @@ const ULTS=[
 ['phoenix','','불사조 스매시','PHOENIX','lob','smash',{pw:1.15,cv:1.4},'flame','255,90,30','불꽃을 두르고 휘어 꽂히는 스매시'],
 ['flick','','선제 플릭','FIRST STRIKE','serve','chiquita',{pw:1.15,dm:.1},'star','255,180,80','서브를 받자마자 먼저 공격 · 상대 실수 +10%'],
 ['guard','','역습 리시브','COUNTER RECEIVE','serve','loop',{pw:1.1,sp:1.5},'ring','100,200,255','서브를 묵직한 상회전으로 되받아쳐요'],
-['wall','','철벽 카운터','IRON WALL','smash','lightning',{pw:1.3},'shard','180,190,210','스매시를 벽처럼 막아 빠르게 되돌려요'],
-['radiant','','빛의 반격','RADIANT','smash','crescent',{pw:1.25,cv:1.2},'star','255,250,180','스매시를 빛처럼 휘어 반격해요'],
+['wall','','철벽 카운터','IRON WALL','lob','lightning',{pw:1.3},'shard','180,190,210','뜬 공 또는 스매시를 벽처럼 막아 빠르게 되돌려요'],
+['radiant','','빛의 반격','RADIANT','lob','crescent',{pw:1.25,cv:1.2},'star','255,250,180','뜬 공 또는 스매시를 빛처럼 휘어 반격해요'],
 ['comet','','혜성 드라이브','COMET','any','crescent',{cv:2.2},'meteor','160,140,255','꼬리를 끌며 크게 휘어 가는 혜성 · 언제든 발동'],
 ['phantasm','','환영 페이크','PHANTASM','any','phantom',{dm:.2},'mist','190,150,255','친 척하다 툭 떨구는 환영 · 상대 실수 +20% · 언제든 발동'],
 ['frostloop','','빙결 루프','FROST LOOP','cut','loop',{sp:1.5,pw:1.05},'ice','150,220,255','얼음 결정을 흩뿌리며 감아 올리는 루프 · 회전 ×1.5'],
@@ -670,9 +670,9 @@ const ULTS=[
 ['rocket','','로켓 리시브','ROCKET','serve','loop',{pw:1.35},'flame','255,120,60','로켓처럼 치고 나가는 공격 리시브 · 속도 ×1.35'],
 ['mirage','','신기루','MIRAGE','smash','phantom',{dm:0.25},'mist','255,220,170','스매시를 신기루처럼 흘려 떨궈요 · 상대 실수 +25%'],
 ['golem','','골렘 블록','GOLEM','smash','lightning',{pw:1.15,dm:0.08},'fist','170,140,110','바위처럼 받아 그대로 돌려줘요'],
-['phoenixc','','불사조 반격','PHOENIX RISE','smash','loop',{pw:1.3},'flame','255,100,40','불사조처럼 되살아나는 반격 · 속도 ×1.3'],
+['phoenixc','','불사조 반격','PHOENIX RISE','lob','loop',{pw:1.3},'flame','255,100,40','뜬 공 또는 스매시를 불사조처럼 되살아나 반격 · 속도 ×1.3'],
 ['frostw','','서리 장벽','FROST WALL','smash','chop',{sp:1.5},'ice','180,230,255','서리 장벽으로 막아 하회전으로'],
-['thunderc','','뇌신 카운터','THUNDER GOD','smash','lightning',{pw:1.4},'bolt','255,240,90','번개 신의 속도로 되받아쳐요 · 속도 ×1.4'],
+['thunderc','','뇌신 카운터','THUNDER GOD','lob','lightning',{pw:1.4},'bolt','255,240,90','뜬 공 또는 스매시를 번개 신의 속도로 되받아쳐요 · 속도 ×1.4'],
 ['riposte','','리포스트','RIPOSTE','smash','crescent',{pw:1.2,cv:1.4},'cross','220,200,255','펜싱처럼 받아 찔러 휘어 보내요'],
 ['rainbow','','무지개 드라이브','RAINBOW','any','crescent',{cv:1.6,pw:1.1},'sun','255,140,220','일곱 빛깔로 휘어 가는 드라이브'],
 ['void','','공허의 일격','VOID','any','loop',{pw:1.2,dm:0.1},'dark','110,60,180','공허에서 튀어나온 일격 · 상대 실수 +10%'],
@@ -682,19 +682,19 @@ const ULTS=[
 ['heaven','','천상의 일섬','HEAVEN SLASH','any','lightning',{pw:1.3,dm:0.05},'slash','255,245,200','하늘에서 내려온 한 줄기 빛 · 속도 ×1.3']
 ].map(([id,icon,name,en,trig,base,m,fx,rgb,desc])=>({id,icon,name,en,trig,base,m,fx,rgb,glow:`rgb(${rgb})`,desc,coach:`${name}! ${desc}`})).filter(u=>ULT_KEEP.has(u.id)).map((u,k)=>({...u,ci:['band','rays','vortex','shatter','frame','split'][k%6]}));
 /* 기 모으기 에너지 색: 발동 상황마다 다르게 (언제든은 무지개) */
-const TRIG_RGB={cut:'96,165,250',drive:'251,146,60',short:'74,222,128',lob:'250,204,21',serve:'34,211,238',smash:'244,63,94',any:null},RAINBOW=['248,113,113','251,146,60','250,204,21','74,222,128','96,165,250','192,132,252'];
+const TRIG_RGB={cut:'96,165,250',drive:'251,146,60',short:'74,222,128',lob:'250,204,21',serve:'34,211,238'},RAINBOW=['248,113,113','251,146,60','250,204,21','74,222,128','96,165,250','192,132,252'];
 /* 티어: 같은 발동 상황 4개를 효과 세기 순으로 1~4티어 · 티어 n은 Lv 5×(n−1)에 해금 (1티어는 Lv 1) */
 const ultPower=u=>(u.m.pw||1)*1.2+(u.m.sp||1)*.3+(u.m.cv||0)*.25+(u.m.dm||0)*4;
 for(const t of Object.keys(ULT_TRIG))ULTS.filter(u=>u.trig===t).sort((a,b)=>ultPower(a)-ultPower(b)||a.id.localeCompare(b.id)).forEach((u,k)=>{u.tier=k+1;if(u.tier===4){u.m={...u.m,dm:Math.max(.2,u.m.dm||0)};u.desc+=' · AI 리턴 추가 실수 20%';u.coach=`${u.name}! ${u.desc}`;}});
-const ultTierLv=t=>t===1?1:(t-1)*5,ultOk=u=>!!u&&progLevel()>=ultTierLv(u.tier),ultTiersAt=lv=>Math.min(4,1+Math.floor(lv/5));
+const ultTierLv=t=>t===1?1:(t-1)*5,ultOk=u=>!!u&&progLevel()>=ultTierLv(u.tier),ultTiersAt=lv=>Math.min(8,1+Math.floor(lv/5));
 const ULT_BY=Object.fromEntries(ULTS.map(u=>[u.id,u]));
 /* 모든 필살기는 발사 순간과 비행 중에 같은 계열의 효과를 남긴다. */
 const ULT_FX_KIND={ice:'star',leaf:'petal',water:'wave',dark:'mist',wing:'feather',arrow:'slash',moon:'ring',sun:'burst',drill:'spiral',fist:'ring',cross:'slash',meteor:'meteor',flame:'flame'};
 const ultFxKind=u=>ULT_FX_KIND[u.fx]||u.fx||'burst';
 const ultSlots=()=>1+(progLevel()>=10)+(progLevel()>=20);   // 슬롯: Lv1 1칸 · Lv10 2칸 · Lv20 3칸
 const ultSet=(ch=charType)=>((prog.q??={})._u??={})[ch]??[];
-function ultTrig(b){const inc=P.incoming(b);if(b.type==='serve')return'serve';if(inc==='smash')return'smash';if(b.chance||b.lob||b.z>.6)return'lob';if(b.shortCut||b.type==='short'||b.type==='block')return'short';return inc==='cut'?'cut':inc==='drive'?'drive':'any';}
-function pickUlt(b){const set=ultSet().slice(0,ultSlots()).map(k=>ULT_BY[k]).filter(ultOk),t=ultTrig(b);return set.find(u=>u.trig===t)||set.find(u=>u.trig==='any')||null;}
+function ultTrig(b){const inc=P.incoming(b);if(b.type==='serve')return'serve';if(inc==='smash'||b.chance||b.lob||b.z>.6)return'lob';if(b.shortCut||b.type==='short'||b.type==='block')return'short';return inc==='cut'?'cut':inc==='drive'?'drive':null;}
+function pickUlt(b){const set=ultSet().slice(0,ultSlots()).map(k=>ULT_BY[k]).filter(ultOk),t=ultTrig(b);return set.find(u=>u.trig===t)||null;}
 function ultApply(u,shot,b){let s2=shot;const m=u.m;if(m.pw)s2=P.power(s2,b.y,b.z,m.pw);if(m.sp!=null)s2=m.sp===0?{...s2,spin:0}:P.retime(s2,b.y,b.z,1,m.sp);
 if(m.cv){const side=-(Math.sign(s2.vx||(b.x>0?-1:1))||1)*m.cv,ck=2.4,t=Math.abs((2.05-b.y)/(s2.vy||3));s2={...s2,side,curveK:ck,vx:s2.vx-.5*side*ck*t,curve:m.cv};}
 if(m.dm)s2={...s2,defMiss:(s2.defMiss||0)+m.dm};return s2;}
@@ -859,13 +859,13 @@ function renderUlts(){const ch=ultChar||charType,set=ultSet(ch),n=ultSlots();$('
 $('ult-slots').innerHTML=[0,1,2].map(i=>{const u=ULT_BY[set[i]];return `<div class="ms-slot${i>=n?' lock':''}" data-slot="${i}">${i>=n?`<span>Lv ${i===1?10:20}</span>`:u?`<img src="${ultIcon(u)}" alt="${u.name}" draggable="false" data-from="${i}" data-drag="${u.id}"><em>${u.name}</em>`:'<span>빈 칸</span>'}<b>${i+1}</b></div>`;}).join('');
 const trigs=Object.keys(ULT_TRIG);(()=>{const q=(prog.q??={})._u??={};if((q[ch]||[]).some(k=>k&&!ultOk(ULT_BY[k]))){q[ch]=q[ch].map(k=>k&&ultOk(ULT_BY[k])?k:null);saveProg(false);}})();
 $('ult-tabs').innerHTML='';
-$('ult-list').innerHTML=`<div class="ms-grid" style="--n:${trigs.length}"><span></span>`+trigs.map(t=>`<span class="ms-th">${ULT_TRIG[t].replace('상대 ','').replace(' · 로빙','')}</span>`).join('')+[1,2,3,4].map(tr=>{const lv=ultTierLv(tr),open=progLevel()>=lv;return `<span class="ms-tier${open?'':' lock'}">${tr}티어<small>${open?'':'Lv '+lv}</small></span>`+trigs.map(t=>{const u=ULTS.find(v=>v.trig===t&&v.tier===tr);return `<button type="button" class="ms-cell${open?'':' lock'}${set.includes(u.id)?' on':''}${ultSel===u.id?' sel':''}" data-sel="${u.id}"><img src="${ultIcon(u)}" alt="" draggable="false"${open?` data-drag="${u.id}"`:''}><small>${u.name}</small></button>`;}).join('');}).join('')+'</div>';
+const tiers=Array.from({length:Math.max(...ULTS.map(u=>u.tier))},(_,i)=>i+1);$('ult-list').innerHTML=`<div class="ms-grid" style="--n:${trigs.length}"><span></span>`+trigs.map(t=>`<span class="ms-th">${ULT_TRIG[t].replace('상대 ','')}</span>`).join('')+tiers.map(tr=>{const lv=ultTierLv(tr),open=progLevel()>=lv;return `<span class="ms-tier${open?'':' lock'}">${tr}티어<small>${open?'':'Lv '+lv}</small></span>`+trigs.map(t=>{const u=ULTS.find(v=>v.trig===t&&v.tier===tr);return u?`<button type="button" class="ms-cell${open?'':' lock'}${set.includes(u.id)?' on':''}${ultSel===u.id?' sel':''}" data-sel="${u.id}"><img src="${ultIcon(u)}" alt="" draggable="false"${open?` data-drag="${u.id}"`:''}><small>${u.name}</small></button>`:'<span class="ms-cell empty"></span>';}).join('');}).join('')+'</div>';
 {const u=ULT_BY[ultSel];$('ult-detail').innerHTML=u?`<img src="${ultIcon(u)}" alt=""><div><b>${u.name}</b> <i>${u.tier}티어 · ${ULT_TRIG[u.trig]}</i><small>${u.desc}</small></div>`+(ultOk(u)?`<button type="button" data-eq="${u.id}">${set.includes(u.id)?'해제':'장착'}</button>`:`<span class="ms-lockmsg">Lv ${ultTierLv(u.tier)} 해금</span>`):'<small>필살기를 누르면 설명과 예상 장면이 나와요 · 아이콘을 슬롯으로 끌어서 장착</small>';}}
 function ultPut(id,slot){if(!ultOk(ULT_BY[id]))return toast(`${ULT_BY[id].tier}티어 필살기는 Lv ${ultTierLv(ULT_BY[id].tier)}에 해금돼요`,1.8);const ch=ultChar||charType,q=(prog.q??={})._u??={},n=ultSlots(),set=(q[ch]??=[]).slice(0,n);for(let k=0;k<n;k++)if(set[k]===id)set[k]=null;
 if(slot==null){slot=[...Array(n).keys()].find(k=>!set[k]);if(slot==null)return toast('슬롯이 가득 찼어요 · 장착한 필살기를 슬롯 밖으로 끌어내거나 해제하세요 (Lv 10 · Lv 20에 슬롯 추가)',2.2);}
 if(slot>=n)return toast(`그 슬롯은 Lv ${slot===1?10:20}에 열려요`,1.6);set[slot]=id;q[ch]=set;saveProg();renderUlts();}
 /* 추천: 캐릭터 스타일에 맞는 발동 상황 순서로, 각 상황에서 가장 강한 필살기 */
-function ultRecommend(ch){const L=LOOKS[ch]||{},def=L.racket==='defense'||L.defender||L.lobber,atk=L.smashAll||L.dragon||L.fhDrive||L.glass,order=def?['smash','drive','cut']:atk?['cut','lob','short']:['cut','drive','any'],score=ultPower;
+function ultRecommend(ch){const L=LOOKS[ch]||{},def=L.racket==='defense'||L.defender||L.lobber,atk=L.smashAll||L.dragon||L.fhDrive||L.glass,order=def?['lob','drive','cut']:atk?['cut','lob','short']:['cut','drive','lob'],score=ultPower;
 return order.slice(0,ultSlots()).map(t=>ULTS.filter(u=>u.trig===t&&ultOk(u)).sort((a,b)=>score(b)-score(a))[0].id);}
 function ultRemove(id){const ch=ultChar||charType,q=(prog.q??={})._u??={};q[ch]=(q[ch]||[]).map(k=>k===id?null:k);saveProg();renderUlts();}
 const ultToggle=id=>ultSet(ultChar||charType).includes(id)?ultRemove(id):ultPut(id);
@@ -892,7 +892,7 @@ const aiUltPower=()=>mode==='boss'?1:(AI_ULT_POWER[tierNow()]??.55);
 const AI_SPECIAL_CHARGE_SCALE=.7,aiSpecialChargeGain=dual=>(dual?13:10)*AI_SPECIAL_CHARGE_SCALE*(tierNow()==='uhard'||tierNow()==='uext'?1.5:1)*(1-R_('utAntiSpecial'));
 function aiUltForTier(u){if(!u)return u;const k=aiUltPower(),m=u.m||{},blend=v=>v==null?v:1+(v-1)*k;return {...u,m:{...m,pw:blend(m.pw),sp:blend(m.sp),cv:(m.cv||0)*k,dm:(m.dm||0)*k},aiPower:k};}
 function rollAiUlts(){const [lo,hi]=mode==='boss'?[3,4]:AI_ULT_TIER[tierNow()]||[1,3],t=Object.keys(ULT_TRIG).sort(()=>Math.random()-.5).slice(0,3);return t.map(k=>{const L=ULTS.filter(u=>u.trig===k&&u.tier>=lo&&u.tier<=hi);return L[Math.random()*L.length|0].id;});}
-function aiPickUlt(b){const set=aiUltSet.map(k=>ULT_BY[k]).filter(Boolean),t=ultTrig(b);return set.find(u=>u.trig===t)||set.find(u=>u.trig==='any')||set[Math.random()*set.length|0]||null;}
+function aiPickUlt(b){const set=aiUltSet.map(k=>ULT_BY[k]).filter(Boolean),t=ultTrig(b);return set.find(u=>u.trig===t)||null;}
 function randFit(){const pick=a=>a[Math.random()*a.length|0],f={top:pick(FIT_TOPS)[0],bot:pick(FIT_BOTS)[0]};for(const k of FIT_SLOTS){if(Math.random()<.45){const L=FIT_ACC.filter(a=>a[2]===k);if(L.length)f[k]=pick(L)[0];}}return f;}
 function showResult(won){const d=$('result');if(!d||net)return;const tierTxt=mode==='match'?(rankOn||resRank?'🎖️ 랭크전':`AI 대전 · ${TIERS[aiTier].name}`):MODE_TEXT[mode]||modeText(mode);
 d.className=won?'win':'lose';$('rs-badge').textContent=won?'🏆':'💪';$('rs-title').textContent=won?'승리!':'패배';$('rs-score').textContent=`${you} : ${cpu}`;
@@ -2900,7 +2900,7 @@ $('t-open').onclick=()=>{titleCheck();renderTitles();$('titles').showModal();};$
 $('ults').onclick=e=>{const q=e.target.closest('[data-eq]'),c=e.target.closest('[data-sel]');if(q)ultToggle(q.dataset.eq);else if(c)selectUlt(c.dataset.sel);};document.addEventListener('click',e=>{const b=e.target.closest('.sk-tabs [data-tab]');if(!b)return;saveProg();if(b.dataset.tab==='ults'){$('runes').close();ultAfterRunes=false;openUlts(runeChar);}else{$('ults').close();runeChar=ultChar||charType;renderRunes();$('runes').showModal();}});$('rn-rec').onclick=()=>{const ch=runeChar;if(!runePoints())return toast('레벨 2부터 스킬포인트가 생겨요',1.6);if(runeSpent(null,ch)&&!confirm(`${LOOKS[ch].nick} 스킬트리를 추천대로 다시 찍을까요? (지금 찍은 건 초기화돼요)`))return;prog.runeSets??={};prog.runeSets[ch]=runeRecommend(ch);saveProg();renderRunes();toast(`${LOOKS[ch].nick} 추천 스킬트리 · ${runePoints()}포인트 적용`,2);};
 $('rn-reset').onclick=()=>{const ch=runeChar;if(!runeSpent(null,ch)||!confirm(`${LOOKS[ch].nick} 스킬트리를 모두 초기화할까요? (포인트는 전부 돌려받아요)`))return;prog.runeSets??={};prog.runeSets[ch]={};saveProg();renderRunes();};$('rn-char').onchange=e=>{runeChar=e.target.value;renderRunes();};$('q-close').onclick=()=>$('quests').close();$('cpu-name').textContent='AI '+LOOKS[aiChar].nick;
 if(BLADES[store.get('blade')])bladeType=store.get('blade');if(RUBBERS[store.get('rubber')])rubberType=store.get('rubber');
-$('blade').value=bladeType;$('rubber').value=rubberType;setRacket(store.get('racket')||'shake');best=+store.get('best')||0;updateScore();
+$('blade').value=bladeType;$('rubber').value=rubberType;setRacket(store.get('racket')||'shake');document.querySelector('#ults p').innerHTML='필살기 게이지가 100%가 되면 다음 타격에서 <b>상대 공의 종류에 맞는</b> 장착 필살기가 자동으로 나가요 · 캐릭터마다 따로 저장 · 슬롯 Lv1 1칸 · Lv10 2칸 · Lv20 3칸 · <b>티어는 5레벨마다 한 줄씩 해금</b>';best=+store.get('best')||0;updateScore();
 $('apply-settings').onclick=applySettings;markPending();
 // Character card: what each character can do, shown before picking one
 const CHAR_INFO={
