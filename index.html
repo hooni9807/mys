@@ -491,7 +491,7 @@ prog.unlocked=[...new Set([...START_CHARS,...prog.unlocked])];
 const NEW_CHARACTER_UNLOCKS=['jongryeong','kumho'];
 function lockNewCharactersOnce(){prog.q??={};if(prog.q._newCharacterUnlocksV1)return false;prog.q._newCharacterUnlocksV1=1;const before=prog.unlocked.length;prog.unlocked=prog.unlocked.filter(k=>!NEW_CHARACTER_UNLOCKS.includes(k));return prog.unlocked.length!==before;}
 const newCharactersLocked=lockNewCharactersOnce();
-if(newCharactersLocked)store.set('progress',JSON.stringify(prog));
+if(newCharactersLocked)try{localStorage.setItem('spinlab.progress',JSON.stringify(prog));}catch{}
 prog.coins=Math.max(0,Math.floor(Number(prog.coins)||0));
 prog.racketEnhance=Math.min(100,Math.max(0,Math.floor(Number(prog.racketEnhance)||0)));
 const COIN_NAME='스핀코인',COIN_REWARD={easy:30,hard:55,extreme:85,ultra:120,uhard:165,uext:220};
