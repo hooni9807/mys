@@ -304,7 +304,13 @@ function incomingRetreat(b){if(!b||b.owner!=='ai'||b.held||b.serving||b.vy>=0)re
 // Spin the receiver has to deal with: every 1.0 of spin above SPIN_FREE adds SPIN_MISS to the chance the return fails.
 function spinMiss(b){return Math.max(0,Math.abs(b.spin||0)*EQUIP.spin-SPIN_FREE)*SPIN_MISS;}
 function normalShot(b){return !b.ult&&!b.aiSpecial&&!b.kill&&!b.lob&&!b.fake&&!b.curve&&!b.gamble&&!b.unreturn;}
-function returnChance(b,tier,chance){if(!normalShot(b))return chance;if(tier==='uext')return .98;const boost={easy:.2,hard:.3,extreme:.38,ultra:.48,uhard:.65}[tier]||0;return chance+Math.max(0,.98-chance)*boost;}
+// A normal-ball return starts at the selected tier's advertised rate.  The
+// already-calculated chance still carries spin, pace and placement penalties,
+// scaled from that tier's neutral baseline.
+const RETURN_RATE={easy:.30,hard:.40,extreme:.50,ultra:.70,uhard:.80,uext:.90};
+const RETURN_BASE={easy:.70,hard:.91,extreme:.925,ultra:.94,uhard:.99,uext:1};
+function returnChance(b,tier,chance){if(!normalShot(b)||RETURN_RATE[tier]==null)return chance;return clamp(chance*RETURN_RATE[tier]/RETURN_BASE[tier],0,RETURN_RATE[tier]);}
+if(typeof document!=='undefined'){const info=document.querySelector('[data-tier="uext"] small');if(info)info.textContent='가장 빠른 공격과 강한 회전 · 일반 공 리턴 시도 성공률 90% · 투터치 대상 타구의 약 80%가 투터치 · AI 스킬 25P · 3~4티어 필살기';}
 // A move's stated defensive miss chance is applied after the AI tier bonus, so it cannot be erased by a high return tier.
 function returnRoll(b,tier,chance){return Math.max(0,returnChance(b,tier,chance)-Math.min(.95,Math.max(0,b.defMiss||0)));}
 const EDGE_CHANCE=.01,NET_CORD_CHANCE=.05;
@@ -1351,7 +1357,11 @@ if(ok(b))return;const vz0=b.vz,vx0=b.vx,vy0=b.vy;for(const speed of (Number.isFi
 function endInfDrive(n){questMatchEnd(false);playing=false;lockPage(false);$('home').hidden=true;updateSpecial();me.sadT=performance.now()/1000;setTimeout(()=>{if(!playing)$('overlay').classList.remove('hidden');},2000);
 document.querySelector('.start-card h2').innerHTML=`♾️ 맞드라이브 ${n}회<br>다시 도전해볼까요?`;document.querySelector('.start-card p').textContent=`연속 드라이브가 끊겨서 끝났어요 · 이번 기록 ${n}회 (점수는 세지 않아요)`;$('start').firstChild.textContent='재도전 ';$('pause').disabled=true;clearSave();offerRank();}
 const counterAiChance=chance=>Math.max(.1,chance-deep*.16);
-function deepen(counter){const was=deep;deep=counter?Math.min(1,deep+P.DEEP_STEP*(.75+deep)):Math.max(0,deep-2*P.DEEP_STEP);if(ball){ball.deep=deep;if(counter&&ball.owner==='you')Object.assign(ball,P.power(ball,ball.y,ball.z,1+.35*deep));}if(!was&&deep)toast('맞드라이브! 🔥 둘 다 한 걸음 물러나요',1.4);else if(deep>was&&deep>=1&&was<1)toast('🔥 끝까지 물러난 맞드라이브 랠리!',1.2);}
+// Counter-drive pace starts only from the third exchange and rises gently;
+// the old +35% maximum made a long rally feel abruptly too fast.
+const counterSpeedBoost=()=>1+Math.max(0,deep-.33)*.16;
+const baseAiReturn=P.aiReturn;P.aiReturn=(kind,x,y,z,speed,...rest)=>{if(ball&&P.incoming(ball)==='drive'&&kind==='drive'&&deep>0)speed*=counterSpeedBoost()/(1+.35*deep);return baseAiReturn(kind,x,y,z,speed,...rest);};
+function deepen(counter){const was=deep;deep=counter?Math.min(1,deep+P.DEEP_STEP*(.75+deep)):Math.max(0,deep-2*P.DEEP_STEP);if(ball){ball.deep=deep;if(counter&&ball.owner==='you')Object.assign(ball,P.power(ball,ball.y,ball.z,counterSpeedBoost()));}if(!was&&deep)toast('맞드라이브! 🔥 둘 다 한 걸음 물러나요',1.4);else if(deep>was&&deep>=1&&was<1)toast('🔥 끝까지 물러난 맞드라이브 랠리!',1.2);}
 const TAUNTS=['흠.. 그정돈가?','냐옹냐옹~','풉키 풉키!'];
 // 보스전: the boss plays above 선수부 and casts one of three skills on some returns. From my 6th point on it is enraged
 // (phase 2): every return 10% faster and skills twice as often.
