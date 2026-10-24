@@ -8,4 +8,7 @@ context.Math.random=()=>.49;assert(context.rollCharm({charm:true}));
 context.Math.random=()=>.5;assert.strictEqual(context.rollCharm({charm:true}),null);
 context.Math.random=()=>0;assert.strictEqual(context.rollCharm({}),null);
 assert(html.includes('charmId:b.charmId||null'));
+assert(html.includes('ctx.globalAlpha=.68*fade'));
+assert(html.includes('Math.min(W,H)*.72*pulse'));
+assert(!html.includes('for(const [x,y,size] of [[.43,.46,.16]'));
 console.log('Character charm roll, network serialization and script syntax OK');
