@@ -500,7 +500,7 @@ const enhanceActive=()=>mode==='match'&&!rankOn&&!net;
 // Enhancement belongs only to the human player.  In AI matches it boosts the
 // player's shot and makes the opponent a little more likely to miss; it never
 // grants the AI its own racket-enhancement bonus (and stays off in rank/PvP).
-const enhanceSpeed=()=>1+(enhanceActive()?enhanceLevel():0)*.0025,enhanceSpin=()=>1+(enhanceActive()?enhanceLevel():0)*.0025,enhanceAiMiss=()=>(enhanceActive()?enhanceLevel():0)*.0015;
+const enhanceSpeed=()=>1+(enhanceActive()?enhanceLevel():0)*.0025,enhanceSpin=()=>1+(enhanceActive()?enhanceLevel():0)*.0025,enhanceAiMiss=()=>(enhanceActive()?enhanceLevel():0)*.002;
 // +1~+10 is an easy entry path; after that the price rises every five levels without becoming abrupt.
 const enhanceCost=()=>{const n=enhanceLevel()+1;return n<=10?3:5+Math.floor((n-11)/5)*2;};
 const enhanceRate=()=>{const n=enhanceLevel()+1;return n<=10?1:n<=30?.9:n<=60?.75:n<=80?.6:.45;};
