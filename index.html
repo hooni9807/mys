@@ -699,7 +699,11 @@ function ultApply(u,shot,b){let s2=shot;const m=u.m;if(m.pw)s2=P.power(s2,b.y,b.
 if(m.cv){const side=-(Math.sign(s2.vx||(b.x>0?-1:1))||1)*m.cv,ck=2.4,t=Math.abs((2.05-b.y)/(s2.vy||3));s2={...s2,side,curveK:ck,vx:s2.vx-.5*side*ck*t,curve:m.cv};}
 if(m.dm)s2={...s2,defMiss:(s2.defMiss||0)+m.dm};return s2;}
 const ULT_HOLD_MS=750;let ultHoldUntil=0,ultFx=[];
-function holdUltimate(ms=ULT_HOLD_MS){ultHoldUntil=Math.max(ultHoldUntil,performance.now()+P.clamp(ms,0,ULT_HOLD_MS));}
+// A cut-in is visual only.  Pausing the simulation here left the ball, input and
+// HUD apparently frozen for the full cinematic (and could repeat for remote
+// snapshots).  Keep this shim because older multiplayer packets can contain
+// `hold`, but never let that presentation detail stop a live rally.
+function holdUltimate(){ultHoldUntil=0;}
 function fireUlt(u,x,y,ai=false){const now=performance.now()/1000,allies=!ai&&(u.tier||1)>=3?ultAllies(u).slice(0,(u.tier||1)>=4?2:1):[];if(!ai){ultFx.push({u,x,y,t:now});if(ultFx.length>3)ultFx.shift();}const st=ai?foe:me;st.ultMove={u,t:now,x,y,allies};if(!ai){const look=LOOKS[charType]||{};ultCut={u,x,y,t:now,nick:look.nick||look.name||'나',face:look.face,allies};shakeT=time;holdUltimate();}else{st.swingType=u.base;st.swingT=time;}beep(1200);setTimeout(()=>beep(1500),90);}
 /* 필살 슛 연출(애니 스포츠 만화풍): 하얀 섬광 → 화면 어둡게 + 집중선 → 사선 컷인(내 캐릭터 얼굴 + 기술 이름) → 잠깐 슬로모션 · 화면 흔들림 */
 let ultCut=null;

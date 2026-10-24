@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const { test } = require('node:test');
 const html = fs.readFileSync('index.html', 'utf8');
 
-test('ultimate pauses physics for its shortened effect and then resumes', () => {
+test('ultimate cut-in never pauses live physics', () => {
   let now = 1000, updates = 0;
   const ctx = { performance: { now: () => now }, P: { clamp: (n, min, max) => Math.min(max, Math.max(min, n)) },
     tickVictoryCeremony() {}, pingNetClock() {}, update() { updates++; }, guestUpdate() { updates++; },
@@ -13,10 +13,7 @@ test('ultimate pauses physics for its shortened effect and then resumes', () => 
   const hold = html.slice(html.indexOf('const ULT_HOLD_MS='), html.indexOf('function fireUlt('));
   const frame = html.slice(html.indexOf('function frame(t)'), html.indexOf('requestAnimationFrame(frame);', html.indexOf('function frame(t)')) + 'requestAnimationFrame(frame);'.length) + '}';
   vm.runInNewContext(hold + frame + '\nholdUltimate(); frame(1100);', ctx);
-  assert.equal(updates, 0);
-  now = 1751;
-  vm.runInNewContext('frame(1751)', ctx);
   assert.ok(updates > 0);
   vm.runInNewContext('holdUltimate(9000)', ctx);
-  assert.equal(vm.runInNewContext('ultHoldUntil', ctx), now + 750);
+  assert.equal(vm.runInNewContext('ultHoldUntil', ctx), 0);
 });
