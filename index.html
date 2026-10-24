@@ -699,13 +699,16 @@ function pickUlt(b){const set=ultSet().slice(0,ultSlots()).map(k=>ULT_BY[k]).fil
 function ultApply(u,shot,b){let s2=shot;const m=u.m;if(m.pw)s2=P.power(s2,b.y,b.z,m.pw);if(m.sp!=null)s2=m.sp===0?{...s2,spin:0}:P.retime(s2,b.y,b.z,1,m.sp);
 if(m.cv){const side=-(Math.sign(s2.vx||(b.x>0?-1:1))||1)*m.cv,ck=2.4,t=Math.abs((2.05-b.y)/(s2.vy||3));s2={...s2,side,curveK:ck,vx:s2.vx-.5*side*ck*t,curve:m.cv};}
 if(m.dm)s2={...s2,defMiss:(s2.defMiss||0)+m.dm};return s2;}
-const ULT_HOLD_MS=750;let ultHoldUntil=0,ultFx=[];
+// A little over one second gives the cut-in room to breathe, while the rally
+// continues underneath it.  Players who prefer a snappier match can skip it
+// from the main-menu game settings.
+const ULT_HOLD_MS=950,ULT_ACTION_SEC=.9;let ultHoldUntil=0,ultFx=[];
 // A cut-in is visual only.  Pausing the simulation here left the ball, input and
 // HUD apparently frozen for the full cinematic (and could repeat for remote
 // snapshots).  Keep this shim because older multiplayer packets can contain
 // `hold`, but never let that presentation detail stop a live rally.
 function holdUltimate(){ultHoldUntil=0;}
-function fireUlt(u,x,y,ai=false){const now=performance.now()/1000,allies=!ai&&(u.tier||1)>=3?ultAllies(u).slice(0,(u.tier||1)>=4?2:1):[];if(!ai){ultFx.push({u,x,y,t:now});if(ultFx.length>3)ultFx.shift();}const st=ai?foe:me;st.ultMove={u,t:now,x,y,allies};if(!ai){const look=LOOKS[charType]||{};/* LOOKS.face is an asset key, not a CanvasImageSource. Resolve it here so a cut-in cannot throw and stop requestAnimationFrame. */ultCut={u,x,y,t:now,nick:look.nick||look.name||'나',face:faceImg(look),allies};shakeT=time;holdUltimate();}else{st.swingType=u.base;st.swingT=time;}beep(1200);setTimeout(()=>beep(1500),90);}
+function fireUlt(u,x,y,ai=false){const now=performance.now()/1000,allies=!ai&&(u.tier||1)>=3?ultAllies(u).slice(0,(u.tier||1)>=4?2:1):[],show=ultMotion();if(!ai&&show){ultFx.push({u,x,y,t:now});if(ultFx.length>3)ultFx.shift();}const st=ai?foe:me;st.ultMove=show?{u,t:now,x,y,allies}:null;if(!ai){if(show){const look=LOOKS[charType]||{};/* LOOKS.face is an asset key, not a CanvasImageSource. Resolve it here so a cut-in cannot throw and stop requestAnimationFrame. */ultCut={u,x,y,t:now,nick:look.nick||look.name||'나',face:faceImg(look),allies};setShake();}holdUltimate();}else{st.swingType=u.base;st.swingT=time;}beep(1200);setTimeout(()=>beep(1500),90);}
 /* 필살 슛 연출(애니 스포츠 만화풍): 하얀 섬광 → 화면 어둡게 + 집중선 → 사선 컷인(내 캐릭터 얼굴 + 기술 이름) → 잠깐 슬로모션 · 화면 흔들림 */
 let ultCut=null;
 function drawUltCutin(f=ultCut,elapsed=null,preview=false){if(!f)return;let T=elapsed??(performance.now()/1000-f.t);if(!preview)T*=1.8/(ULT_HOLD_MS/1000);if(T>(preview?1.35:1.8)){if(elapsed===null)ultCut=null;return;}const u=f.u,c=u.rgb;ctx.save();
@@ -1188,6 +1191,16 @@ thunder:{name:'천둥 스매시',en:'THUNDER',rgb:'255,224,102',glow:'#ffe066',d
 crescent:{name:'초승달 드라이브',en:'CRESCENT',rgb:'255,60,200',glow:'#ff4fd8',desc:'강한 옆회전으로 바깥쪽으로 빠지는 듯하다가 크게 휘어 반대쪽 코너로 꽂히는 드라이브',coach:'초승달 드라이브! 바깥으로 빠지는 듯하다 크게 휘어 반대쪽 코너에 꽂힙니다.'},
 phantom:{name:'유령 커트',en:'PHANTOM',rgb:'180,140,255',glow:'#b48cff',desc:'둥실 떠서 네트 앞에 툭 떨어지는 초강력 하회전',coach:'유령 커트! 느리게 떠오른 공이 네트 앞에서 힘없이 죽어버립니다.'}};
 const store={get:k=>{try{return localStorage.getItem('spinlab.'+k);}catch{return null;}},set:(k,v)=>{try{localStorage.setItem('spinlab.'+k,v);}catch{}}};
+const prefs=(()=>{try{return {...{ultSkip:false,reduceMotion:false,haptics:true},...JSON.parse(store.get('gamePrefs')||'{}')};}catch{return{ultSkip:false,reduceMotion:false,haptics:true};}})();
+const savePrefs=()=>store.set('gamePrefs',JSON.stringify(prefs));
+const ultMotion=()=>!prefs.ultSkip;
+const setShake=()=>{if(!prefs.reduceMotion)shakeT=time;};
+const vibrate=ms=>{if(prefs.haptics)navigator.vibrate?.(ms);};
+try{const nativeVibrate=navigator.vibrate?.bind(navigator);if(nativeVibrate)navigator.vibrate=ms=>prefs.haptics&&nativeVibrate(ms);}catch{}
+// Main-menu preferences deliberately live outside character/loadout settings so
+// they apply to every match and remain available before a game starts.
+function installGameSettings(){const box=$('lv-box');if(!box)return;const open=document.createElement('button');open.type='button';open.id='settings-open';open.textContent='⚙ 게임 설정';box.insertBefore(open,box.firstElementChild?.nextElementSibling?.nextElementSibling?.nextElementSibling||null);const dlg=document.createElement('dialog');dlg.id='game-settings';dlg.setAttribute('aria-labelledby','game-settings-title');dlg.innerHTML='<button type="button" class="dlg-x" id="settings-close" aria-label="설정 닫기">✕</button><h3 id="game-settings-title">⚙ 게임 설정</h3><p>경기 흐름과 조작 피드백을 내 취향에 맞게 바꿔요.</p><label><input id="pref-ult-skip" type="checkbox"> 필살기 모션 스킵 <small>연출 없이 바로 플레이를 이어갑니다</small></label><label><input id="pref-reduce-motion" type="checkbox"> 화면 흔들림 줄이기 <small>강한 타격과 필살기 때의 흔들림을 끕니다</small></label><label><input id="pref-haptics" type="checkbox"> 터치 진동 <small>모바일 스윙·강타 피드백</small></label><label><input id="pref-sound" type="checkbox"> 효과음</label><button type="button" id="settings-done">저장하고 닫기</button></dialog>';document.body.append(dlg);const style=document.createElement('style');style.textContent='#game-settings{width:min(390px,92vw);border:1px solid #5a4386;border-radius:14px;padding:22px;background:#19112a;color:#ece6ff;box-shadow:0 20px 70px #000a}#game-settings::backdrop{background:#090611bd}#game-settings h3{margin:0 0 7px}#game-settings p{font-size:12px;color:#b9a9e3;margin:0 0 15px}#game-settings label{display:block;padding:12px 4px;border-top:1px solid #33244e;font-size:14px;cursor:pointer}#game-settings label small{display:block;margin:5px 0 0 24px;color:#9b8dbd;font-size:11px}#game-settings input{accent-color:#ff345d}#settings-done{width:100%;margin-top:14px;border:0;border-radius:8px;padding:12px;background:#ff345d;color:#160b20;font-weight:800}';document.head.append(style);const sync=()=>{$('pref-ult-skip').checked=prefs.ultSkip;$('pref-reduce-motion').checked=prefs.reduceMotion;$('pref-haptics').checked=prefs.haptics;$('pref-sound').checked=sound;};const save=()=>{prefs.ultSkip=$('pref-ult-skip').checked;prefs.reduceMotion=$('pref-reduce-motion').checked;prefs.haptics=$('pref-haptics').checked;savePrefs();setSound($('pref-sound').checked);};open.onclick=()=>{sync();dlg.showModal();};$('settings-close').onclick=()=>{save();dlg.close();};$('settings-done').onclick=()=>{save();dlg.close();};dlg.addEventListener('cancel',save);}
+setTimeout(installGameSettings,0);
 if(!ctx.roundRect)ctx.roundRect=function(x,y,w,h){this.rect(x,y,w,h);};
 const TABLE_W=.34;   // table half-width as a share of the court width (smaller = more floor around the table)
 // Two cameras. tp: high behind my player (default). fp: first person - lower and closer, stronger perspective, my body hidden.
@@ -1562,7 +1575,7 @@ else if(['mist','petal','feather','ice'].includes(k))set(28,30,-.3,.88,-.35);   
 else if(['spiral','ring','wave'].includes(k))set(34,-42,.72,.55,.62);     // body-turn release
 else set(38,-28,.48,.5,.38);                                               // counter / star / shard
 p.crouch=lerp(p.crouch,.24,outK);return p;}
-function ultBodyOffset(st,side,s){const m=st.ultMove;if(!m)return{x:0,y:0};const t=performance.now()/1000-m.t;if(t<0||t>.72)return{x:0,y:0};const k=ultFxKind(m.u),p=P.clamp(t/.72,0,1),release=P.clamp((p-.46)/.34,0,1),fade=1-release;
+function ultBodyOffset(st,side,s){const m=st.ultMove;if(!m)return{x:0,y:0};const t=performance.now()/1000-m.t;if(t<0||t>ULT_ACTION_SEC)return{x:0,y:0};const k=ultFxKind(m.u),p=P.clamp(t/ULT_ACTION_SEC,0,1),release=P.clamp((p-.46)/.34,0,1),fade=1-release;
 if(['bolt','slash','arrow'].includes(k))return{x:-side*42*s*Math.sin(Math.PI*p)*fade,y:0}; // low ninja run into the strike
 if(['meteor','flame','burst'].includes(k))return{x:-side*16*s*Math.sin(Math.PI*p),y:-78*s*Math.sin(Math.PI*Math.min(1,p/.78))*fade};
 if(['ice','mist','petal','feather'].includes(k))return{x:-side*10*s*Math.sin(Math.PI*p),y:8*s*Math.sin(Math.PI*p)};
@@ -1572,7 +1585,7 @@ function drawPlayerUltAllies(){const m=me.ultMove;if(!m||!me.ultHand||me.waistY=
 for(let i=0;i<allies.length;i++){const look=LOOKS[allies[i]];if(!look)continue;const side=i%2?-1:1,entry=P.clamp((p-.02-i*.16)/.3,0,1);if(!entry)continue;const x=me.x+side*lerp(W*.42,W*.18,entry),st={x,vx:-side*W*.42*(1-entry),legLen:me.legLen||30*s,crouch:.18,lean:side*.12,tall:1,stanceK:1};ctx.save();ctx.globalAlpha=entry*.94;person(st,hip,{x:x-side*38*s,y:hip-60*s},-side*.32,look,s,look.racket||(look.pen?'jpen':'shake'),side<0?BLACK:RED,-side,'drive',entry*.32,null);ctx.restore();const feed=P.clamp((p-(.22+i*.14))/.3,0,1);if(feed){ctx.save();ctx.globalAlpha=entry*(1-feed*.25);ctx.fillStyle=`rgba(${m.u.rgb},.18)`;ctx.beginPath();ctx.arc(x,hip-62*s,42*s,0,Math.PI*2);ctx.fill();ctx.strokeStyle=c;ctx.shadowColor=c;ctx.shadowBlur=14;ctx.lineWidth=(2+feed*3)*s;ctx.beginPath();ctx.moveTo(x-side*18*s,hip-64*s);ctx.quadraticCurveTo(lerp(x,hand.x,.5),hip-116*s,hand.x,hand.y);ctx.stroke();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(lerp(x,hand.x,feed),lerp(hip-64*s,hand.y,feed),(3+feed*4)*s,0,Math.PI*2);ctx.fill();ctx.restore();}}
 }
 function drawUltMatchPreview(u,ch,elapsed){const look=LOOKS[ch],saved={x:me.x,waistY:me.waistY,legLen:me.legLen,ultHand:me.ultHand,ultMove:me.ultMove},oldChar=charType,oldSide=playerSide;try{charType=ch;playerSide=1;const hip=H*.76,scale=Math.max(.62,Math.min(1,W/760));Object.assign(me,{x:W*.5,waistY:hip,legLen:30*scale,ultHand:null,ultMove:{u,t:performance.now()/1000-elapsed,previewChar:ch}});person(me,hip,{x:W*.58,y:H*.45},.3,look,scale,look.racket||(look.pen?'jpen':'shake'),BLACK,1,'smash',.22,null);drawPlayerUltAllies();drawPlayerUltAction();}finally{Object.assign(me,saved);charType=oldChar;playerSide=oldSide;}}
-function drawPlayerUltAction(){const m=me.ultMove;if(!m||!me.ultHand)return;const now=performance.now()/1000,t=now-m.t;if(t<0||t>.76)return;const u=m.u,k=ultFxKind(u),p=P.clamp(t/.76,0,1),fade=1-P.clamp((p-.72)/.28,0,1),hand=me.ultHand,c=`rgb(${u.rgb})`,ballPt=ball&&!ball.held?project(ball.x,ball.y,ball.z):{x:hand.x+playerSide*W*.22,y:hand.y-H*.1};ctx.save();ctx.globalAlpha=fade;ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowColor=c;ctx.shadowBlur=16;
+function drawPlayerUltAction(){const m=me.ultMove;if(!m||!me.ultHand)return;const now=performance.now()/1000,t=now-m.t;if(t<0||t>ULT_ACTION_SEC)return;const u=m.u,k=ultFxKind(u),p=P.clamp(t/ULT_ACTION_SEC,0,1),fade=1-P.clamp((p-.72)/.28,0,1),hand=me.ultHand,c=`rgb(${u.rgb})`,ballPt=ball&&!ball.held?project(ball.x,ball.y,ball.z):{x:hand.x+playerSide*W*.22,y:hand.y-H*.1};ctx.save();ctx.globalAlpha=fade;ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowColor=c;ctx.shadowBlur=16;
 if(['bolt','slash','arrow'].includes(k)){ctx.strokeStyle=c;ctx.lineWidth=5;for(let i=0;i<4;i++){const q=i/4;ctx.globalAlpha=fade*(.7-q*.12);ctx.beginPath();ctx.moveTo(hand.x-playerSide*(30+i*18),hand.y+22+i*7);ctx.lineTo(hand.x-playerSide*(90+i*25),hand.y+30+i*10);ctx.stroke();}ctx.globalAlpha=fade;ctx.fillStyle='#dff8ff';ctx.beginPath();ctx.arc(hand.x,hand.y,10+8*p,0,Math.PI*2);ctx.fill();}
 else if(['meteor','burst'].includes(k)){ctx.strokeStyle=c;ctx.lineWidth=4;for(let i=0;i<7;i++){const a=i*Math.PI*2/7+p*4;ctx.beginPath();ctx.moveTo(hand.x,hand.y);ctx.lineTo(hand.x+Math.cos(a)*(28+32*p),hand.y+Math.sin(a)*(28+32*p));ctx.stroke();}}
 else if(k==='ice'||k==='mist'){ctx.fillStyle='rgba(185,244,255,.2)';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#bff6ff';ctx.lineWidth=3;for(let i=0;i<12;i++){const a=i*Math.PI/6+p*3,r=25+55*p;ctx.beginPath();ctx.moveTo(hand.x+Math.cos(a)*r,hand.y+Math.sin(a)*r);ctx.lineTo(hand.x+Math.cos(a)*(r+13),hand.y+Math.sin(a)*(r+13));ctx.stroke();}}
@@ -3129,6 +3142,9 @@ function netClosed(){if(!net)return;const was=net;net=null;cancelVictoryCeremony
 const NET_TRANSIENT=['network','disconnected','socket-error','socket-closed','server-error'];
 let lobbyPeer=null,hostRetry=0,joinRetry=false;
 function revive(peer){if(peer&&!peer.destroyed&&peer.disconnected&&!document.hidden)try{peer.reconnect();}catch{}}
+// PeerJS can deliver a connection that is already open. Registering only an
+// `open` listener in that case leaves both lobby sides waiting forever.
+function whenConnOpen(conn,fn){let called=false;const run=()=>{if(called)return;called=true;fn();};conn.on('open',run);if(conn.open)run();}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)return;revive(net?net.peer:lobbyPeer);if(joinRetry&&!net){joinRetry=false;netJoin(true);}});
 async function netHost(code){if(net||!code&&!needNick())return;netStatus('준비 중…');try{await loadPeer();}catch{netStatus('온라인 기능을 불러오지 못했어요 (인터넷 확인)');return;}
 const fresh=!code;if(fresh)privateRoom=false;code=code||Array.from({length:4},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
@@ -3140,7 +3156,7 @@ peer.on('error',e=>{if(lobbyPeer!==peer)return;
 if(e.type==='unavailable-id'){peer.destroy();if(fresh)netHost();else if(hostRetry++<8)setTimeout(()=>{if(!net)netHost(code);},2500);else netStatus('방을 다시 열지 못했어요. 방을 새로 만들어 주세요');}
 else if(NET_TRANSIENT.includes(e.type)){if(!net)netStatus(`방 코드 ${code} · 다시 연결 중…`);setTimeout(()=>revive(peer),1500);}
 else netStatus('연결 오류: '+e.type);});
-peer.on('connection',conn=>{if(net){conn.close();return;}if(lobbyUI&&lobbyRole==='host'){lobbyGuestIn(conn);return;}conn.on('open',()=>{lobbyPeer=null;roomClose();netOpen('host',peer,conn);});});}
+peer.on('connection',conn=>{if(net){conn.close();return;}if(lobbyUI&&lobbyRole==='host'){lobbyGuestIn(conn);return;}whenConnOpen(conn,()=>{lobbyPeer=null;roomClose();netOpen('host',peer,conn);});});}
 // The host may be away sharing the code (their room is offline until they come back), so a guest keeps knocking
 // for a minute instead of failing at once. Each attempt is a fresh Peer; joinSeq cancels stale retries.
 let joinUntil=0,joinSeq=0;
@@ -3151,7 +3167,7 @@ const again=()=>{if(done)return;done=true;clearTimeout(timer);peer.destroy();if(
 if(left<=0){netStatus('방장이 1분 동안 돌아오지 않았어요. 코드를 확인하고 다시 참가하세요');return;}
 netStatus(`방장을 기다리는 중… ${left}초 (방장이 다른 앱에 있으면 돌아올 때 연결돼요)`);if(document.hidden)joinRetry=true;else setTimeout(()=>{if(seq===joinSeq)netJoin(true);},2000);},
 timer=setTimeout(again,12000);
-peer.on('open',()=>{const conn=peer.connect('spinlab-'+code,{reliable:true});conn.on('open',()=>{done=true;clearTimeout(timer);netOpen('guest',peer,conn);});});
+peer.on('open',()=>{const conn=peer.connect('spinlab-'+code,{reliable:true});whenConnOpen(conn,()=>{done=true;clearTimeout(timer);netOpen('guest',peer,conn);});});
 peer.on('error',e=>{if(net||done)return;if(e.type==='peer-unavailable'||NET_TRANSIENT.includes(e.type))again();else{done=true;clearTimeout(timer);peer.destroy();netStatus('연결 오류: '+e.type);}});}
 // Public matchmaking: a waiting host lists its room in rooms/{uid} (heartbeat every 20 s); 빠른 매칭 joins the freshest
 // room that isn't mine, or opens one and waits. Rooms quiet for over a minute are treated as gone.
@@ -3191,7 +3207,7 @@ conn.on('data',m=>{if(!m||m.t!=='lb-hello'||lobbyRole!=='host')return;let sl=slo
 const nm=String(m.name||'선수').slice(0,12);if(lobbyConns[sl].name!==nm){lobbyConns[sl].name=nm;lobbyRoster();}else try{conn.send({t:'lb-roster',names:{1:myName(),...Object.fromEntries(Object.entries(lobbyConns).map(([k,v])=>[k,v.name]))}});}catch{}});
 const gone=()=>{const sl=slotOf(conn);if(!sl)return;delete lobbyConns[sl];if(lobbyUI&&lobbyRole==='host')lobbyRoster();};conn.on('close',gone);conn.on('error',gone);return;}
 if(lobbyConn){conn.close();return;}lobbyConn=conn;
-conn.on('open',()=>{if(lobbyConn!==conn)return;roomClose();try{conn.send({t:'lb-welcome',name:myName()});}catch{}});
+whenConnOpen(conn,()=>{if(lobbyConn!==conn)return;roomClose();try{conn.send({t:'lb-welcome',name:myName()});}catch{}});
 conn.on('data',m=>{if(lobbyConn!==conn||!m||m.t!=='lb-hello')return;$('lb-slot2').textContent=String(m.name||'선수').slice(0,12)+' 님이 입장했어요';$('lb-start').disabled=false;});
 const gone=()=>{if(lobbyConn!==conn)return;lobbyConn=null;if(lobbyUI&&lobbyRole==='host'){$('lb-start').disabled=true;$('lb-slot2').textContent='상대가 나갔어요 · 다시 기다리는 중…';if(lobbyPeer)roomOpen(lobbyCode,lobbyPeer);}};
 conn.on('close',gone);conn.on('error',gone);}
@@ -3206,7 +3222,7 @@ if(lobbyRole!=='guest')return;const peer=new Peer();lobbyGPeer=peer;let timer=nu
 const fail=msg=>{if(lobbyGPeer!==peer)return;clearTimeout(timer);lobbyGPeer=null;lobbyConn=null;try{peer.destroy();}catch{}lobbyBack(msg);};
 timer=setTimeout(()=>fail('방에 들어가지 못했어요 · 방이 사라졌을 수 있어요'),12000);
 peer.on('open',()=>{const conn=peer.connect('spinlab-'+room.code,{reliable:true});
-conn.on('open',()=>{if(lobbyGPeer!==peer)return;clearTimeout(timer);lobbyConn=conn;$('lb-slot2').textContent=myName()+' · 방장이 시작하기를 기다리는 중…';const hello=()=>{if(lobbyGPeer!==peer||!conn.open){clearInterval(hi);return;}try{conn.send({t:'lb-hello',name:myName()});}catch{}},hi=setInterval(hello,2500);hello();});
+whenConnOpen(conn,()=>{if(lobbyGPeer!==peer)return;clearTimeout(timer);lobbyConn=conn;$('lb-slot2').textContent=myName()+' · 방장이 시작하기를 기다리는 중…';const hello=()=>{if(lobbyGPeer!==peer||!conn.open){clearInterval(hi);return;}try{conn.send({t:'lb-hello',name:myName()});}catch{}},hi=setInterval(hello,2500);hello();});
 conn.on('data',m=>{if(lobbyGPeer!==peer||!m)return;if(m.t==='lb-roster'&&m.names){lobbyDblUI(m.kind||'double');$('lb-p1').textContent=m.names[1]||'방장';for(const k of lobbySlots(m.kind||'double'))$('lb-slot'+k).textContent=m.names[k]?m.names[k]+' 님':'기다리는 중…';return;}if(m.t==='lb-full'){fail('방이 가득 찼어요');return;}if(m.t!=='lb-start')return;lobbyConn=null;lobbyGPeer=null;lobbyRole=null;clearTimeout(timer);lobbyEnd();netOpen('guest',peer,conn,m.trio?{trio:true,slot:m.slot}:m.dbl?{slot:m.slot}:null);});
 conn.on('close',()=>{if(lobbyConn===conn)fail('방장이 방을 나갔어요');});conn.on('error',()=>fail('연결 오류'));});
 peer.on('error',e=>fail('방에 들어가지 못했어요 ('+e.type+')'));}
