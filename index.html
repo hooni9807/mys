@@ -497,9 +497,10 @@ prog.racketEnhance=Math.min(100,Math.max(0,Math.floor(Number(prog.racketEnhance)
 const COIN_NAME='스핀코인',COIN_REWARD={easy:30,hard:55,extreme:85,ultra:120,uhard:165,uext:220};
 const enhanceLevel=()=>Math.min(100,Math.max(0,Math.floor(Number(prog.racketEnhance)||0)));
 const enhanceActive=()=>mode==='match'&&!rankOn&&!net;
-// Enhancement belongs only to the human player's racket: it boosts the shot
-// they make, never the AI's racket or the AI's return/error odds.
-const enhanceSpeed=()=>1+(enhanceActive()?enhanceLevel():0)*.0025,enhanceSpin=()=>1+(enhanceActive()?enhanceLevel():0)*.0025,enhanceAiMiss=()=>0;
+// Enhancement belongs only to the human player.  In AI matches it boosts the
+// player's shot and makes the opponent a little more likely to miss; it never
+// grants the AI its own racket-enhancement bonus (and stays off in rank/PvP).
+const enhanceSpeed=()=>1+(enhanceActive()?enhanceLevel():0)*.0025,enhanceSpin=()=>1+(enhanceActive()?enhanceLevel():0)*.0025,enhanceAiMiss=()=>(enhanceActive()?enhanceLevel():0)*.0015;
 // +1~+10 is an easy entry path; after that the price rises every five levels without becoming abrupt.
 const enhanceCost=()=>{const n=enhanceLevel()+1;return n<=10?3:5+Math.floor((n-11)/5)*2;};
 const enhanceRate=()=>{const n=enhanceLevel()+1;return n<=10?1:n<=30?.9:n<=60?.75:n<=80?.6:.45;};
@@ -2830,7 +2831,7 @@ let g=null;try{g=JSON.parse(store.get('myGear'));}catch{}if(!g||!RACKETS[g.racke
 if(BLADES[g.blade])bladeType=g.blade;if(RUBBERS[g.rubber])rubberType=g.rubber;store.set('blade',bladeType);store.set('rubber',rubberType);$('blade').value=bladeType;$('rubber').value=rubberType;setRacket(g.racket);toast(`내 장비로 돌아왔어요: ${RACKETS[g.racket].name}`+(g.racket==='shake'?` · ${BLADES[bladeType].name} + ${RUBBERS[rubberType].name}`:''),1.8);}
 function setRacket(type){if(!RACKETS[type])return;racketType=type;$('racket').value=type;$('racket-note').textContent=racketNote(type,bladeType,rubberType);$('special-name').textContent='✦ 장착 필살기';store.set('racket',type);$('gear').hidden=type!=='shake';}
 function renderEnhance(){const lv=enhanceLevel(),cap=lv>=100,rate=enhanceRate(),cost=enhanceCost();$('enhance-coin').textContent=`${COIN_NAME} ${prog.coins.toLocaleString()}`;$('enhance-level').textContent=`+${lv}`;$('enhance-rate').textContent=cap?'최대 강화 완료':`성공 확률 ${Math.round(rate*100)}%`;$('enhance-speed').textContent=`+${Math.round((enhanceSpeed()-1)*100)}%`;$('enhance-spin').textContent=`+${Math.round((enhanceSpin()-1)*100)}%`;$('enhance-miss').textContent=`+${Math.round(enhanceAiMiss()*100)}%`;$('enhance-cost').textContent=cap?'최대 단계입니다.':`다음 강화 비용 · ${cost.toLocaleString()} ${COIN_NAME}`;$('enhance-note').textContent=lv>=50?'+50 이상 강화는 실패하면 1단계 하락합니다.':' +1~+10은 100% 성공 · 이후에는 성공 확률이 낮아집니다. +50부터 실패하면 1단계 하락합니다.';$('enhance-try').disabled=cap||prog.coins<cost;$('enhance-try').textContent=cap?'강화 완료':prog.coins<cost?`${COIN_NAME} 부족`:`+${lv+1} 강화 시도`;}
-const openEnhance=()=>{renderEnhance();$('enhance').showModal();};$('enhance-open').onclick=openEnhance;$('enhance-home').onclick=openEnhance;$('enhance-close').onclick=()=>$('enhance').close();$('enhance-try').onclick=()=>{const lv=enhanceLevel(),cost=enhanceCost();if(lv>=100||prog.coins<cost)return;prog.coins-=cost;if(Math.random()<enhanceRate()){prog.racketEnhance=lv+1;saveProg();toast(`⚒️ 강화 성공! 라켓 +${lv+1} · 속도·회전 상승`,2.4);}else{if(lv>=50)prog.racketEnhance=lv-1;saveProg();toast(lv>=50?`강화 실패… 라켓이 +${lv-1}로 하락했습니다.`:'강화 실패… 단계는 유지됩니다.',2.1);}renderEnhance();};
+const openEnhance=()=>{renderEnhance();$('enhance').showModal();};$('enhance-open').onclick=openEnhance;$('enhance-home').onclick=openEnhance;$('enhance-close').onclick=()=>$('enhance').close();$('enhance-try').onclick=()=>{const lv=enhanceLevel(),cost=enhanceCost();if(lv>=100||prog.coins<cost)return;prog.coins-=cost;if(Math.random()<enhanceRate()){prog.racketEnhance=lv+1;saveProg();toast(`⚒️ 강화 성공! 라켓 +${lv+1} · 속도·회전 상승 · AI 실수 증가`,2.4);}else{if(lv>=50)prog.racketEnhance=lv-1;saveProg();toast(lv>=50?`강화 실패… 라켓이 +${lv-1}로 하락했습니다.`:'강화 실패… 단계는 유지됩니다.',2.1);}renderEnhance();};
 
 function gearNote(blade,rubber){const B=BLADES[blade],U=RUBBERS[rubber],pc=v=>Math.round(v*100)+'%';return ` · 목판 ${B.name}(${B.note}) · 러버 ${U.name}(${U.note}) → 속도 ${pc(B.speed*U.speed)} · 회전 ${pc(B.spin*U.spin)} · 실수 확률 ${pc(Math.max(0,B.err+U.err))}`;}
 if(P.LEVELS[store.get('difficulty')])difficulty=store.get('difficulty');$('difficulty').value=difficulty;
