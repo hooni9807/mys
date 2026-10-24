@@ -31,9 +31,9 @@ test('moving back preserves the relative hit position and timing', () => {
   assert.ok(Math.abs((context.P.back(long) - context.P.back(regular)) - .2) < 1e-9);
 });
 
-test('ultra extreme returns ordinary shots with a 99% chance', () => {
+test('ultra extreme returns ordinary shots with a 98% chance', () => {
   for (const type of ['serve', 'loop', 'drive', 'back', 'cut', 'chop', 'block', 'smash']) {
-    assert.equal(context.P.returnChance({type, power: true}, 'uext', .4), .99);
+    assert.equal(context.P.returnChance({type, power: true}, 'uext', .4), .98);
   }
   for (const ball of [{type:'drive', ult:'special'}, {type:'thunder',ult:'special'}, {type:'drive', lob:true}, {type:'drive', unreturn:true}]) {
     assert.equal(context.P.returnChance(ball, 'uext', .4), .4);
