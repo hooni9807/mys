@@ -21,7 +21,9 @@ const http=require('http'),fs=require('fs'),path=require('path'),assert=require(
     await page.waitForFunction(()=>document.getElementById('enhance-level').textContent==='+1');
     const state=await page.evaluate(()=>({coins:prog.coins,level:enhanceLevel(),speed:enhanceSpeed(),spin:enhanceSpin(),miss:enhanceAiMiss()}));
     const racketEffect=await page.evaluate(()=>{const old=ctx,c=document.createElement('canvas');c.width=c.height=180;ctx=c.getContext('2d');prog.racketEnhance=0;racket(90,90,0,'shake','#1b1b1b',1);const base=c.toDataURL();ctx.clearRect(0,0,180,180);prog.racketEnhance=10;time=.5;racket(90,90,0,'shake','#1b1b1b',1);const enhanced=c.toDataURL();ctx=old;return base!==enhanced;});
-    assert.equal(state.level,1);assert.ok(state.coins<10000);assert.ok(racketEffect,'+10 racket should render an effect');assert.ok(state.speed>1&&state.spin>1&&state.miss>0);assert.deepEqual(errors,[]);
+    assert.equal(state.level,1);assert.ok(state.coins<10000);assert.ok(racketEffect,'+10 racket should render an effect');assert.ok(state.speed>1&&state.spin>1&&state.miss>0);
+    const failure=await page.evaluate(()=>{prog.racketEnhance=50;prog.coins=10000;renderEnhance();const title=TITLES.find(t=>t[0]==='enh50')[3](),note=$('enhance-note').textContent,random=Math.random;Math.random=()=>.99;$('enhance-try').click();Math.random=random;return {level:enhanceLevel(),title,note};});
+    assert.equal(failure.title,true);assert.equal(failure.level,49);assert.match(failure.note,/50/);assert.deepEqual(errors,[]);
     console.log('Racket enhancement spends spin coins and applies combat bonuses');
   }finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
