@@ -698,7 +698,7 @@ if(m.cv){const side=-(Math.sign(s2.vx||(b.x>0?-1:1))||1)*m.cv,ck=2.4,t=Math.abs(
 if(m.dm)s2={...s2,defMiss:(s2.defMiss||0)+m.dm};return s2;}
 const ULT_HOLD_MS=750;let ultHoldUntil=0,ultFx=[];
 function holdUltimate(ms=ULT_HOLD_MS){ultHoldUntil=Math.max(ultHoldUntil,performance.now()+P.clamp(ms,0,ULT_HOLD_MS));}
-function fireUlt(u,x,y,ai=false){if(!ai){ultFx.push({u,x,y,t:performance.now()/1000});if(ultFx.length>3)ultFx.shift();ultCut={u,x,y,ai,t:performance.now()/1000,allies:ultAllies(u),face:faceImg(ai?(net&&net.opp?withFit(LOOKS[net.opp.ch]||LOOKS.ai,net.opp.fit):LOOKS[aiChar]):fitLook(LOOKS[charType])),nick:ai?(net&&net.opp?(net.opp.nick||LOOKS[net.opp.ch]?.nick||'상대'):LOOKS[aiChar].nick):LOOKS[charType].nick};}const st=ai?foe:me;st.ultMove={u,t:time};if(ai){st.swingType=u.base;st.swingT=time;}if(!ai){shakeT=time;holdUltimate();}beep(1200);setTimeout(()=>beep(1500),90);}
+function fireUlt(u,x,y,ai=false){const now=performance.now()/1000;if(!ai){ultFx.push({u,x,y,t:now});if(ultFx.length>3)ultFx.shift();}const st=ai?foe:me;st.ultMove={u,t:now,x,y};if(ai){st.swingType=u.base;st.swingT=time;}if(!ai){shakeT=time;holdUltimate();}beep(1200);setTimeout(()=>beep(1500),90);}
 /* 필살 슛 연출(애니 스포츠 만화풍): 하얀 섬광 → 화면 어둡게 + 집중선 → 사선 컷인(내 캐릭터 얼굴 + 기술 이름) → 잠깐 슬로모션 · 화면 흔들림 */
 let ultCut=null;
 function drawUltCutin(f=ultCut,elapsed=null,preview=false){if(!f)return;let T=elapsed??(performance.now()/1000-f.t);if(!preview)T*=1.8/(ULT_HOLD_MS/1000);if(T>(preview?1.35:1.8)){if(elapsed===null)ultCut=null;return;}const u=f.u,c=u.rgb;ctx.save();
@@ -1536,14 +1536,26 @@ if(since<.33)return mix(C,F,ease((since-.05)/.28));       // follow-through
 return mix(F,R,P.clamp((since-.45)/.2,0,1));               // hold, then back to ready
 }
 // Original anime-sports finish poses: explosive release, then a quick recovery so the next return remains readable.
-function ultMotionPose(p,move,side,s){if(!move)return p;const t=time-move.t;if(t<0||t>.62)return p;const k=ultFxKind(move.u),outK=P.clamp((t-.32)/.3,0,1),hold=1-outK;
+function ultMotionPose(p,move,side,s){if(!move)return p;const t=performance.now()/1000-move.t;if(t<0||t>.72)return p;const k=ultFxKind(move.u),outK=P.clamp((t-.38)/.34,0,1),hold=1-outK;
 const set=(x,y,a,c,tw)=>{p.target={x:p.target.x+x*side*s*hold,y:p.target.y+y*s*hold};p.angle+=a*side*hold;p.crouch=Math.max(p.crouch,c*hold);p.twist+=(tw||0)*hold;};
-if(['meteor','flame','burst'].includes(k))set(42,-66,.95,.72,.55);       // leap-and-slam
-else if(['bolt','slash','arrow'].includes(k))set(54,-10,.35,.42,.75);     // driving dash
-else if(['mist','petal','feather'].includes(k))set(28,30,-.3,.88,-.35);   // low deceptive finish
+if(['meteor','flame','burst'].includes(k))set(42,-72,.95,.72,.55);       // jump-and-slam
+else if(['bolt','slash','arrow'].includes(k))set(58,-10,.35,.42,.75);     // ninja dash finish
+else if(['mist','petal','feather','ice'].includes(k))set(28,30,-.3,.88,-.35);   // frozen low finish
 else if(['spiral','ring','wave'].includes(k))set(34,-42,.72,.55,.62);     // body-turn release
 else set(38,-28,.48,.5,.38);                                               // counter / star / shard
 p.crouch=lerp(p.crouch,.24,outK);return p;}
+function ultBodyOffset(st,side,s){const m=st.ultMove;if(!m)return{x:0,y:0};const t=performance.now()/1000-m.t;if(t<0||t>.72)return{x:0,y:0};const k=ultFxKind(m.u),p=P.clamp(t/.72,0,1),release=P.clamp((p-.46)/.34,0,1),fade=1-release;
+if(['bolt','slash','arrow'].includes(k))return{x:-side*42*s*Math.sin(Math.PI*p)*fade,y:0}; // low ninja run into the strike
+if(['meteor','flame','burst'].includes(k))return{x:-side*16*s*Math.sin(Math.PI*p),y:-78*s*Math.sin(Math.PI*Math.min(1,p/.78))*fade};
+if(['ice','mist','petal','feather'].includes(k))return{x:-side*10*s*Math.sin(Math.PI*p),y:8*s*Math.sin(Math.PI*p)};
+return{x:-side*18*s*Math.sin(Math.PI*p)*fade,y:-20*s*Math.sin(Math.PI*p)*fade};}
+function drawPlayerUltAction(){const m=me.ultMove;if(!m||!me.ultHand)return;const now=performance.now()/1000,t=now-m.t;if(t<0||t>.76)return;const u=m.u,k=ultFxKind(u),p=P.clamp(t/.76,0,1),fade=1-P.clamp((p-.72)/.28,0,1),hand=me.ultHand,c=`rgb(${u.rgb})`,ballPt=ball&&!ball.held?project(ball.x,ball.y,ball.z):{x:hand.x+playerSide*W*.22,y:hand.y-H*.1};ctx.save();ctx.globalAlpha=fade;ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowColor=c;ctx.shadowBlur=16;
+if(['bolt','slash','arrow'].includes(k)){ctx.strokeStyle=c;ctx.lineWidth=5;for(let i=0;i<4;i++){const q=i/4;ctx.globalAlpha=fade*(.7-q*.12);ctx.beginPath();ctx.moveTo(hand.x-playerSide*(30+i*18),hand.y+22+i*7);ctx.lineTo(hand.x-playerSide*(90+i*25),hand.y+30+i*10);ctx.stroke();}ctx.globalAlpha=fade;ctx.fillStyle='#dff8ff';ctx.beginPath();ctx.arc(hand.x,hand.y,10+8*p,0,Math.PI*2);ctx.fill();}
+else if(['meteor','burst'].includes(k)){ctx.strokeStyle=c;ctx.lineWidth=4;for(let i=0;i<7;i++){const a=i*Math.PI*2/7+p*4;ctx.beginPath();ctx.moveTo(hand.x,hand.y);ctx.lineTo(hand.x+Math.cos(a)*(28+32*p),hand.y+Math.sin(a)*(28+32*p));ctx.stroke();}}
+else if(k==='ice'||k==='mist'){ctx.fillStyle='rgba(185,244,255,.2)';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#bff6ff';ctx.lineWidth=3;for(let i=0;i<12;i++){const a=i*Math.PI/6+p*3,r=25+55*p;ctx.beginPath();ctx.moveTo(hand.x+Math.cos(a)*r,hand.y+Math.sin(a)*r);ctx.lineTo(hand.x+Math.cos(a)*(r+13),hand.y+Math.sin(a)*(r+13));ctx.stroke();}}
+else if(['flame','spiral','wave'].includes(k)){ctx.strokeStyle=c;ctx.lineWidth=9;ctx.globalAlpha=fade*.72;ctx.beginPath();ctx.moveTo(hand.x-playerSide*W*.26,hand.y+32);ctx.quadraticCurveTo(hand.x-playerSide*W*.06,hand.y+50,hand.x,hand.y+8);ctx.stroke();ctx.globalAlpha=fade;ctx.fillStyle='#fff3a1';ctx.beginPath();ctx.arc(lerp(hand.x,ballPt.x,P.clamp((p-.35)/.5,0,1)),lerp(hand.y,ballPt.y,P.clamp((p-.35)/.5,0,1)),8+12*p,0,Math.PI*2);ctx.fill();}
+else {ctx.strokeStyle=c;ctx.lineWidth=4;ctx.beginPath();ctx.arc(hand.x,hand.y,20+42*p,0,Math.PI*2);ctx.stroke();}
+ctx.restore();}
 // Coaching cue per stroke, shown after each hit so the player can copy the form.
 const GUIDE={
 loop:'루프 드라이브 · ① 무릎 굽히고 라켓을 공보다 낮게, 체중은 오른발 ② 골반을 돌리며 공 뒤를 위로 쓸기 ③ 라켓은 이마 앞까지, 체중은 왼발로',
@@ -2159,7 +2171,8 @@ if(st.taunt&&time-st.tauntT<1.6){const fz=Math.max(12,15*s),bx=x,by=hubY-62*s;ct
 
 function person(st,hipY,target,angle,look,s,type,face,side,stroke,since,prep=null,measureOnly=false){
 if(look.glass)return drawCannon(st,hipY,target,s,side,since);
-const arm=look.lefty?(hipY>H*.5?-1:1):side,T=st.tall||1,R=RACKETS[type],skin=look.skin||'#f2cda8',pants=look.pants,x=st.x,moving=P.clamp(Math.abs(st.vx)/160,0,1),dir=Math.sign(st.vx)||1;
+const arm=look.lefty?(hipY>H*.5?-1:1):side,T=st.tall||1,R=RACKETS[type],skin=look.skin||'#f2cda8',pants=look.pants,ultOffset=ultBodyOffset(st,side,s),x=st.x+ultOffset.x,moving=P.clamp(Math.abs(st.vx)/160,0,1),dir=Math.sign(st.vx)||1;
+hipY+=ultOffset.y;
 const pose=strokePose(stroke,since,side,s,{x:x+arm*15*s,y:hipY-50*s*T+st.crouch*18*s},target,angle,st.crouch,look,st.amp??1,st.dirX||0,prep,T);
 ultMotionPose(pose,st.ultMove,side,s);
 const cheer=st.cheerT!=null&&time-st.cheerT<1.2?Math.abs(Math.sin((time-st.cheerT)*8)):-1;   // won the point: jump with both arms up
@@ -2178,6 +2191,7 @@ const lean=P.clamp((pose.target.x-cx-side*40*s)/(70*s),-1,1);st.lean=lerp(st.lea
 const shoulder={x:ux+arm*15*s,y:hy-50*s*T},ang=pose.angle,racketScale=s*.78,d=(R.h+R.hl*.55)*racketScale,L=ARM_LEN*s*T;
 const want={x:pose.target.x-Math.sin(ang)*d,y:pose.target.y+Math.cos(ang)*d},adx=want.x-shoulder.x,ady=want.y-shoulder.y,alen=Math.hypot(adx,ady)||1,reach=Math.min(alen,L);
 const hand={x:shoulder.x+adx/alen*reach,y:shoulder.y+ady/alen*reach},tgt={x:hand.x+Math.sin(ang)*d,y:hand.y-Math.cos(ang)*d};
+st.ultHand=tgt;
 if(measureOnly)return tgt; // Preview trajectories meet the same clamped racket position as gameplay.
 const bend=Math.sqrt(Math.max(0,(L/2)**2-(reach/2)**2)),px=-ady/alen,py=adx/alen,flip=py<0?-1:1;   // elbow bends downward
 const elbow={x:(shoulder.x+hand.x)/2+px*bend*flip,y:(shoulder.y+hand.y)/2+py*bend*flip};
@@ -2387,7 +2401,7 @@ const chase=false;
 {const inc=!!(ball&&!ball.held&&ball.owner==='ai'&&me.waistY!=null),bp=chase?project(ball.x,ball.y,ball.z):null,hx=chase?bp.x:inc?project(ball.x,contactY(),.25).x:W/2,k=Math.min(1,cdt*(chase?7:inc?4:3));
 const pan=playerWaistAt(deepS)-playerWaistAt(0);cam.cx=lerp(cam.cx||W/2,inc||chase?hx:W/2,k);cam.cy=lerp((cam.cy||H*.62)-(cam.retreatPan||0),chase?bp.y:inc?playerWaistAt(0):H*.62,k)+pan;cam.retreatPan=pan;cam.ax=lerp(cam.ax||W/2,W/2,k);cam.ay=lerp(cam.ay||H*.62,chase?H*.45:inc?H*.5:H*.62,k);}
 cam.z=baseZ;ringK=1;
-const sk=Math.max(0,1-(time-shakeT)/.5)*10;ctx.save();ctx.translate(cam.ax+(Math.random()-.5)*sk,cam.ay+(Math.random()-.5)*sk);ctx.scale(cam.z,cam.z);ctx.translate(-cam.cx,-cam.cy);renderScene();ctx.restore();drawUltCutin();courtHud();}
+const sk=Math.max(0,1-(time-shakeT)/.5)*10;ctx.save();ctx.translate(cam.ax+(Math.random()-.5)*sk,cam.ay+(Math.random()-.5)*sk);ctx.scale(cam.z,cam.z);ctx.translate(-cam.cx,-cam.cy);renderScene();ctx.restore();courtHud();}
 const KIND_HINT={cut:'하회전 · 내려서 아래→위로 걸어 올리기',drive:'상회전 · 라켓 덮어서 맞드라이브 / 탭 블록',smash:'강타 · 드라이브 / 쇼트로 받기 (PERFECT 낮게 · GOOD 뜸)',spin:'회전 · 공 방향 보고 맞춰 치기',chance:'찬스볼 · 높이 뜬 공, 강하게 때리기!',kill:'찬스볼 강타 · PERFECT 낮게 · GREAT 보통 · GOOD 뜸',short:'짧은 공 · 가볍게 넘기기',serve:'서브 · 바운드 보고 받기'};
 function shotBanner(){const since=time-(net?net.opp.hitT:lastAIHit);if(!ball||ball.owner!=='ai'||ball.held||since<0||since>1.2)return;
 const kind=shotKind(ball),k=KIND[kind],a=since>.9?(1.2-since)/.3:1,pop=1+Math.max(0,.15-since)*3,fz=Math.round(Math.min(34,W*.06)*pop);
@@ -2485,6 +2499,7 @@ person(mate,mf.y-mate.legLen,{x:mate.x+sd*30*ms,y:mf.y-mate.legLen-20*ms},sd*.3,
 if(ball&&ball.owner==='ai'&&!ball.held&&!dblMine())pill('파트너 차례',mate.x,mf.y-mate.legLen-100*ms,'120,200,255',11);}   // 복식: my human partner
 if(view==='fp'){drawingPrep();me.free={x:W*.3,y:H*.86};racket(paddle.x,paddle.y,angle,racketType,playerSide*fhDir()>0?BLACK:RED,baseScale*1.25);}
 else person(me,myFeet.y-me.legLen,paddle,angle,fitLook(LOOKS[charType]),playerScale,racketType,playerSide*fhDir()>0?BLACK:RED,playerSide,mySwing.type,time-mySwing.t,drawingPrep());
+drawPlayerUltAction();
 if(ball&&!ball.held&&view!=='fp'){const q=project(ball.x,ball.y,ball.z);ctx.beginPath();ctx.arc(q.x,q.y,7*q.scale,0,Math.PI*2);ctx.fillStyle=glassBall()?'#cffafe40':gear.ball.color;ctx.shadowBlur=12;ctx.shadowColor='#ffffffb0';ctx.fill();ctx.shadowBlur=0;ctx.beginPath();ctx.arc(q.x-2*q.scale,q.y+1.5*q.scale,1.8*q.scale,0,Math.PI*2);ctx.fillStyle=gear.ball.dot;ctx.fill();timingRing(q);}   // keep the ball and its ring in front of me
 if(ball&&ball.owner==='ai'&&!ball.held&&ball.y<1.37&&view!=='fp'&&me.waistY!=null&&!(mode==='doubles'&&myTurn==='mate')){const t={x:me.x,y:me.waistY};ctx.save();ctx.setLineDash([6,5]);ctx.strokeStyle='#ffffff59';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(t.x-95,t.y);ctx.lineTo(t.x+95,t.y);ctx.stroke();ctx.setLineDash([]);ctx.font='bold 9px Arial';ctx.textAlign='left';ctx.fillStyle='#9fd3ffd0';ctx.fillText('↑ 들기 · 커트',t.x+99,t.y-4);ctx.fillStyle='#ffb36bd0';ctx.fillText('↓ 내리기 · 드라이브',t.x+99,t.y+11);ctx.restore();}
 if(me.holding){ctx.beginPath();ctx.arc(me.free.x,me.free.y-4*playerScale,6.5*playerScale,0,Math.PI*2);ctx.fillStyle=gear.ball.color;ctx.fill();ctx.strokeStyle='#ddaa6890';ctx.stroke();}}
