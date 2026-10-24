@@ -13,7 +13,7 @@ test('ultimate cut-in never pauses live physics', () => {
   const hold = html.slice(html.indexOf('const ULT_HOLD_MS='), html.indexOf('function fireUlt('));
   const frame = html.slice(html.indexOf('function frame(t)'), html.indexOf('requestAnimationFrame(frame);', html.indexOf('function frame(t)')) + 'requestAnimationFrame(frame);'.length) + '}';
   vm.runInNewContext(hold + frame + '\nholdUltimate(); frame(1100);', ctx);
-  assert.ok(updates > 0);
+assert.ok(updates > 0);
   vm.runInNewContext('holdUltimate(9000)', ctx);
   assert.equal(vm.runInNewContext('ultHoldUntil', ctx), 0);
 });
